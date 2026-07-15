@@ -6,27 +6,21 @@ const SCOPES        = 'https://www.googleapis.com/auth/drive https://www.googlea
 let tokenClient = null
 let _silentRefreshCallback = null
 
+import { pushTokenToStore, pullTokenFromStore } from './tokenStore.js'
+
 function getToken()   { return localStorage.getItem('g_token') }
 function saveToken(t) {
   localStorage.setItem('g_token', t)
-  // push to server so all browsers share the same token
-  fetch('/api/token', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ token: t }),
-  }).catch(() => {})
+  pushTokenToStore(t) // encrypted push to gist — fire and forget
 }
 export function clearToken() { localStorage.removeItem('g_token') }
 export function isConnected() { return !!getToken() }
 
-// On app boot, pull token from server if localStorage is empty
+// On app boot, pull token from gist if localStorage is empty
 export async function syncTokenFromServer() {
-  if (getToken()) return true   // already have one locally
-  try {
-    const r = await fetch('/api/token')
-    const { token } = await r.json()
-    if (token) { localStorage.setItem('g_token', token); return true }
-  } catch {}
+  if (getToken()) return true
+  const token = await pullTokenFromStore()
+  if (token) { localStorage.setItem('g_token', token); return true }
   return false
 }
 
