@@ -4,12 +4,31 @@ const SHEETS_FOLDER  = import.meta.env.VITE_DRIVE_SHEETS_FOLDER_ID
 const SCOPES        = 'https://www.googleapis.com/auth/drive https://www.googleapis.com/auth/spreadsheets'
 
 let tokenClient = null
-let _silentRefreshCallback = null  // set by initTokenClient, used to silently refresh
+let _silentRefreshCallback = null
 
 function getToken()   { return localStorage.getItem('g_token') }
-function saveToken(t) { localStorage.setItem('g_token', t) }
+function saveToken(t) {
+  localStorage.setItem('g_token', t)
+  // push to server so all browsers share the same token
+  fetch('/api/token', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ token: t }),
+  }).catch(() => {})
+}
 export function clearToken() { localStorage.removeItem('g_token') }
 export function isConnected() { return !!getToken() }
+
+// On app boot, pull token from server if localStorage is empty
+export async function syncTokenFromServer() {
+  if (getToken()) return true   // already have one locally
+  try {
+    const r = await fetch('/api/token')
+    const { token } = await r.json()
+    if (token) { localStorage.setItem('g_token', token); return true }
+  } catch {}
+  return false
+}
 
 export function initTokenClient(onToken) {
   if (!window.google) return
@@ -30,7 +49,6 @@ export function requestToken() {
   tokenClient?.requestAccessToken({ prompt: 'consent' })
 }
 
-// Silently refreshes without showing the Google popup (works if browser session is still active)
 export function silentRefresh() {
   return new Promise((resolve, reject) => {
     if (!window.google) return reject(new Error('Google not loaded'))
@@ -39,7 +57,7 @@ export function silentRefresh() {
       scope: SCOPES,
       callback: (res) => {
         if (res.access_token) {
-          saveToken(res.access_token)
+          saveToken(res.access_token)   // also pushes to server
           if (_silentRefreshCallback) _silentRefreshCallback(res.access_token)
           resolve(res.access_token)
         } else {
