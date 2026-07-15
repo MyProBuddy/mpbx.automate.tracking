@@ -40,7 +40,7 @@ function decrypt(b64) {
 async function gistGet() {
   const r    = await fetch(`https://api.github.com/gists/${GIST_ID}`, { headers: ghHeaders })
   const data = await r.json()
-  return data?.files?.[GIST_FILE]?.content || null
+  return { content: data?.files?.[GIST_FILE]?.content || null, files: Object.keys(data?.files || {}) }
 }
 
 async function gistSet(content) {
@@ -61,11 +61,17 @@ export default async function handler(req, res) {
 
   if (req.method === 'GET') {
     try {
-      const enc = await gistGet()
-      if (!enc || enc === 'empty') return res.json({ token: null })
-      const token = decrypt(enc)
-      return res.json({ token })
-    } catch { return res.json({ token: null }) }
+      const { content: enc, files } = await gistGet()
+      if (!enc) return res.json({ token: null, debug: { reason: 'no content in gist file', files, expectedFile: GIST_FILE, hasGistId: !!GIST_ID, hasGhToken: !!GH_TOKEN, hasEncKey: !!ENC_KEY } })
+      try {
+        const token = decrypt(enc)
+        return res.json({ token })
+      } catch (decryptErr) {
+        return res.json({ token: null, debug: { reason: 'decrypt failed', error: decryptErr.message, contentLength: enc.length, contentPreview: enc.slice(0, 30) } })
+      }
+    } catch (e) {
+      return res.json({ token: null, debug: { reason: 'gist fetch failed', error: e.message } })
+    }
   }
 
   if (req.method === 'POST') {
