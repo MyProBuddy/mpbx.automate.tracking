@@ -1,3 +1,5 @@
+import crypto from 'crypto'
+
 const GIST_ID  = process.env.VITE_GIST_ID
 const GH_TOKEN = process.env.VITE_GITHUB_TOKEN
 const ENC_KEY  = process.env.VITE_ENCRYPT_KEY
@@ -9,30 +11,28 @@ const ghHeaders = {
   'X-GitHub-Api-Version': '2022-11-28',
 }
 
-// ── AES-GCM via Node crypto ──────────────────────────────────────────────────
-
-const { subtle } = globalThis.crypto
-
-async function getKey() {
-  const raw = Buffer.from(ENC_KEY.padEnd(32).slice(0, 32))
-  return subtle.importKey('raw', raw, 'AES-GCM', false, ['encrypt', 'decrypt'])
+function getKey() {
+  return Buffer.from(ENC_KEY.padEnd(32).slice(0, 32))
 }
 
-async function encrypt(text) {
-  const key = await getKey()
-  const iv  = crypto.getRandomValues(new Uint8Array(12))
-  const enc = await subtle.encrypt({ name: 'AES-GCM', iv }, key, Buffer.from(text))
-  const buf = Buffer.concat([Buffer.from(iv), Buffer.from(enc)])
-  return buf.toString('base64')
+function encrypt(text) {
+  const key = getKey()
+  const iv = crypto.randomBytes(12)
+  const cipher = crypto.createCipheriv('aes-256-gcm', key, iv)
+  const encrypted = Buffer.concat([cipher.update(text, 'utf8'), cipher.final()])
+  const tag = cipher.getAuthTag()
+  return Buffer.concat([iv, tag, encrypted]).toString('base64')
 }
 
-async function decrypt(b64) {
+function decrypt(b64) {
   const buf = Buffer.from(b64, 'base64')
-  const iv  = buf.slice(0, 12)
-  const enc = buf.slice(12)
-  const key = await getKey()
-  const dec = await subtle.decrypt({ name: 'AES-GCM', iv }, key, enc)
-  return Buffer.from(dec).toString('utf8')
+  const iv = buf.slice(0, 12)
+  const tag = buf.slice(12, 28)
+  const encrypted = buf.slice(28)
+  const key = getKey()
+  const decipher = crypto.createDecipheriv('aes-256-gcm', key, iv)
+  decipher.setAuthTag(tag)
+  return Buffer.concat([decipher.update(encrypted), decipher.final()]).toString('utf8')
 }
 
 // ── Gist helpers ─────────────────────────────────────────────────────────────
@@ -63,7 +63,7 @@ export default async function handler(req, res) {
     try {
       const enc = await gistGet()
       if (!enc || enc === 'empty') return res.json({ token: null })
-      const token = await decrypt(enc)
+      const token = decrypt(enc)
       return res.json({ token })
     } catch { return res.json({ token: null }) }
   }
@@ -72,7 +72,7 @@ export default async function handler(req, res) {
     try {
       const { token } = req.body
       if (!token) return res.status(400).json({ error: 'missing token' })
-      const enc = await encrypt(token)
+      const enc = encrypt(token)
       await gistSet(enc)
       return res.json({ ok: true })
     } catch (e) { return res.status(500).json({ error: e.message }) }
