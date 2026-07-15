@@ -1,16 +1,17 @@
 import { createContext, useContext, useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { syncTokenFromServer } from './google.js'
+import { syncTokenFromServer, isConnected } from './google.js'
 
 const AuthContext = createContext(null)
 
 export function AuthProvider({ children }) {
   const [role, setRole] = useState(() => localStorage.getItem('wf_auth') || null)
+  const [googleConnected, setGoogleConnected] = useState(isConnected())
   const navigate = useNavigate()
 
   useEffect(() => {
-    // pull Google token from server on every app load so all browsers stay connected
-    syncTokenFromServer()
+    if (isConnected()) { setGoogleConnected(true); return }
+    syncTokenFromServer().then(found => { if (found) setGoogleConnected(true) })
   }, [])
 
   const login = (r) => {
@@ -25,8 +26,10 @@ export function AuthProvider({ children }) {
     navigate('/login')
   }
 
+  const setConnected = (val) => setGoogleConnected(val)
+
   return (
-    <AuthContext.Provider value={{ role, login, logout }}>
+    <AuthContext.Provider value={{ role, login, logout, googleConnected, setConnected }}>
       {children}
     </AuthContext.Provider>
   )

@@ -421,7 +421,7 @@ export default function Analytics() {
   const [book,            setBook]            = useState(null)
   const [loading,         setLoading]         = useState(false)
   const [error,           setError]           = useState('')
-  const [connected,       setConnected]       = useState(isConnected())
+  const { googleConnected: connected, setConnected } = useAuth()
   const [googleReady,     setGoogleReady]     = useState(false)
   const [period,          setPeriod]          = useState('all')
   const [query,           setQuery]           = useState('')

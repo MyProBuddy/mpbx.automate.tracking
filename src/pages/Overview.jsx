@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { T } from '../constants.js'
 import Nav from '../components/Nav.jsx'
-import { isConnected, listClientSheets, getSheetTabs, getSheetValues, initTokenClient, requestToken } from '../google.js'
+import { listClientSheets, getSheetTabs, getSheetValues, initTokenClient, requestToken } from '../google.js'
 import { useAuth } from '../AuthContext.jsx'
 
 const A     = T.accent
@@ -46,8 +46,7 @@ function StatCard({ label, value, color }) {
 
 export default function Overview() {
   const navigate    = useNavigate()
-  const { role }    = useAuth()
-  const [connected, setConnected]   = useState(isConnected())
+  const { role, googleConnected: connected, setConnected } = useAuth()
   const [googleReady, setGoogleReady] = useState(false)
   const [overview,  setOverview]    = useState([])
   const [alerts,    setAlerts]      = useState([])

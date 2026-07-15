@@ -102,7 +102,7 @@ function utcTimestamp() {
 export default function CompanyIntel() {
   const { role } = useAuth()
   const [googleReady, setGoogleReady] = useState(false)
-  const [connected, setConnected]     = useState(isConnected)
+  const { googleConnected: connected, setConnected } = useAuth()
 
   const [sheets, setSheets]           = useState([])
   const [sheetsLoading, setSheetsLoading] = useState(false)

@@ -197,7 +197,7 @@ export default function AddData() {
   const { role } = useAuth()
   const navigate = useNavigate()
   const [googleReady, setGoogleReady]     = useState(false)
-  const [connected, setConnected]         = useState(isConnected)
+  const { googleConnected: connected, setConnected } = useAuth()
   const [tab, setTab]                     = useState('new')   // 'new' | 'clients'
 
   // new client form
