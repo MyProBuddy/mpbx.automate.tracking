@@ -100,9 +100,8 @@ function utcTimestamp() {
 }
 
 export default function CompanyIntel() {
-  const { role } = useAuth()
+  const { role, googleConnected: connected, googleSyncing, setConnected } = useAuth()
   const [googleReady, setGoogleReady] = useState(false)
-  const { googleConnected: connected, setConnected } = useAuth()
 
   const [sheets, setSheets]           = useState([])
   const [sheetsLoading, setSheetsLoading] = useState(false)
@@ -217,9 +216,11 @@ export default function CompanyIntel() {
       <Nav title="Company Intel" backTo="/hub" extra={
         connected
           ? <><Badge color={T.green}>Google Connected</Badge>{role === 'superadmin' && <Btn onClick={disconnect} variant="ghost" small>Disconnect</Btn>}</>
-          : role === 'superadmin'
-            ? <Btn onClick={connect} disabled={!googleReady} small>Connect Google</Btn>
-            : <Badge color={T.red}>Google not connected — contact Super Admin</Badge>
+          : googleSyncing
+            ? null
+            : role === 'superadmin'
+              ? <Btn onClick={connect} disabled={!googleReady} small>Connect Google</Btn>
+              : <Badge color={T.red}>Google not connected — contact Super Admin</Badge>
       } />
 
       <div style={{ maxWidth: 1100, margin: '0 auto', padding: '40px 48px 80px' }}>

@@ -46,7 +46,7 @@ function StatCard({ label, value, color }) {
 
 export default function Overview() {
   const navigate    = useNavigate()
-  const { role, googleConnected: connected, setConnected } = useAuth()
+  const { role, googleConnected: connected, googleSyncing, setConnected } = useAuth()
   const [googleReady, setGoogleReady] = useState(false)
   const [overview,  setOverview]    = useState([])
   const [alerts,    setAlerts]      = useState([])
@@ -163,7 +163,7 @@ export default function Overview() {
   const thA = { ...th(false), background: '#FAFAFA' }
   const tdA = { ...td, fontSize: 12 }
 
-  const connectButton = !connected && role === 'superadmin' && (
+  const connectButton = !googleSyncing && !connected && role === 'superadmin' && (
     <button disabled={!googleReady} onClick={() => { initTokenClient(() => setConnected(true)); requestToken() }}
       style={{ height: 36, border: 0, borderRadius: 8, padding: '0 18px', background: INK, color: '#fff', cursor: 'pointer', fontFamily: SANS, fontWeight: 600, fontSize: 13 }}>
       Connect Google

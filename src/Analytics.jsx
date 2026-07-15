@@ -421,7 +421,7 @@ export default function Analytics() {
   const [book,            setBook]            = useState(null)
   const [loading,         setLoading]         = useState(false)
   const [error,           setError]           = useState('')
-  const { googleConnected: connected, setConnected } = useAuth()
+  const { googleConnected: connected, googleSyncing, setConnected } = useAuth()
   const [googleReady,     setGoogleReady]     = useState(false)
   const [period,          setPeriod]          = useState('all')
   const [query,           setQuery]           = useState('')
@@ -740,13 +740,13 @@ export default function Analytics() {
           <b style={{ fontSize: 14, letterSpacing: '-.01em' }}>Outreach Command Center</b>
         </div>
         <div style={{ display: 'flex', gap: 9, alignItems: 'center' }}>
-          {!connected && role === 'superadmin' && (
+          {!googleSyncing && !connected && role === 'superadmin' && (
             <button disabled={!googleReady} onClick={() => { initTokenClient(() => setConnected(true)); requestToken() }}
               style={{ height: 36, border: 0, borderRadius: 9, padding: '0 16px', background: INK, color: '#fff', cursor: 'pointer', fontFamily: FONT, fontWeight: 600, fontSize: 13 }}>
               Connect Google
             </button>
           )}
-          {!connected && role !== 'superadmin' && (
+          {!googleSyncing && !connected && role !== 'superadmin' && (
             <span style={{ fontSize: 12, color: '#DC2626', background: '#FEF2F2', borderRadius: 6, padding: '4px 10px', fontWeight: 600 }}>Google not connected — contact Super Admin</span>
           )}
           <select style={selectS} value={sheetId} onChange={e => { setSheetId(e.target.value); loadSheet(e.target.value) }}>

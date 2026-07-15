@@ -7,18 +7,23 @@ const AuthContext = createContext(null)
 export function AuthProvider({ children }) {
   const [role, setRole] = useState(() => localStorage.getItem('wf_auth') || null)
   const [googleConnected, setGoogleConnected] = useState(isConnected())
+  const [googleSyncing, setGoogleSyncing] = useState(!isConnected())
+
   const navigate = useNavigate()
 
   useEffect(() => {
-    if (isConnected()) { setGoogleConnected(true); return }
+    if (isConnected()) {
+      setGoogleConnected(true)
+      setGoogleSyncing(false)
+      return
+    }
     syncTokenFromServer().then(found => {
       if (found) {
-        console.log('[auth] token synced from server → googleConnected = true')
         setGoogleConnected(true)
-      } else {
-        console.log('[auth] no token on server')
       }
-    }).catch(e => console.error('[auth] sync error', e))
+    }).catch(() => {}).finally(() => {
+      setGoogleSyncing(false)
+    })
   }, [])
 
   const login = (r) => {
@@ -36,7 +41,7 @@ export function AuthProvider({ children }) {
   const setConnected = (val) => setGoogleConnected(val)
 
   return (
-    <AuthContext.Provider value={{ role, login, logout, googleConnected, setConnected }}>
+    <AuthContext.Provider value={{ role, login, logout, googleConnected, googleSyncing, setConnected }}>
       {children}
     </AuthContext.Provider>
   )

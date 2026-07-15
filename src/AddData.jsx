@@ -197,7 +197,7 @@ export default function AddData() {
   const { role } = useAuth()
   const navigate = useNavigate()
   const [googleReady, setGoogleReady]     = useState(false)
-  const { googleConnected: connected, setConnected } = useAuth()
+  const { googleConnected: connected, googleSyncing, setConnected } = useAuth()
   const [tab, setTab]                     = useState('new')   // 'new' | 'clients'
 
   // new client form
@@ -471,9 +471,11 @@ export default function AddData() {
       <Nav title="Add Data" backTo="/hub" extra={
         connected
           ? <><Badge color={T.green}>Google Connected</Badge>{role === 'superadmin' && <Btn onClick={disconnect} variant="ghost" small>Disconnect</Btn>}</>
-          : role === 'superadmin'
-            ? <Btn onClick={connect} disabled={!googleReady} small>Connect Google</Btn>
-            : <Badge color={T.red}>Google not connected — contact Super Admin</Badge>
+          : googleSyncing
+            ? null
+            : role === 'superadmin'
+              ? <Btn onClick={connect} disabled={!googleReady} small>Connect Google</Btn>
+              : <Badge color={T.red}>Google not connected — contact Super Admin</Badge>
       } />
 
       <div style={{ maxWidth: 1100, margin: '0 auto', padding: '40px 48px 80px' }}>
