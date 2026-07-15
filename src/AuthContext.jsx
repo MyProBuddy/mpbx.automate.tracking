@@ -11,7 +11,14 @@ export function AuthProvider({ children }) {
 
   useEffect(() => {
     if (isConnected()) { setGoogleConnected(true); return }
-    syncTokenFromServer().then(found => { if (found) setGoogleConnected(true) })
+    syncTokenFromServer().then(found => {
+      if (found) {
+        console.log('[auth] token synced from server → googleConnected = true')
+        setGoogleConnected(true)
+      } else {
+        console.log('[auth] no token on server')
+      }
+    }).catch(e => console.error('[auth] sync error', e))
   }, [])
 
   const login = (r) => {
