@@ -19,6 +19,7 @@ const SANS  = T.sans
 const parseDate = v => { if (!v) return null; const d = new Date(v); return isNaN(d) ? null : d }
 const parseList = v => String(v || '').replace(/^\[/, '').replace(/\]$/, '').split(',').map(s => parseDate(s.trim())).filter(Boolean)
 const asBool = v => ['1','true','yes','pending','escalated','active'].includes(String(v||'').trim().toLowerCase())
+const isToday = d => { if (!d) return false; const t = new Date(); return d.getFullYear()===t.getFullYear() && d.getMonth()===t.getMonth() && d.getDate()===t.getDate() }
 
 function Pill({ n, color }) {
   return (
@@ -29,6 +30,19 @@ function Pill({ n, color }) {
       background: color + '15', color,
       letterSpacing: '0.01em',
     }}>{n}</span>
+  )
+}
+
+function ReportRow({ icon, iconColor, label, value, detail }) {
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', gap: 16, padding: '14px 22px' }}>
+      <div style={{ width: 34, height: 34, borderRadius: 9, background: iconColor + '15', display: 'grid', placeItems: 'center', fontSize: 15, flexShrink: 0 }}>{icon}</div>
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '.06em', textTransform: 'uppercase', color: MUTED, marginBottom: 2 }}>{label}</div>
+        <div style={{ fontSize: 13, color: INK, fontFamily: SANS }}>{detail}</div>
+      </div>
+      <div style={{ fontSize: 26, fontWeight: 800, fontFamily: MONO, letterSpacing: '-0.03em', color: value > 0 ? iconColor : MUTED, flexShrink: 0 }}>{value}</div>
+    </div>
   )
 }
 
@@ -92,6 +106,7 @@ export default function Overview() {
           const stopReplyI  = fIdx(/not.?interested.?reply/i)
 
           let initialSent = 0, thisWeek = 0, f1 = 0, f2 = 0, f3 = 0, replies = 0
+          let todayInitial = 0, todayFollowup = 0, todayReplies = 0
           const found = []
 
           rows.forEach(row => {
@@ -106,6 +121,8 @@ export default function Overview() {
             const adminVal  = String(row[adminNotifI] || '').trim().toLowerCase()
             const escalated = asBool(escVal) || asBool(adminVal) || escVal === 'escalated'
             const stage     = countI >= 0 ? count : sentDates.length
+            const lastSent  = sentDates[sentDates.length - 1] || null
+            const replyDate = parseDate(replyVal)
 
             if (stage >= 1) initialSent++
             if (stage === 2) f1++
@@ -114,13 +131,17 @@ export default function Overview() {
             if (hasReply) replies++
             if (sentDates.some(d => d >= oneWeekAgo)) thisWeek++
 
+            if (stage === 1 && isToday(lastSent)) todayInitial++
+            if (stage >= 2 && isToday(lastSent)) todayFollowup++
+            if (isToday(replyDate)) todayReplies++
+
             if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
               found.push({ type: 'invalid_email', client: sheet.name, id, detail: email })
             if (escalated && !stopped)
               found.push({ type: 'escalation', client: sheet.name, id, detail: escVal || adminVal || 'active' })
           })
 
-          return { id: sheet.id, name: sheet.name, total: rows.length, initialSent, thisWeek, f1, f2, f3, replies, alerts: found }
+          return { id: sheet.id, name: sheet.name, total: rows.length, initialSent, thisWeek, f1, f2, f3, replies, todayInitial, todayFollowup, todayReplies, alerts: found }
         } catch {
           return { id: sheet.id, name: sheet.name, error: 'Failed to load', alerts: [] }
         }
@@ -133,14 +154,20 @@ export default function Overview() {
   }, [connected])
 
   const totals = overview.reduce((acc, r) => ({
-    total:       acc.total       + (r.total       || 0),
-    initialSent: acc.initialSent + (r.initialSent || 0),
-    thisWeek:    acc.thisWeek    + (r.thisWeek     || 0),
-    f1:          acc.f1          + (r.f1           || 0),
-    f2:          acc.f2          + (r.f2           || 0),
-    f3:          acc.f3          + (r.f3           || 0),
-    replies:     acc.replies     + (r.replies      || 0),
-  }), { total: 0, initialSent: 0, thisWeek: 0, f1: 0, f2: 0, f3: 0, replies: 0 })
+    total:         acc.total         + (r.total         || 0),
+    initialSent:   acc.initialSent   + (r.initialSent   || 0),
+    thisWeek:      acc.thisWeek      + (r.thisWeek       || 0),
+    f1:            acc.f1            + (r.f1             || 0),
+    f2:            acc.f2            + (r.f2             || 0),
+    f3:            acc.f3            + (r.f3             || 0),
+    replies:       acc.replies       + (r.replies        || 0),
+    todayInitial:  acc.todayInitial  + (r.todayInitial   || 0),
+    todayFollowup: acc.todayFollowup + (r.todayFollowup  || 0),
+    todayReplies:  acc.todayReplies  + (r.todayReplies   || 0),
+  }), { total: 0, initialSent: 0, thisWeek: 0, f1: 0, f2: 0, f3: 0, replies: 0, todayInitial: 0, todayFollowup: 0, todayReplies: 0 })
+
+  const todayClientsInitial  = overview.filter(r => (r.todayInitial  || 0) > 0).length
+  const todayClientsFollowup = overview.filter(r => (r.todayFollowup || 0) > 0).length
 
   const grouped = alerts.reduce((acc, a) => { (acc[a.type] = acc[a.type] || []).push(a); return acc }, {})
   const alertSections = [
@@ -208,6 +235,42 @@ export default function Overview() {
               <StatCard label="Followup 2"   value={totals.f2}          color={AMBER} />
               <StatCard label="Followup 3"   value={totals.f3}          color={AMBER} />
               <StatCard label="Replies"      value={totals.replies}     color={GREEN} />
+            </div>
+
+            {/* Today's Report */}
+            <div style={{ background: '#fff', borderRadius: 14, border: `1px solid ${LINE}`, overflow: 'hidden', boxShadow: '0 1px 6px rgba(0,0,0,0.05)', marginBottom: 28 }}>
+              <div style={{ padding: '14px 22px', borderBottom: `1px solid ${LINE}`, display: 'flex', alignItems: 'center', gap: 10, background: '#FAFAFA' }}>
+                <div style={{ width: 8, height: 8, borderRadius: '50%', background: GREEN, boxShadow: `0 0 0 3px ${GREEN}30` }} />
+                <span style={{ fontSize: 11, fontWeight: 800, letterSpacing: '.08em', textTransform: 'uppercase', color: MUTED, fontFamily: SANS }}>Today's Report</span>
+                <span style={{ fontSize: 11, color: MUTED, fontFamily: MONO, marginLeft: 'auto' }}>
+                  {new Date().toLocaleDateString('en-GB', { weekday: 'long', day: '2-digit', month: 'short', year: 'numeric' })}
+                </span>
+              </div>
+              <div style={{ padding: '6px 0' }}>
+                <ReportRow
+                  icon="✉"
+                  iconColor="#5B4AE8"
+                  label="New mail outreached"
+                  value={totals.todayInitial}
+                  detail={totals.todayInitial === 0 ? 'No initial emails sent today' : `${totals.todayInitial} sent today across ${todayClientsInitial} client${todayClientsInitial !== 1 ? 's' : ''}`}
+                />
+                <div style={{ height: 1, background: LINE, margin: '0 22px' }} />
+                <ReportRow
+                  icon="↩"
+                  iconColor={AMBER}
+                  label="Followups sent"
+                  value={totals.todayFollowup}
+                  detail={totals.todayFollowup === 0 ? 'No followups sent today' : `${totals.todayFollowup} sent today across ${todayClientsFollowup} client${todayClientsFollowup !== 1 ? 's' : ''}`}
+                />
+                <div style={{ height: 1, background: LINE, margin: '0 22px' }} />
+                <ReportRow
+                  icon="💬"
+                  iconColor={GREEN}
+                  label="Replies detected"
+                  value={totals.todayReplies}
+                  detail={totals.todayReplies === 0 ? 'No new replies today' : `${totals.todayReplies} new repl${totals.todayReplies !== 1 ? 'ies' : 'y'} received today`}
+                />
+              </div>
             </div>
 
             {/* Clients table */}
