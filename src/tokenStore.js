@@ -1,29 +1,41 @@
 export async function pushTokenToStore(token) {
   try {
-    const r = await fetch('/api/token', {
+    await fetch('/api/token', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ token }),
     })
-    const data = await r.json()
-    console.log('[tokenStore] push result:', data)
-  } catch (e) {
-    console.error('[tokenStore] push error:', e)
-  }
+  } catch {}
 }
 
 export async function pullTokenFromStore() {
   try {
-    console.log('[tokenStore] fetching /api/token ...')
     const r = await fetch('/api/token')
-    console.log('[tokenStore] response status:', r.status)
-    const text = await r.text()
-    console.log('[tokenStore] response body:', text)
-    const { token } = JSON.parse(text)
-    console.log('[tokenStore] token found:', !!token)
+    const { token } = await r.json()
     return token || null
-  } catch (e) {
-    console.error('[tokenStore] pull error:', e)
-    return null
-  }
+  } catch { return null }
+}
+
+export async function pushSessionToStore(role) {
+  try {
+    await fetch('/api/token?type=session', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ session: role }),
+    })
+  } catch {}
+}
+
+export async function pullSessionFromStore() {
+  try {
+    const r = await fetch('/api/token?type=session')
+    const { session } = await r.json()
+    return session || null
+  } catch { return null }
+}
+
+export async function clearSessionFromStore() {
+  try {
+    await fetch('/api/token?type=session', { method: 'DELETE' })
+  } catch {}
 }

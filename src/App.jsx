@@ -13,7 +13,8 @@ import Alerts             from './pages/Alerts.jsx'
 import Overview           from './pages/Overview.jsx'
 
 function Protected({ children }) {
-  const { role } = useAuth()
+  const { role, authSyncing } = useAuth()
+  if (authSyncing) return null
   return role ? children : <Navigate to="/login" replace />
 }
 

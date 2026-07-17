@@ -4,7 +4,8 @@ const GIST_ID  = process.env.VITE_GIST_ID
 const GH_TOKEN = process.env.VITE_GITHUB_TOKEN
 const ENC_KEY  = process.env.VITE_ENCRYPT_KEY
 
-const GIST_FILE = 'token.enc'
+const FILES = { token: 'token.enc', session: 'session.enc' }
+
 const ghHeaders = {
   Authorization: `Bearer ${GH_TOKEN}`,
   'Content-Type': 'application/json',
@@ -35,53 +36,62 @@ function decrypt(b64) {
   return Buffer.concat([decipher.update(encrypted), decipher.final()]).toString('utf8')
 }
 
-// ── Gist helpers ─────────────────────────────────────────────────────────────
-
-async function gistGet() {
-  const r    = await fetch(`https://api.github.com/gists/${GIST_ID}`, { headers: ghHeaders })
+async function gistGet(file) {
+  const r = await fetch(`https://api.github.com/gists/${GIST_ID}`, { headers: ghHeaders })
   const data = await r.json()
-  return { content: data?.files?.[GIST_FILE]?.content || null, files: Object.keys(data?.files || {}) }
+  return data?.files?.[file]?.content || null
 }
 
-async function gistSet(content) {
+async function gistSet(file, content) {
   await fetch(`https://api.github.com/gists/${GIST_ID}`, {
     method: 'PATCH',
     headers: ghHeaders,
-    body: JSON.stringify({ files: { [GIST_FILE]: { content } } }),
+    body: JSON.stringify({ files: { [file]: { content } } }),
   })
 }
 
-// ── Handler ──────────────────────────────────────────────────────────────────
-
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*')
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, DELETE, OPTIONS')
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type')
   if (req.method === 'OPTIONS') return res.status(200).end()
 
+  const type = req.query?.type === 'session' ? 'session' : 'token'
+  const file = FILES[type]
+  const field = type // 'token' or 'session'
+
   if (req.method === 'GET') {
     try {
-      const { content: enc, files } = await gistGet()
-      if (!enc) return res.json({ token: null, debug: { reason: 'no content in gist file', files, expectedFile: GIST_FILE, hasGistId: !!GIST_ID, hasGhToken: !!GH_TOKEN, hasEncKey: !!ENC_KEY } })
+      const enc = await gistGet(file)
+      if (!enc) return res.json({ [field]: null })
       try {
-        const token = decrypt(enc)
-        return res.json({ token })
-      } catch (decryptErr) {
-        return res.json({ token: null, debug: { reason: 'decrypt failed', error: decryptErr.message, contentLength: enc.length, contentPreview: enc.slice(0, 30) } })
+        return res.json({ [field]: decrypt(enc) })
+      } catch {
+        return res.json({ [field]: null })
       }
-    } catch (e) {
-      return res.json({ token: null, debug: { reason: 'gist fetch failed', error: e.message } })
+    } catch {
+      return res.json({ [field]: null })
     }
   }
 
   if (req.method === 'POST') {
     try {
-      const { token } = req.body
-      if (!token) return res.status(400).json({ error: 'missing token' })
-      const enc = encrypt(token)
-      await gistSet(enc)
+      const value = req.body?.[field]
+      if (!value) return res.status(400).json({ error: `missing ${field}` })
+      await gistSet(file, encrypt(value))
       return res.json({ ok: true })
-    } catch (e) { return res.status(500).json({ error: e.message }) }
+    } catch (e) {
+      return res.status(500).json({ error: e.message })
+    }
+  }
+
+  if (req.method === 'DELETE') {
+    try {
+      await gistSet(file, 'empty')
+      return res.json({ ok: true })
+    } catch (e) {
+      return res.status(500).json({ error: e.message })
+    }
   }
 
   res.status(405).end()
