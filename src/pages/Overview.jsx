@@ -65,11 +65,15 @@ export default function Overview() {
   const [overview,  setOverview]    = useState([])
   const [alerts,    setAlerts]      = useState([])
   const [loading,   setLoading]     = useState(false)
+  const [newRefreshToken, setNewRefreshToken] = useState('')
 
   useEffect(() => {
     const t = setInterval(() => {
       if (window.google) {
-        initTokenClient(() => setConnected(true))
+        initTokenClient(
+          () => setConnected(true),
+          (rt) => setNewRefreshToken(rt)
+        )
         setGoogleReady(true)
         clearInterval(t)
       }
@@ -191,7 +195,7 @@ export default function Overview() {
   const tdA = { ...td, fontSize: 12 }
 
   const connectButton = !googleSyncing && !connected && role === 'superadmin' && (
-    <button disabled={!googleReady} onClick={() => { initTokenClient(() => setConnected(true)); requestToken() }}
+    <button disabled={!googleReady} onClick={() => { initTokenClient(() => setConnected(true), (rt) => setNewRefreshToken(rt)); requestToken() }}
       style={{ height: 36, border: 0, borderRadius: 8, padding: '0 18px', background: INK, color: '#fff', cursor: 'pointer', fontFamily: SANS, fontWeight: 600, fontSize: 13 }}>
       Connect Google
     </button>
@@ -202,6 +206,13 @@ export default function Overview() {
       <Nav title="Overview" backTo="/hub" extra={connectButton} />
 
       <main style={{ maxWidth: 1280, margin: '0 auto', padding: '40px 48px 100px' }}>
+
+        {/* New Refresh Token display */}
+        {newRefreshToken && (
+          <div style={{ padding: '16px 20px', background: '#F0FDF4', border: `1px solid ${GREEN}30`, borderRadius: 10, fontSize: 13, color: GREEN, fontWeight: 500, marginBottom: 32 }}>
+            ✓ Google Account connected permanently. The authorization has been securely stored in your Gist and is now active for all users and browsers!
+          </div>
+        )}
 
         {/* Page title */}
         <div style={{ marginBottom: 32 }}>

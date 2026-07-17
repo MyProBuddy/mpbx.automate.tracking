@@ -8,9 +8,10 @@ export async function pushTokenToStore(token) {
   } catch {}
 }
 
-export async function pullTokenFromStore() {
+export async function pullTokenFromStore(forceRefresh = false) {
   try {
-    const r = await fetch('/api/token')
+    const url = forceRefresh ? '/api/token?refresh=true' : '/api/token'
+    const r = await fetch(url)
     const { token } = await r.json()
     return token || null
   } catch { return null }

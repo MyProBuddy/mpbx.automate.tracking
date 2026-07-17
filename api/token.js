@@ -4,7 +4,14 @@ const GIST_ID  = process.env.VITE_GIST_ID
 const GH_TOKEN = process.env.VITE_GITHUB_TOKEN
 const ENC_KEY  = process.env.VITE_ENCRYPT_KEY
 
-const FILES = { token: 'token.enc', session: 'session.enc' }
+const CLIENT_ID     = process.env.VITE_GOOGLE_CLIENT_ID
+const CLIENT_SECRET = process.env.VITE_GOOGLE_CLIENT_SECRET
+
+const FILES = {
+  token: 'token.enc',
+  session: 'session.enc',
+  refresh: 'refresh.enc'
+}
 
 const ghHeaders = {
   Authorization: `Bearer ${GH_TOKEN}`,
@@ -13,6 +20,7 @@ const ghHeaders = {
 }
 
 function getKey() {
+  if (!ENC_KEY) return Buffer.alloc(32)
   return Buffer.from(ENC_KEY.padEnd(32).slice(0, 32))
 }
 
@@ -37,17 +45,37 @@ function decrypt(b64) {
 }
 
 async function gistGet(file) {
+  if (!GIST_ID || !GH_TOKEN) return null
   const r = await fetch(`https://api.github.com/gists/${GIST_ID}`, { headers: ghHeaders })
   const data = await r.json()
   return data?.files?.[file]?.content || null
 }
 
 async function gistSet(file, content) {
+  if (!GIST_ID || !GH_TOKEN) return
   await fetch(`https://api.github.com/gists/${GIST_ID}`, {
     method: 'PATCH',
     headers: ghHeaders,
     body: JSON.stringify({ files: { [file]: { content } } }),
   })
+}
+
+async function getAccessTokenFromRefreshToken(refreshToken) {
+  const res = await fetch('https://oauth2.googleapis.com/token', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: new URLSearchParams({
+      client_id: CLIENT_ID,
+      client_secret: CLIENT_SECRET,
+      refresh_token: refreshToken,
+      grant_type: 'refresh_token',
+    }),
+  })
+  if (!res.ok) {
+    throw new Error(`Failed to refresh token: ${await res.text()}`)
+  }
+  const data = await res.json()
+  return data.access_token
 }
 
 export default async function handler(req, res) {
@@ -62,8 +90,36 @@ export default async function handler(req, res) {
 
   if (req.method === 'GET') {
     try {
+      // If we need a refresh of the Google Token
+      if (type === 'token' && req.query?.refresh === 'true') {
+        const encRefresh = await gistGet(FILES.refresh)
+        if (encRefresh) {
+          const refreshToken = decrypt(encRefresh)
+          const newAccessToken = await getAccessTokenFromRefreshToken(refreshToken)
+          if (newAccessToken) {
+            await gistSet(FILES.token, encrypt(newAccessToken))
+            return res.json({ token: newAccessToken })
+          }
+        }
+      }
+
       const enc = await gistGet(file)
-      if (!enc) return res.json({ [field]: null })
+      if (!enc) {
+        // Fallback: if token is missing but refresh token exists, fetch a new token
+        if (type === 'token') {
+          const encRefresh = await gistGet(FILES.refresh)
+          if (encRefresh) {
+            const refreshToken = decrypt(encRefresh)
+            const newAccessToken = await getAccessTokenFromRefreshToken(refreshToken)
+            if (newAccessToken) {
+              await gistSet(FILES.token, encrypt(newAccessToken))
+              return res.json({ token: newAccessToken })
+            }
+          }
+        }
+        return res.json({ [field]: null })
+      }
+
       try {
         return res.json({ [field]: decrypt(enc) })
       } catch {
@@ -76,6 +132,43 @@ export default async function handler(req, res) {
 
   if (req.method === 'POST') {
     try {
+      // Check if we are doing code exchange for Google OAuth
+      if (type === 'token' && req.body?.code) {
+        const code = req.body.code
+        const response = await fetch('https://oauth2.googleapis.com/token', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: new URLSearchParams({
+            code,
+            client_id: CLIENT_ID,
+            client_secret: CLIENT_SECRET,
+            redirect_uri: 'postmessage',
+            grant_type: 'authorization_code',
+          }),
+        })
+
+        if (!response.ok) {
+          return res.status(response.status).json({ error: await response.text() })
+        }
+
+        const data = await response.json()
+        
+        // Save the access token to the Gist
+        if (data.access_token) {
+          await gistSet(FILES.token, encrypt(data.access_token))
+        }
+
+        // Save the refresh token to the Gist if returned
+        if (data.refresh_token) {
+          await gistSet(FILES.refresh, encrypt(data.refresh_token))
+        }
+
+        return res.json({
+          token: data.access_token,
+          refresh_token: data.refresh_token,
+        })
+      }
+
       const value = req.body?.[field]
       if (!value) return res.status(400).json({ error: `missing ${field}` })
       await gistSet(file, encrypt(value))

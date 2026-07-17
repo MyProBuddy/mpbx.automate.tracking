@@ -24,15 +24,32 @@ export async function syncTokenFromServer() {
   return false
 }
 
-export function initTokenClient(onToken) {
+export function initTokenClient(onToken, onRefreshToken) {
   if (!window.google) return
-  tokenClient = window.google.accounts.oauth2.initTokenClient({
+  tokenClient = window.google.accounts.oauth2.initCodeClient({
     client_id: CLIENT_ID,
     scope: SCOPES,
-    callback: (res) => {
-      if (res.access_token) {
-        saveToken(res.access_token)
-        onToken(res.access_token)
+    ux_mode: 'popup',
+    callback: async (res) => {
+      if (res.code) {
+        try {
+          const r = await fetch('/api/token', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ code: res.code }),
+          })
+          if (!r.ok) throw new Error(await r.text())
+          const data = await r.json()
+          if (data.token) {
+            localStorage.setItem('g_token', data.token)
+            onToken(data.token)
+          }
+          if (data.refresh_token && onRefreshToken) {
+            onRefreshToken(data.refresh_token)
+          }
+        } catch (e) {
+          console.error('Error exchanging authorization code:', e)
+        }
       }
     },
   })
@@ -40,27 +57,19 @@ export function initTokenClient(onToken) {
 }
 
 export function requestToken() {
-  tokenClient?.requestAccessToken({ prompt: 'consent' })
+  tokenClient?.requestCode()
 }
 
-export function silentRefresh() {
-  return new Promise((resolve, reject) => {
-    if (!window.google) return reject(new Error('Google not loaded'))
-    const tc = window.google.accounts.oauth2.initTokenClient({
-      client_id: CLIENT_ID,
-      scope: SCOPES,
-      callback: (res) => {
-        if (res.access_token) {
-          saveToken(res.access_token)   // also pushes to server
-          if (_silentRefreshCallback) _silentRefreshCallback(res.access_token)
-          resolve(res.access_token)
-        } else {
-          reject(new Error('SILENT_REFRESH_FAILED'))
-        }
-      },
-    })
-    tc.requestAccessToken({ prompt: '' })
-  })
+export async function silentRefresh() {
+  try {
+    const token = await pullTokenFromStore(true)
+    if (token) {
+      localStorage.setItem('g_token', token)
+      if (_silentRefreshCallback) _silentRefreshCallback(token)
+      return token
+    }
+  } catch {}
+  throw new Error('SILENT_REFRESH_FAILED')
 }
 
 export function revokeToken() {
