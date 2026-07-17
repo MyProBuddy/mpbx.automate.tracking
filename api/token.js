@@ -85,6 +85,9 @@ export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end()
 
   const type = req.query?.type === 'session' ? 'session' : 'token'
+  if (type === 'session') {
+    return res.status(400).json({ error: 'Session syncing is disabled' })
+  }
   const file = FILES[type]
   const field = type // 'token' or 'session'
 
