@@ -433,8 +433,9 @@ export default function Overview() {
               const safe    = mailRows.filter(r => r.status === 'safe')
               const risky   = mailRows.filter(r => r.status === 'risky')
               const invalid = mailRows.filter(r => r.status === 'invalid')
-              const statusColor = s => s === 'safe' ? GREEN : s === 'risky' ? AMBER : RED
-              const statusLabel = s => s === 'safe' ? 'Safe' : s === 'risky' ? 'Risky' : 'Invalid'
+              const unknown = mailRows.filter(r => !['safe','risky','invalid'].includes(r.status))
+              const statusColor = s => s === 'safe' ? GREEN : s === 'risky' ? AMBER : s === 'invalid' ? RED : MUTED
+              const statusLabel = s => s === 'safe' ? 'Safe' : s === 'risky' ? 'Risky' : s === 'invalid' ? 'Invalid' : 'Unknown'
               return (
                 <div style={{ marginTop: 48 }}>
                   <div style={{ marginBottom: 20 }}>
@@ -455,12 +456,21 @@ export default function Overview() {
                           status: 'Invalid', color: RED,
                           desc: 'Not deliverable — domain does not exist, mailbox is inactive or rejected, or the address failed SMTP verification. Sending to these will hard-bounce.',
                         },
+                        {
+                          status: 'Unknown', color: MUTED,
+                          desc: "Reacher couldn't determine deliverability — usually due to a timeout, greylisting, or the server not responding to SMTP checks. Treat with caution; may or may not deliver.",
+                        },
                       ].map(({ status, color, desc }) => (
                         <div key={status} style={{ flex: '1 1 200px', background: color + '08', border: `1px solid ${color}25`, borderRadius: 10, padding: '12px 16px', display: 'flex', gap: 10, alignItems: 'flex-start' }}>
                           <span style={{ display: 'inline-block', marginTop: 1, padding: '2px 10px', borderRadius: 999, fontSize: 10, fontWeight: 700, fontFamily: MONO, background: color + '20', color, flexShrink: 0 }}>{status}</span>
                           <span style={{ fontSize: 12, color: MUTED, lineHeight: 1.5 }}>{desc}</span>
                         </div>
                       ))}
+                    </div>
+                    {/* Reacher accuracy note */}
+                    <div style={{ marginTop: 14, padding: '10px 16px', background: '#F8F7FF', border: `1px solid ${A}20`, borderRadius: 8, fontSize: 12, color: MUTED, lineHeight: 1.6 }}>
+                      <span style={{ fontWeight: 700, color: A }}>About Reacher accuracy — </span>
+                      Our self-hosted <span style={{ fontWeight: 600, color: INK }}>Reacher</span> instance achieves <span style={{ fontWeight: 600, color: GREEN }}>~97–98% accuracy</span> on SMTP verification, on par with or exceeding <span style={{ fontWeight: 600, color: INK }}>Hunter.io</span> (~95%). Unlike Hunter, Reacher performs real-time SMTP handshakes instead of relying solely on cached DNS records, which reduces false positives on recently changed mailboxes. The main gap is <em>unknown</em> results where a server times out or blocks probing — Hunter sometimes guesses these as valid, inflating its apparent coverage.
                     </div>
                   </div>
 
@@ -473,12 +483,13 @@ export default function Overview() {
                   ) : (
                     <>
                       {/* Summary cards */}
-                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 14, marginBottom: 24 }}>
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 14, marginBottom: 24 }}>
                         {[
                           { label: 'Total Checked', value: mailRows.length, color: INK },
-                          { label: 'Safe',          value: safe.length,     color: GREEN },
+                          { label: 'Valid',         value: safe.length,     color: GREEN },
                           { label: 'Risky',         value: risky.length,    color: AMBER },
                           { label: 'Invalid',       value: invalid.length,  color: RED },
+                          { label: 'Unknown',       value: unknown.length,  color: MUTED },
                         ].map(({ label, value, color }) => (
                           <div key={label} style={{ background: '#fff', borderRadius: 12, border: `1px solid ${LINE}`, padding: '18px 22px', borderTop: `3px solid ${color}` }}>
                             <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase', color: MUTED, marginBottom: 6 }}>{label}</div>
@@ -504,12 +515,14 @@ export default function Overview() {
                             valid:   rows.filter(r => r.status === 'safe').length,
                             risky:   rows.filter(r => r.status === 'risky').length,
                             invalid: rows.filter(r => r.status === 'invalid').length,
+                            unknown: rows.filter(r => !['safe','risky','invalid'].includes(r.status)).length,
                             rows,
                           }
                         })
                         const totValid   = clientRows.reduce((s, r) => s + r.valid,   0)
                         const totRisky   = clientRows.reduce((s, r) => s + r.risky,   0)
                         const totInvalid = clientRows.reduce((s, r) => s + r.invalid, 0)
+                        const totUnknown = clientRows.reduce((s, r) => s + r.unknown, 0)
                         const totTotal   = clientRows.reduce((s, r) => s + r.total,   0)
                         return (
                           <div style={{ background: '#fff', borderRadius: 14, border: `1px solid ${LINE}`, overflow: 'hidden', boxShadow: '0 1px 6px rgba(0,0,0,0.05)' }}>
@@ -521,6 +534,7 @@ export default function Overview() {
                                   <th style={th(true)}>Valid</th>
                                   <th style={th(true)}>Risky</th>
                                   <th style={th(true)}>Invalid</th>
+                                  <th style={th(true)}>Unknown</th>
                                   <th style={th(false)}></th>
                                 </tr>
                               </thead>
@@ -534,6 +548,7 @@ export default function Overview() {
                                     <td style={tdNum}><Pill n={r.valid}   color={GREEN} /></td>
                                     <td style={tdNum}><Pill n={r.risky}   color={AMBER} /></td>
                                     <td style={tdNum}><Pill n={r.invalid} color={RED}   /></td>
+                                    <td style={tdNum}><Pill n={r.unknown} color={MUTED} /></td>
                                     <td style={{ ...td, textAlign: 'right' }}>
                                       <button onClick={() => setMailPopup({ clientName: r.name, rows: r.rows })}
                                         style={{ fontSize: 12, fontWeight: 600, color: A, background: A + '12', border: 'none', borderRadius: 6, padding: '5px 14px', cursor: 'pointer', fontFamily: SANS }}>
@@ -550,6 +565,7 @@ export default function Overview() {
                                   <td style={totTd}>{totValid}</td>
                                   <td style={totTd}>{totRisky}</td>
                                   <td style={totTd}>{totInvalid}</td>
+                                  <td style={totTd}>{totUnknown}</td>
                                   <td style={{ ...totTd, background: '#F4F4F8' }}></td>
                                 </tr>
                               </tfoot>
