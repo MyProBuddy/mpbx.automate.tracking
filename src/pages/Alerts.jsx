@@ -113,7 +113,7 @@ export default function Alerts() {
   return (
     <div style={{ minHeight: '100vh', background: T.bg, fontFamily: FONT }}>
       <Nav title="Needs Attention" backTo="/hub" />
-      <main style={{ padding: '40px 32px 80px' }}>
+      <main style={{ maxWidth: 1100, margin: '0 auto', padding: '40px 34px 80px' }}>
         <div style={{ marginBottom: 32 }}>
           <div style={{ fontSize: 10, fontWeight: 800, letterSpacing: '.12em', color: RED, marginBottom: 6 }}>ATTENTION</div>
           <h1 style={{ fontSize: 28, fontWeight: 800, letterSpacing: '-0.03em', margin: '0 0 6px', color: INK }}>Items needing action</h1>

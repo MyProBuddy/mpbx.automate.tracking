@@ -223,7 +223,7 @@ export default function CompanyIntel() {
               : <Badge color={T.red}>Google not connected — contact Super Admin</Badge>
       } />
 
-      <div style={{ padding: '40px 32px 80px' }}>
+      <div style={{ maxWidth: 1100, margin: '0 auto', padding: '40px 48px 80px' }}>
 
         {/* Hero */}
         <div style={{ marginBottom: 36 }}>

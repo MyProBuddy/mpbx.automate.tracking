@@ -237,7 +237,7 @@ export default function Overview() {
     <div style={{ minHeight: '100vh', background: T.bg, fontFamily: SANS }}>
       <Nav title="Overview" backTo="/hub" extra={connectButton} />
 
-      <main style={{ padding: '40px 32px 100px' }}>
+      <main style={{ maxWidth: 1280, margin: '0 auto', padding: '40px 48px 100px' }}>
 
         {/* New Refresh Token display */}
         {newRefreshToken && (
