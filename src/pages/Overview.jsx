@@ -65,6 +65,8 @@ export default function Overview() {
   const [overview,  setOverview]    = useState([])
   const [alerts,    setAlerts]      = useState([])
   const [loading,   setLoading]     = useState(false)
+  const [mailRows,  setMailRows]    = useState([])
+  const [mailLoading, setMailLoading] = useState(false)
   const [newRefreshToken, setNewRefreshToken] = useState('')
 
   useEffect(() => {
@@ -155,6 +157,31 @@ export default function Overview() {
       setAlerts(results.flatMap(r => r.alerts || []))
       setLoading(false)
     }).catch(() => setLoading(false))
+  }, [connected])
+
+  const MAIL_VALIDATION_SHEET_ID = '1btrQftzrb_8cKwAs7WH1aTn0JGXES_coF56LEOmF44Y'
+
+  useEffect(() => {
+    if (!connected) return
+    setMailLoading(true)
+    getSheetValues(MAIL_VALIDATION_SHEET_ID, 'Sheet1!A1:D5000')
+      .then(values => {
+        if (!values.length) { setMailRows([]); setMailLoading(false); return }
+        const headers = values[0].map(v => String(v).trim().toLowerCase())
+        const sheetIdI = headers.findIndex(h => /google.?sheet.?id/i.test(h))
+        const invIdI   = headers.findIndex(h => /investor.?id/i.test(h))
+        const emailI   = headers.findIndex(h => /email/i.test(h))
+        const validI   = headers.findIndex(h => /is.?valid|valid/i.test(h))
+        const rows = values.slice(1).filter(r => r.some(Boolean)).map(r => ({
+          sheetId: String(r[sheetIdI] || '').trim(),
+          id:      String(r[invIdI]   || '').trim(),
+          email:   String(r[emailI]   || '').trim(),
+          status:  String(r[validI]   || '').trim().toLowerCase(),
+        }))
+        setMailRows(rows)
+      })
+      .catch(() => setMailRows([]))
+      .finally(() => setMailLoading(false))
   }, [connected])
 
   const totals = overview.reduce((acc, r) => ({
@@ -396,6 +423,83 @@ export default function Overview() {
                 })}
               </div>
             )}
+            {/* Mail Validation & Bounce Check */}
+            {(() => {
+              const safe    = mailRows.filter(r => r.status === 'safe')
+              const risky   = mailRows.filter(r => r.status === 'risky')
+              const invalid = mailRows.filter(r => r.status === 'invalid')
+              const statusColor = s => s === 'safe' ? GREEN : s === 'risky' ? AMBER : RED
+              const statusLabel = s => s === 'safe' ? 'Safe' : s === 'risky' ? 'Risky' : 'Invalid'
+              return (
+                <div style={{ marginTop: 48 }}>
+                  <div style={{ marginBottom: 20 }}>
+                    <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: '.1em', textTransform: 'uppercase', color: BLUE, marginBottom: 6 }}>Email Health</div>
+                    <h2 style={{ fontSize: 18, fontWeight: 700, letterSpacing: '-0.02em', margin: '0 0 4px', color: INK }}>Mail Validation & Bounce Check</h2>
+                    <p style={{ fontSize: 13, color: MUTED, margin: 0 }}>Validity status of investor emails across all campaigns.</p>
+                  </div>
+
+                  {mailLoading ? (
+                    <div style={{ padding: '40px 0', textAlign: 'center', color: MUTED, fontSize: 13 }}>Loading mail validation data…</div>
+                  ) : mailRows.length === 0 ? (
+                    <div style={{ background: '#fff', borderRadius: 12, border: `1px solid ${LINE}`, padding: '32px 24px', color: MUTED, fontSize: 13, textAlign: 'center' }}>
+                      No validation data found.
+                    </div>
+                  ) : (
+                    <>
+                      {/* Summary cards */}
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 14, marginBottom: 24 }}>
+                        {[
+                          { label: 'Total Checked', value: mailRows.length, color: INK },
+                          { label: 'Safe',          value: safe.length,     color: GREEN },
+                          { label: 'Risky',         value: risky.length,    color: AMBER },
+                          { label: 'Invalid',       value: invalid.length,  color: RED },
+                        ].map(({ label, value, color }) => (
+                          <div key={label} style={{ background: '#fff', borderRadius: 12, border: `1px solid ${LINE}`, padding: '18px 22px', borderTop: `3px solid ${color}` }}>
+                            <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase', color: MUTED, marginBottom: 6 }}>{label}</div>
+                            <div style={{ fontSize: 28, fontWeight: 800, letterSpacing: '-0.03em', color, fontFamily: MONO, lineHeight: 1 }}>{value}</div>
+                            {mailRows.length > 0 && <div style={{ fontSize: 11, color: MUTED, marginTop: 4 }}>{Math.round(value / mailRows.length * 100)}% of total</div>}
+                          </div>
+                        ))}
+                      </div>
+
+                      {/* Table */}
+                      <div style={{ background: '#fff', borderRadius: 14, border: `1px solid ${LINE}`, overflow: 'hidden', boxShadow: '0 1px 6px rgba(0,0,0,0.05)' }}>
+                        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                          <thead>
+                            <tr>
+                              <th style={th(false)}>Investor ID</th>
+                              <th style={th(false)}>Email</th>
+                              <th style={th(false)}>Status</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {mailRows.map((r, i) => (
+                              <tr key={i}
+                                onMouseEnter={e => e.currentTarget.style.background = '#FAFAFA'}
+                                onMouseLeave={e => e.currentTarget.style.background = ''}>
+                                <td style={{ ...td, fontFamily: MONO, fontSize: 12, color: MUTED }}>{r.id || '—'}</td>
+                                <td style={{ ...td, fontSize: 13 }}>{r.email || '—'}</td>
+                                <td style={td}>
+                                  <span style={{
+                                    display: 'inline-block', padding: '3px 12px', borderRadius: 999,
+                                    fontSize: 11, fontWeight: 700, fontFamily: MONO,
+                                    background: statusColor(r.status) + '18',
+                                    color: statusColor(r.status),
+                                    textTransform: 'capitalize',
+                                  }}>
+                                    {statusLabel(r.status)}
+                                  </span>
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </>
+                  )}
+                </div>
+              )
+            })()}
           </>
         )}
       </main>
