@@ -39,10 +39,47 @@ const OPTIONS = [
     desc: 'See a snapshot of all clients — total investors, emails sent, followups, and replies across every campaign.',
     items: ['All clients in one view', 'Followup stage breakdown', 'Replies and this week stats'],
   },
+  {
+    path: null,
+    color: T.muted, colorLight: T.bg,
+    label: 'COMING SOON', title: 'Data Workflows',
+    desc: 'Automated pipelines that enrich, validate, and sync your investor data across sources.',
+    items: ['Enrich investor records', 'Validate and deduplicate', 'Sync across sheets'],
+    disabled: true,
+  },
 ]
 
-export default function Hub() {
+function HubCard({ o }) {
   const navigate = useNavigate()
+  const [hov, setHov] = useState(false)
+  return (
+    <button
+      onClick={() => !o.disabled && navigate(o.path)}
+      onMouseEnter={() => setHov(true)}
+      onMouseLeave={() => setHov(false)}
+      style={{
+        background: T.surface, borderRadius: 14, padding: 32, textAlign: 'left',
+        border: `1.5px solid ${hov && !o.disabled ? o.color : T.border}`,
+        cursor: o.disabled ? 'default' : 'pointer', transition: 'border-color 0.15s',
+        display: 'flex', flexDirection: 'column', opacity: o.disabled ? 0.6 : 1,
+      }}
+    >
+      <div style={{ fontSize: 10, fontWeight: 700, color: o.color, letterSpacing: '0.1em', marginBottom: 16 }}>{o.label}</div>
+      <div style={{ fontSize: 22, fontWeight: 800, color: T.text, letterSpacing: '-0.03em', marginBottom: 10 }}>{o.title}</div>
+      <div style={{ fontSize: 13, color: T.muted, lineHeight: 1.6, marginBottom: 28 }}>{o.desc}</div>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginTop: 'auto' }}>
+        {o.items.map((item, i) => (
+          <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <div style={{ width: 5, height: 5, borderRadius: '50%', background: o.color, flexShrink: 0 }} />
+            <span style={{ fontSize: 12, color: T.muted }}>{item}</span>
+          </div>
+        ))}
+      </div>
+    </button>
+  )
+}
+
+export default function Hub() {
   return (
     <div style={{ minHeight: '100vh', background: T.bg, fontFamily: T.sans }}>
       <Nav title="Workflow Configurator" />
@@ -52,47 +89,8 @@ export default function Hub() {
           <div style={{ fontSize: 30, fontWeight: 800, letterSpacing: '-0.03em', color: T.text, marginBottom: 6 }}>What would you like to do?</div>
           <div style={{ fontSize: 13, color: T.muted, lineHeight: 1.6 }}>Choose an action to get started.</div>
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, maxWidth: 900, gridAutoRows: '1fr' }}>
-
-          {OPTIONS.map(o => {
-            const [hov, setHov] = useState(false)
-            return (
-              <button key={o.label} onClick={() => navigate(o.path)}
-                onMouseEnter={() => setHov(true)}
-                onMouseLeave={() => setHov(false)}
-                style={{
-                  background: T.surface, borderRadius: 14, padding: 32, textAlign: 'left',
-                  border: `1.5px solid ${hov ? o.color : T.border}`,
-                  cursor: 'pointer', transition: 'border-color 0.15s',
-                  display: 'flex', flexDirection: 'column',
-                }}
-              >
-                <div style={{ fontSize: 10, fontWeight: 700, color: o.color, letterSpacing: '0.1em', marginBottom: 16 }}>{o.label}</div>
-                <div style={{ fontSize: 22, fontWeight: 800, color: T.text, letterSpacing: '-0.03em', marginBottom: 10 }}>{o.title}</div>
-                <div style={{ fontSize: 13, color: T.muted, lineHeight: 1.6, marginBottom: 28 }}>{o.desc}</div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginTop: 'auto' }}>
-                  {o.items.map((item, i) => (
-                    <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                      <div style={{ width: 5, height: 5, borderRadius: '50%', background: o.color, flexShrink: 0 }} />
-                      <span style={{ fontSize: 12, color: T.muted }}>{item}</span>
-                    </div>
-                  ))}
-                </div>
-              </button>
-            )
-          })}
-        </div>
-
-        {/* Data Workflows */}
-        <div style={{ marginTop: 52, maxWidth: 900 }}>
-          <div style={{ marginBottom: 24 }}>
-            <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: '.1em', textTransform: 'uppercase', color: T.accent, marginBottom: 8 }}>Automation</div>
-            <div style={{ fontSize: 30, fontWeight: 800, letterSpacing: '-0.03em', color: T.text, marginBottom: 6 }}>Data Workflows</div>
-            <div style={{ fontSize: 13, color: T.muted, lineHeight: 1.6 }}>Automated pipelines that enrich, validate, and sync your investor data.</div>
-          </div>
-          <div style={{ background: T.surface, borderRadius: 14, border: `1.5px dashed ${T.border}`, padding: '48px 32px', textAlign: 'center' }}>
-            <div style={{ fontSize: 13, color: T.muted }}>Workflows coming soon.</div>
-          </div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 20, gridAutoRows: '1fr' }}>
+          {OPTIONS.map(o => <HubCard key={o.label} o={o} />)}
         </div>
       </div>
     </div>
