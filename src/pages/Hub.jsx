@@ -53,6 +53,7 @@ export default function Hub() {
           <div style={{ fontSize: 13, color: T.muted, lineHeight: 1.6 }}>Choose an action to get started.</div>
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, maxWidth: 900, gridAutoRows: '1fr' }}>
+
           {OPTIONS.map(o => {
             const [hov, setHov] = useState(false)
             return (
@@ -80,6 +81,18 @@ export default function Hub() {
               </button>
             )
           })}
+        </div>
+
+        {/* Data Workflows */}
+        <div style={{ marginTop: 52, maxWidth: 900 }}>
+          <div style={{ marginBottom: 24 }}>
+            <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: '.1em', textTransform: 'uppercase', color: T.accent, marginBottom: 8 }}>Automation</div>
+            <div style={{ fontSize: 30, fontWeight: 800, letterSpacing: '-0.03em', color: T.text, marginBottom: 6 }}>Data Workflows</div>
+            <div style={{ fontSize: 13, color: T.muted, lineHeight: 1.6 }}>Automated pipelines that enrich, validate, and sync your investor data.</div>
+          </div>
+          <div style={{ background: T.surface, borderRadius: 14, border: `1.5px dashed ${T.border}`, padding: '48px 32px', textAlign: 'center' }}>
+            <div style={{ fontSize: 13, color: T.muted }}>Workflows coming soon.</div>
+          </div>
         </div>
       </div>
     </div>
