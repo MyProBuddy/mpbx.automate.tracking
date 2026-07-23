@@ -65,8 +65,9 @@ export default function Overview() {
   const [overview,  setOverview]    = useState([])
   const [alerts,    setAlerts]      = useState([])
   const [loading,   setLoading]     = useState(false)
-  const [mailRows,  setMailRows]    = useState([])
+  const [mailRows,    setMailRows]    = useState([])
   const [mailLoading, setMailLoading] = useState(false)
+  const [mailPopup,   setMailPopup]   = useState(null) // { clientName, rows }
   const [newRefreshToken, setNewRefreshToken] = useState('')
 
   useEffect(() => {
@@ -466,39 +467,75 @@ export default function Overview() {
                         ))}
                       </div>
 
-                      {/* Table */}
-                      <div style={{ background: '#fff', borderRadius: 14, border: `1px solid ${LINE}`, overflow: 'hidden', boxShadow: '0 1px 6px rgba(0,0,0,0.05)' }}>
-                        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                          <thead>
-                            <tr>
-                              <th style={th(false)}>Investor ID</th>
-                              <th style={th(false)}>Email</th>
-                              <th style={th(false)}>Status</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {mailRows.map((r, i) => (
-                              <tr key={i}
-                                onMouseEnter={e => e.currentTarget.style.background = '#FAFAFA'}
-                                onMouseLeave={e => e.currentTarget.style.background = ''}>
-                                <td style={{ ...td, fontFamily: MONO, fontSize: 12, color: MUTED }}>{r.id || '—'}</td>
-                                <td style={{ ...td, fontSize: 13 }}>{r.email || '—'}</td>
-                                <td style={td}>
-                                  <span style={{
-                                    display: 'inline-block', padding: '3px 12px', borderRadius: 999,
-                                    fontSize: 11, fontWeight: 700, fontFamily: MONO,
-                                    background: statusColor(r.status) + '18',
-                                    color: statusColor(r.status),
-                                    textTransform: 'capitalize',
-                                  }}>
-                                    {statusLabel(r.status)}
-                                  </span>
-                                </td>
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
-                      </div>
+                      {/* Grouped by client table */}
+                      {(() => {
+                        const bySheet = {}
+                        mailRows.forEach(r => {
+                          if (!bySheet[r.sheetId]) bySheet[r.sheetId] = []
+                          bySheet[r.sheetId].push(r)
+                        })
+                        const clientRows = Object.entries(bySheet).map(([sheetId, rows]) => {
+                          const match = overview.find(o => o.id === sheetId)
+                          return {
+                            sheetId,
+                            name:    match?.name || sheetId,
+                            total:   rows.length,
+                            valid:   rows.filter(r => r.status === 'safe').length,
+                            risky:   rows.filter(r => r.status === 'risky').length,
+                            invalid: rows.filter(r => r.status === 'invalid').length,
+                            rows,
+                          }
+                        })
+                        const totValid   = clientRows.reduce((s, r) => s + r.valid,   0)
+                        const totRisky   = clientRows.reduce((s, r) => s + r.risky,   0)
+                        const totInvalid = clientRows.reduce((s, r) => s + r.invalid, 0)
+                        const totTotal   = clientRows.reduce((s, r) => s + r.total,   0)
+                        return (
+                          <div style={{ background: '#fff', borderRadius: 14, border: `1px solid ${LINE}`, overflow: 'hidden', boxShadow: '0 1px 6px rgba(0,0,0,0.05)' }}>
+                            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                              <thead>
+                                <tr>
+                                  <th style={th(false)}>Client</th>
+                                  <th style={th(true)}>Total</th>
+                                  <th style={th(true)}>Valid</th>
+                                  <th style={th(true)}>Risky</th>
+                                  <th style={th(true)}>Invalid</th>
+                                  <th style={th(false)}></th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {clientRows.map((r, i) => (
+                                  <tr key={i}
+                                    onMouseEnter={e => e.currentTarget.style.background = '#F6F5FF'}
+                                    onMouseLeave={e => e.currentTarget.style.background = ''}>
+                                    <td style={{ ...td, fontWeight: 600, color: A }}>{r.name}</td>
+                                    <td style={tdNum}>{r.total}</td>
+                                    <td style={tdNum}><Pill n={r.valid}   color={GREEN} /></td>
+                                    <td style={tdNum}><Pill n={r.risky}   color={AMBER} /></td>
+                                    <td style={tdNum}><Pill n={r.invalid} color={RED}   /></td>
+                                    <td style={{ ...td, textAlign: 'right' }}>
+                                      <button onClick={() => setMailPopup({ clientName: r.name, rows: r.rows })}
+                                        style={{ fontSize: 12, fontWeight: 600, color: A, background: A + '12', border: 'none', borderRadius: 6, padding: '5px 14px', cursor: 'pointer', fontFamily: SANS }}>
+                                        View all
+                                      </button>
+                                    </td>
+                                  </tr>
+                                ))}
+                              </tbody>
+                              <tfoot>
+                                <tr>
+                                  <td style={totLabel}>{clientRows.length} clients total</td>
+                                  <td style={totTd}>{totTotal}</td>
+                                  <td style={totTd}>{totValid}</td>
+                                  <td style={totTd}>{totRisky}</td>
+                                  <td style={totTd}>{totInvalid}</td>
+                                  <td style={{ ...totTd, background: '#F4F4F8' }}></td>
+                                </tr>
+                              </tfoot>
+                            </table>
+                          </div>
+                        )
+                      })()}
                     </>
                   )}
                 </div>
@@ -507,6 +544,60 @@ export default function Overview() {
           </>
         )}
       </main>
+
+      {/* Mail detail popup */}
+      {mailPopup && (
+        <div onClick={() => setMailPopup(null)} style={{
+          position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.45)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000,
+        }}>
+          <div onClick={e => e.stopPropagation()} style={{
+            background: '#fff', borderRadius: 16, width: '90%', maxWidth: 560,
+            maxHeight: '80vh', display: 'flex', flexDirection: 'column',
+            boxShadow: '0 24px 64px rgba(0,0,0,0.22)',
+          }}>
+            {/* Header */}
+            <div style={{ padding: '18px 24px', borderBottom: `1px solid ${LINE}`, display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
+              <div>
+                <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase', color: MUTED, marginBottom: 2 }}>Mail Validation</div>
+                <div style={{ fontSize: 15, fontWeight: 700, color: INK }}>{mailPopup.clientName}</div>
+              </div>
+              <button onClick={() => setMailPopup(null)} style={{ border: 'none', background: '#F3F4F6', borderRadius: 8, width: 32, height: 32, cursor: 'pointer', fontSize: 16, color: MUTED, display: 'grid', placeItems: 'center' }}>✕</button>
+            </div>
+            {/* Scrollable list */}
+            <div style={{ overflowY: 'auto', flex: 1 }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                <thead style={{ position: 'sticky', top: 0 }}>
+                  <tr>
+                    <th style={th(false)}>ID</th>
+                    <th style={th(false)}>Email</th>
+                    <th style={th(false)}>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {mailPopup.rows.map((r, i) => {
+                    const c = r.status === 'safe' ? GREEN : r.status === 'risky' ? AMBER : RED
+                    return (
+                      <tr key={i} onMouseEnter={e => e.currentTarget.style.background = '#FAFAFA'} onMouseLeave={e => e.currentTarget.style.background = ''}>
+                        <td style={{ ...tdA, fontFamily: MONO, fontSize: 11, color: MUTED }}>{r.id || '—'}</td>
+                        <td style={{ ...tdA, fontSize: 12 }}>{r.email || '—'}</td>
+                        <td style={tdA}>
+                          <span style={{ display: 'inline-block', padding: '3px 11px', borderRadius: 999, fontSize: 11, fontWeight: 700, fontFamily: MONO, background: c + '18', color: c, textTransform: 'capitalize' }}>
+                            {r.status || '—'}
+                          </span>
+                        </td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
+            </div>
+            <div style={{ padding: '12px 24px', borderTop: `1px solid ${LINE}`, fontSize: 12, color: MUTED, flexShrink: 0 }}>
+              {mailPopup.rows.length} emails total
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
