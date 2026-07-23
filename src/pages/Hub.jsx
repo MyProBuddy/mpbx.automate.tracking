@@ -83,7 +83,7 @@ export default function Hub() {
   return (
     <div style={{ minHeight: '100vh', background: T.bg, fontFamily: T.sans }}>
       <Nav title="Workflow Configurator" />
-      <div style={{ maxWidth: 1200, margin: '0 auto', padding: '40px 48px 80px' }}>
+      <div style={{ padding: '40px 32px 80px' }}>
         <div style={{ marginBottom: 44 }}>
           <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: '.1em', textTransform: 'uppercase', color: T.accent, marginBottom: 8 }}>Dashboard</div>
           <div style={{ fontSize: 30, fontWeight: 800, letterSpacing: '-0.03em', color: T.text, marginBottom: 6 }}>What would you like to do?</div>

@@ -758,7 +758,7 @@ export default function Analytics() {
       </header>
 
       {/* Main */}
-      <main style={{ maxWidth: 1440, margin: '0 auto', padding: '36px 34px 80px' }}>
+      <main style={{ padding: '36px 32px 80px' }}>
         {error && (
           <div style={{ padding: '12px 16px', background: '#FEF2F2', color: RED, border: `1px solid ${RED}30`, borderRadius: 10, marginBottom: 16, fontSize: 13 }}>{error}</div>
         )}

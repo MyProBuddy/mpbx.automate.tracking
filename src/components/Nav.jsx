@@ -21,7 +21,7 @@ export default function Nav({ title, subtitle, pendingCount, onDownload, status,
       background: T.surface,
       borderBottom: `1px solid ${T.border}`,
       position: 'sticky', top: 0, zIndex: 10,
-      padding: '0 40px', height: 48,
+      padding: '0 32px', height: 48,
       display: 'flex', alignItems: 'center', justifyContent: 'space-between',
       fontFamily: T.sans,
     }}>
