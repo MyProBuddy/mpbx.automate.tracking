@@ -164,7 +164,11 @@ export default function Overview() {
   useEffect(() => {
     if (!connected) return
     setMailLoading(true)
-    getSheetValues(MAIL_VALIDATION_SHEET_ID, 'Sheet1!A1:D5000')
+    getSheetTabs(MAIL_VALIDATION_SHEET_ID)
+      .then(tabs => {
+        const tab = tabs[0]?.title || 'Sheet1'
+        return getSheetValues(MAIL_VALIDATION_SHEET_ID, `${tab}!A1:D5000`)
+      })
       .then(values => {
         if (!values.length) { setMailRows([]); setMailLoading(false); return }
         const headers = values[0].map(v => String(v).trim().toLowerCase())
