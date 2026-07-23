@@ -440,7 +440,28 @@ export default function Overview() {
                   <div style={{ marginBottom: 20 }}>
                     <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: '.1em', textTransform: 'uppercase', color: BLUE, marginBottom: 6 }}>Email Health</div>
                     <h2 style={{ fontSize: 18, fontWeight: 700, letterSpacing: '-0.02em', margin: '0 0 4px', color: INK }}>Mail Validation & Bounce Check</h2>
-                    <p style={{ fontSize: 13, color: MUTED, margin: 0 }}>Validity status of investor emails across all campaigns.</p>
+                    <p style={{ fontSize: 13, color: MUTED, margin: '0 0 16px' }}>Validity status of investor emails across all campaigns.</p>
+                    <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+                      {[
+                        {
+                          status: 'Valid', color: GREEN,
+                          desc: 'Email address is deliverable — domain exists, mailbox is active, and our outreach tool confirmed it can receive mail safely.',
+                        },
+                        {
+                          status: 'Risky', color: AMBER,
+                          desc: 'Deliverable but flagged — typically a catch-all domain (accepts all mail), role-based address (info@, contact@), or a domain with low sender reputation. May bounce or go unread.',
+                        },
+                        {
+                          status: 'Invalid', color: RED,
+                          desc: 'Not deliverable — domain does not exist, mailbox is inactive or rejected, or the address failed SMTP verification. Sending to these will hard-bounce.',
+                        },
+                      ].map(({ status, color, desc }) => (
+                        <div key={status} style={{ flex: '1 1 200px', background: color + '08', border: `1px solid ${color}25`, borderRadius: 10, padding: '12px 16px', display: 'flex', gap: 10, alignItems: 'flex-start' }}>
+                          <span style={{ display: 'inline-block', marginTop: 1, padding: '2px 10px', borderRadius: 999, fontSize: 10, fontWeight: 700, fontFamily: MONO, background: color + '20', color, flexShrink: 0 }}>{status}</span>
+                          <span style={{ fontSize: 12, color: MUTED, lineHeight: 1.5 }}>{desc}</span>
+                        </div>
+                      ))}
+                    </div>
                   </div>
 
                   {mailLoading ? (
