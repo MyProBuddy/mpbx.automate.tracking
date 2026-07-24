@@ -723,8 +723,8 @@ export default function Analytics() {
   }, [dashboard, query])
 
   // ── shared styles ────────────────────────────────────────────────────────────
-  const shell   = { minHeight: '100vh', background: '#F7F7FB', color: INK, fontFamily: FONT }
-  const nav     = { height: 60, padding: '0 32px', background: '#fff', borderBottom: `1px solid ${LINE}`, display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'sticky', top: 0, zIndex: 20, boxShadow: '0 1px 0 #E5E7EB' }
+  const shell   = { minHeight: '100vh', color: INK, fontFamily: FONT }
+  const nav     = { height: 60, padding: '0 32px', background: 'rgba(232,230,237,0.52)', backdropFilter: 'blur(36px) saturate(150%)', WebkitBackdropFilter: 'blur(36px) saturate(150%)', borderBottom: '1px solid rgba(180,174,200,0.28)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'sticky', top: 0, zIndex: 20, boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.72)' }
   const grid12  = (cols) => ({ display: 'grid', gridTemplateColumns: cols, gap: 16, marginBottom: 16 })
   const kpiGrid = { display: 'grid', gridTemplateColumns: 'repeat(6,1fr)', gap: 12, marginBottom: 16 }
   const selectS = { height: 36, border: `1px solid ${LINE}`, borderRadius: 9, background: '#fff', padding: '0 12px', color: INK, fontFamily: FONT, fontSize: 13, outline: 'none', minWidth: 220 }

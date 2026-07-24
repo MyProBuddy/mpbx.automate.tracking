@@ -1,6 +1,6 @@
 export const T = {
-  bg:          'transparent',
-  surface:     'rgba(255,255,255,0.72)',
+  bg:          'rgba(245,245,250,0.55)',
+  surface:     'rgba(255,255,255,0.75)',
   border:      '#E6E6EE',
   text:        '#0D0D14',
   muted:       '#7C7C94',
