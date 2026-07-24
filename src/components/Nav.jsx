@@ -2,11 +2,19 @@ import { useNavigate } from 'react-router-dom'
 import { T, ROLE_META } from '../constants.js'
 import { useAuth } from '../AuthContext.jsx'
 
+const GRAD = 'linear-gradient(90deg, #C026D3, #F43F5E, #F97316)'
+
 function RoleBadge({ role }) {
   const m = ROLE_META[role]
   if (!m) return null
   return (
-    <span style={{ fontSize: 11, fontWeight: 700, background: m.light, color: m.color, borderRadius: 6, padding: '3px 10px', letterSpacing: '0.04em', fontFamily: T.sans }}>
+    <span style={{
+      fontSize: 10, fontWeight: 700, letterSpacing: '0.07em', textTransform: 'uppercase',
+      background: GRAD, color: '#fff',
+      borderRadius: 999, padding: '4px 13px',
+      boxShadow: '0 2px 10px rgba(168,85,247,0.3)',
+      whiteSpace: 'nowrap',
+    }}>
       {m.label}
     </span>
   )
@@ -17,27 +25,40 @@ export default function Nav({ title, subtitle, pendingCount, onDownload, status,
   const navigate = useNavigate()
 
   return (
-    <div style={{
-      background: T.surface,
-      borderBottom: `1px solid ${T.border}`,
-      position: 'sticky', top: 0, zIndex: 10,
-      padding: '0 40px', height: 48,
-      display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-      fontFamily: T.sans,
-    }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+    <nav className="mpbx-nav">
+
+      {/* Left — brand + page title */}
+      <div style={{ display: 'flex', alignItems: 'center' }}>
+        <img
+          src="https://myprobuddy.com/images/mpb.png"
+          alt="MPB"
+          style={{ width: 28, height: 28, objectFit: 'contain', marginRight: 9, filter: 'drop-shadow(0 2px 6px rgba(168,85,247,0.25))' }}
+        />
+        <span className="mpbx-brand-name">MPBX</span>
+        <span style={{ fontSize: 15, fontWeight: 400, letterSpacing: '-0.01em', color: 'rgba(60,50,80,0.72)', marginLeft: 1 }}>
+          tracking
+        </span>
+
+        {/* separator */}
+        <div style={{ width: 1, height: 18, background: 'rgba(120,110,150,0.18)', margin: '0 18px', flexShrink: 0 }} />
+
+        {/* back button or page title */}
         {backTo && (
-          <button onClick={() => navigate(backTo)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 13, color: T.accent, fontWeight: 500, padding: 0, fontFamily: T.sans }}>
+          <button
+            onClick={() => navigate(backTo)}
+            style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 12, fontWeight: 600, color: 'rgba(50,40,70,0.65)', padding: 0, fontFamily: 'inherit', marginRight: 12 }}
+          >
             ← Back
           </button>
         )}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <div style={{ width: 22, height: 22, background: T.accent, borderRadius: 6, flexShrink: 0 }} />
-          <span style={{ fontSize: 14, fontWeight: 700, color: T.text, letterSpacing: '-0.02em' }}>{title}</span>
-          {subtitle && <span style={{ fontSize: 12, color: T.faint }}>{subtitle}</span>}
-        </div>
+        <span style={{ fontSize: 12.5, fontWeight: 600, color: 'rgba(50,40,70,0.68)', letterSpacing: '-0.01em' }}>
+          {title}
+          {subtitle && <span style={{ fontWeight: 400, color: 'rgba(80,70,100,0.45)', marginLeft: 4 }}>{subtitle}</span>}
+        </span>
       </div>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+
+      {/* Right */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
         {pendingCount > 0 && (
           <span style={{ fontSize: 12, color: T.muted, background: T.accentLight, padding: '4px 12px', borderRadius: 6, fontWeight: 500 }}>
             {pendingCount} change{pendingCount > 1 ? 's' : ''}
@@ -45,24 +66,31 @@ export default function Nav({ title, subtitle, pendingCount, onDownload, status,
         )}
         {onDownload && (
           <button onClick={onDownload} style={{
-            padding: '8px 20px',
-            background: status === 'done' ? T.green : T.accent,
+            padding: '7px 18px',
+            background: status === 'done' ? '#16A34A' : GRAD,
             color: '#fff', border: 'none', borderRadius: 8,
-            fontSize: 13, fontWeight: 600, fontFamily: T.sans,
-            letterSpacing: '-0.01em', cursor: 'pointer', transition: 'background 0.2s',
+            fontSize: 12, fontWeight: 600, fontFamily: 'inherit',
+            letterSpacing: '-0.01em', cursor: 'pointer',
           }}>
             {status === 'done' ? '✓ Downloaded' : 'Download JSON'}
           </button>
         )}
         {extra}
         {role && <RoleBadge role={role} />}
-        <button onClick={logout} style={{
-          background: 'none', border: `1.5px solid ${T.border}`, borderRadius: 8,
-          padding: '6px 14px', fontSize: 12, color: T.muted, cursor: 'pointer', fontFamily: T.sans, fontWeight: 500,
-        }}>
+        <button
+          onClick={logout}
+          style={{
+            fontFamily: 'inherit', fontSize: 12, fontWeight: 500,
+            color: 'rgba(80,70,100,0.65)',
+            background: 'rgba(255,255,255,0.32)',
+            border: '1px solid rgba(160,150,190,0.22)',
+            borderRadius: 8, padding: '6px 15px',
+            cursor: 'pointer',
+          }}
+        >
           Sign out
         </button>
       </div>
-    </div>
+    </nav>
   )
 }
