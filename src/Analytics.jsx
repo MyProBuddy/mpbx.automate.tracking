@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import ReactECharts from 'echarts-for-react'
 import { listClientSheets, getSheetTabs, getSheetValues, isConnected, initTokenClient, requestToken } from './google.js'
 import { useAuth } from './AuthContext.jsx'
+import Nav from './components/Nav.jsx'
 
 // ── color tokens ───────────────────────────────────────────────────────────────
 const A     = '#5B4AE8'
@@ -731,31 +732,23 @@ export default function Analytics() {
 
   return (
     <div style={shell}>
-      {/* Nav */}
-      <header style={nav}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-          <button onClick={() => navigate('/hub')} style={{ border: 0, background: 'transparent', color: MUTED, cursor: 'pointer', fontFamily: FONT, fontSize: 13 }}>← Back</button>
-          <div style={{ width: 1, height: 20, background: LINE }} />
-          <div style={{ width: 30, height: 30, borderRadius: 9, background: INK, color: '#fff', display: 'grid', placeItems: 'center', fontWeight: 900, fontSize: 13 }}>O</div>
-          <b style={{ fontSize: 14, letterSpacing: '-.01em' }}>Outreach Command Center</b>
-        </div>
-        <div style={{ display: 'flex', gap: 9, alignItems: 'center' }}>
+      <Nav title="Analytics" backTo="/hub" extra={
+        <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
           {!googleSyncing && !connected && role === 'superadmin' && (
             <button disabled={!googleReady} onClick={() => { initTokenClient(() => setConnected(true)); requestToken() }}
-              style={{ height: 36, border: 0, borderRadius: 9, padding: '0 16px', background: INK, color: '#fff', cursor: 'pointer', fontFamily: FONT, fontWeight: 600, fontSize: 13 }}>
+              style={{ height: 32, border: 0, borderRadius: 8, padding: '0 14px', background: 'linear-gradient(90deg,#C026D3,#F43F5E)', color: '#fff', cursor: 'pointer', fontFamily: FONT, fontWeight: 600, fontSize: 12 }}>
               Connect Google
             </button>
           )}
           {!googleSyncing && !connected && role !== 'superadmin' && (
-            <span style={{ fontSize: 12, color: '#DC2626', background: '#FEF2F2', borderRadius: 6, padding: '4px 10px', fontWeight: 600 }}>Google not connected — contact Super Admin</span>
+            <span style={{ fontSize: 12, color: '#DC2626', background: '#FEF2F2', borderRadius: 6, padding: '4px 10px', fontWeight: 600 }}>Google not connected</span>
           )}
           <select style={selectS} value={sheetId} onChange={e => { setSheetId(e.target.value); loadSheet(e.target.value) }}>
             <option value="">Overview</option>
             {sheets.map(sheet => <option key={sheet.id} value={sheet.id}>{sheet.name}</option>)}
           </select>
-          <button onClick={logout} style={{ border: `1px solid ${LINE}`, borderRadius: 9, padding: '0 14px', height: 36, background: 'transparent', color: MUTED, cursor: 'pointer', fontFamily: FONT, fontSize: 12 }}>Sign out</button>
         </div>
-      </header>
+      } />
 
       {/* Main */}
       <main style={{ maxWidth: 1440, margin: '0 auto', padding: '36px 34px 80px' }}>
