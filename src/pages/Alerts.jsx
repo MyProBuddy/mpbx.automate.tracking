@@ -111,7 +111,7 @@ export default function Alerts() {
   const thS = { padding: '10px 16px', fontSize: 10, fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase', color: MUTED, borderBottom: `2px solid ${LINE}`, textAlign: 'left' }
 
   return (
-    <div style={{ minHeight: '100vh', background: T.bg, fontFamily: FONT }}>
+    <div style={{ minHeight: '100vh', fontFamily: FONT }}>
       <Nav title="Needs Attention" backTo="/hub" />
       <main style={{ maxWidth: 1100, margin: '0 auto', padding: '40px 34px 80px' }}>
         <div style={{ marginBottom: 32 }}>

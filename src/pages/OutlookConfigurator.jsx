@@ -79,7 +79,7 @@ export default function OutlookConfigurator() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', background: T.bg, fontFamily: T.sans, color: T.text }}>
+    <div style={{ minHeight: '100vh', fontFamily: T.sans, color: T.text }}>
       <Nav title="Outlook Outreach" subtitle="· configure" pendingCount={pendingCount} onDownload={generate} status={status} backTo="/workflow" />
       <div style={{ maxWidth: 1200, margin: '0 auto', padding: '40px 48px 80px' }}>
         <div style={{ marginBottom: 36 }}>

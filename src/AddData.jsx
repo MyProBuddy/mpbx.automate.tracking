@@ -466,7 +466,7 @@ export default function AddData() {
   const stepLabel = { form: null, creating: 'Creating folder…', uploading: 'Uploading files…', done: null }
 
   return (
-    <div style={{ minHeight: '100vh', background: T.bg, fontFamily: T.sans, color: T.text }}>
+    <div style={{ minHeight: '100vh', fontFamily: T.sans, color: T.text }}>
 
       <Nav title="Add Data" backTo="/hub" extra={
         connected

@@ -211,7 +211,7 @@ export default function CompanyIntel() {
   const dateCol   = colIdx(/date|time/i)
 
   return (
-    <div style={{ minHeight: '100vh', background: T.bg, fontFamily: T.sans, color: T.text }}>
+    <div style={{ minHeight: '100vh', fontFamily: T.sans, color: T.text }}>
 
       <Nav title="Company Intel" backTo="/hub" extra={
         connected

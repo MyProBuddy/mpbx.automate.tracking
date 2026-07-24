@@ -234,7 +234,7 @@ export default function Overview() {
   )
 
   return (
-    <div style={{ minHeight: '100vh', background: T.bg, fontFamily: SANS }}>
+    <div style={{ minHeight: '100vh', fontFamily: SANS }}>
       <Nav title="Overview" backTo="/hub" extra={connectButton} />
 
       <main style={{ maxWidth: 1280, margin: '0 auto', padding: '40px 48px 100px' }}>

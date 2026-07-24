@@ -81,7 +81,7 @@ function HubCard({ o }) {
 
 export default function Hub() {
   return (
-    <div style={{ minHeight: '100vh', background: T.bg, fontFamily: T.sans }}>
+    <div style={{ minHeight: '100vh', fontFamily: T.sans }}>
       <Nav title="Workflow Configurator" />
       <div style={{ maxWidth: 1200, margin: '0 auto', padding: '40px 48px 80px' }}>
         <div style={{ marginBottom: 44 }}>
