@@ -1,17 +1,14 @@
 import { useState } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
-import { useAuth } from '../AuthContext.jsx'
 
 const NAV_ITEMS = [
   { label: 'Overview',  path: '/n/overview' },
   { label: 'Analytics', path: '/n/analytics' },
   { label: 'Alerts',    path: '/n/alerts' },
   { label: 'Tools',     path: '/n/tools' },
-  { label: 'Settings',  path: '/n/settings' },
 ]
 
 export default function NNav() {
-  const { logout } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
   const activeLabel = NAV_ITEMS.find(i => location.pathname === i.path)?.label ?? ''
@@ -26,7 +23,6 @@ export default function NNav() {
       width: '100%',
       position: 'relative',
       zIndex: 10,
-      borderBottom: 'none',
     }}>
 
       {/* Logo */}
@@ -51,13 +47,13 @@ export default function NNav() {
           color: '#ca1b49',
         }}>x</span>
         <span style={{
-          fontSize: 13, fontWeight: 500, marginLeft: 6, letterSpacing: '0em',
+          fontSize: 13, fontWeight: 500, marginLeft: 6,
           background: 'linear-gradient(to right, #eb212c, #5e238d)',
           WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
         }}>Tracking</span>
       </div>
 
-      {/* Nav pills */}
+      {/* Nav pills + icon */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
 
         {NAV_ITEMS.map(item => {
@@ -79,8 +75,7 @@ export default function NNav() {
                 color: '#000',
                 borderRadius: 7,
                 background: isActive ? '#ffffff' : isHov ? '#e8e9e4' : '#f0f1ec',
-                boxShadow: 'none',
-                transition: 'background 0.15s, color 0.15s, box-shadow 0.15s',
+                transition: 'background 0.15s',
               }}
             >
               {item.label}
@@ -88,47 +83,28 @@ export default function NNav() {
           )
         })}
 
-        {/* Search */}
+        {/* Profile / account icon button — hexagon with inner circle */}
         <button
           style={{
             width: 34, height: 34,
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            background: hovered === '__search' ? 'rgba(0,0,0,0.06)' : 'rgba(0,0,0,0.04)',
+            background: hovered === '__profile' ? '#e8e9e4' : '#f0f1ec',
             border: 'none',
             borderRadius: 7,
             cursor: 'pointer',
             transition: 'background 0.15s',
             flexShrink: 0,
+            marginLeft: 2,
           }}
-          onMouseEnter={() => setHovered('__search')}
+          onMouseEnter={() => setHovered('__profile')}
           onMouseLeave={() => setHovered(null)}
         >
-          <svg width="14" height="14" viewBox="0 0 13 13" fill="none" stroke="#555" strokeWidth="1.5">
-            <circle cx="5.5" cy="5.5" r="4.5" />
-            <line x1="9" y1="9" x2="12" y2="12" strokeLinecap="round" />
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#555" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+            {/* hexagon */}
+            <path d="M12 2 L20.66 7 L20.66 17 L12 22 L3.34 17 L3.34 7 Z" />
+            {/* inner circle */}
+            <circle cx="12" cy="12" r="3.5" />
           </svg>
-        </button>
-
-        {/* Sign out */}
-        <button
-          onClick={logout}
-          style={{
-            marginLeft: 6,
-            padding: '7px 16px',
-            fontSize: 13, fontWeight: 500,
-            fontFamily: "'Urbanist', sans-serif",
-            letterSpacing: '-0.01em',
-            color: '#888',
-            background: 'transparent',
-            border: '1px solid rgba(0,0,0,0.13)',
-            borderRadius: 7,
-            cursor: 'pointer',
-            transition: 'background 0.15s, color 0.15s',
-          }}
-          onMouseEnter={e => { e.currentTarget.style.background = 'rgba(0,0,0,0.05)'; e.currentTarget.style.color = '#444' }}
-          onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#888' }}
-        >
-          Sign out
         </button>
       </div>
     </nav>
