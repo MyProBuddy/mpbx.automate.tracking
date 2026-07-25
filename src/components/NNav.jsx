@@ -42,12 +42,12 @@ export default function NNav() {
         }}
       >
         <span style={{
-          fontSize: 22, fontWeight: 700, letterSpacing: '-0.03em',
+          fontSize: 25, fontWeight: 700, letterSpacing: '-0.03em',
           background: 'linear-gradient(to right, #f87711, #d21e40)',
           WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
         }}>MPB</span>
         <span style={{
-          fontSize: 22, fontWeight: 400, letterSpacing: '-0.03em',
+          fontSize: 25, fontWeight: 400, letterSpacing: '-0.03em',
           color: '#ca1b49',
         }}>x</span>
         <span style={{
@@ -76,10 +76,10 @@ export default function NNav() {
                 fontWeight: isActive ? 600 : 500,
                 letterSpacing: '-0.01em',
                 textDecoration: 'none',
-                color: isActive ? '#111' : isHov ? '#222' : '#555',
+                color: '#000',
                 borderRadius: 7,
-                background: isActive ? '#ffffff' : isHov ? 'rgba(0,0,0,0.05)' : 'transparent',
-                boxShadow: isActive ? '0 1px 4px rgba(0,0,0,0.1), 0 0 0 1px rgba(0,0,0,0.07)' : 'none',
+                background: isActive ? '#ffffff' : isHov ? '#e8e9e4' : '#f0f1ec',
+                boxShadow: isActive ? '0 1px 4px rgba(0,0,0,0.1)' : 'none',
                 transition: 'background 0.15s, color 0.15s, box-shadow 0.15s',
               }}
             >
@@ -87,14 +87,6 @@ export default function NNav() {
             </a>
           )
         })}
-
-        {/* Divider */}
-        <div style={{
-          width: 1, height: 18,
-          background: 'rgba(0,0,0,0.12)',
-          margin: '0 12px',
-          flexShrink: 0,
-        }} />
 
         {/* Search */}
         <button
