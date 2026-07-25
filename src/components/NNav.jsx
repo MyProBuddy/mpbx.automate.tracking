@@ -14,51 +14,52 @@ export default function NNav() {
   const { logout } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
-  const activeLabel = NAV_ITEMS.find(i => location.pathname === i.path)?.label ?? 'Overview'
+  const activeLabel = NAV_ITEMS.find(i => location.pathname === i.path)?.label ?? ''
   const [hovered, setHovered] = useState(null)
 
   return (
     <nav style={{
       display: 'flex',
       alignItems: 'center',
-      padding: '20px 40px',
+      height: 58,
+      padding: '0 44px',
       width: '100%',
       position: 'relative',
       zIndex: 10,
+      borderBottom: '1px solid rgba(0,0,0,0.06)',
     }}>
 
-      {/* Logo */}
+      {/* Logo — 16px matches SaaS standard (Linear, Notion). "Tracking" at 11px acts as a sub-label */}
       <div
         onClick={() => navigate('/home')}
-        style={{ marginRight: 'auto', cursor: 'pointer', display: 'flex', alignItems: 'baseline', gap: 1 }}
+        style={{
+          marginRight: 'auto',
+          cursor: 'pointer',
+          display: 'flex',
+          alignItems: 'baseline',
+          gap: 0,
+          userSelect: 'none',
+        }}
       >
         <span style={{
-          fontSize: 24, fontWeight: 600,
+          fontSize: 16, fontWeight: 700, letterSpacing: '-0.03em',
           background: 'linear-gradient(to right, #f87711, #d21e40)',
           WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
         }}>MPB</span>
-        <span style={{ fontSize: 24, fontWeight: 400, color: '#ca1b49' }}>x</span>
         <span style={{
-          fontSize: 15, fontWeight: 400, marginLeft: 4,
+          fontSize: 16, fontWeight: 400, letterSpacing: '-0.03em',
+          color: '#ca1b49',
+        }}>x</span>
+        <span style={{
+          fontSize: 11, fontWeight: 500, marginLeft: 5, letterSpacing: '0.01em',
           background: 'linear-gradient(to right, #eb212c, #5e238d)',
           WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
+          opacity: 0.85,
         }}>Tracking</span>
       </div>
 
-      {/* Nav items */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-
-        {/* Search */}
-        <div style={{
-          width: 27, height: 19,
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          background: '#f0f1ec', borderRadius: 4, cursor: 'pointer',
-        }}>
-          <svg width="12" height="12" viewBox="0 0 13 13" fill="none" stroke="#555" strokeWidth="1.5">
-            <circle cx="5.5" cy="5.5" r="4.5" />
-            <line x1="9" y1="9" x2="12" y2="12" strokeLinecap="round" />
-          </svg>
-        </div>
+      {/* Nav group */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 2 }}>
 
         {NAV_ITEMS.map(item => {
           const isActive = activeLabel === item.label
@@ -71,14 +72,16 @@ export default function NNav() {
               onMouseEnter={() => setHovered(item.label)}
               onMouseLeave={() => setHovered(null)}
               style={{
-                padding: '5px 16px',
+                padding: '6px 14px',
                 fontSize: 13,
-                fontWeight: isActive ? 600 : 400,
+                fontWeight: isActive ? 600 : 500,
+                letterSpacing: '-0.01em',
                 textDecoration: 'none',
-                color: '#000',
-                borderRadius: 4,
-                background: isActive ? '#ffffff' : isHov ? '#e8e9e4' : '#f0f1ec',
-                transition: 'background 0.2s',
+                color: isActive ? '#111' : isHov ? '#222' : '#555',
+                borderRadius: 6,
+                background: isActive ? '#ffffff' : isHov ? 'rgba(0,0,0,0.04)' : 'transparent',
+                boxShadow: isActive ? '0 1px 3px rgba(0,0,0,0.09), 0 0 0 1px rgba(0,0,0,0.06)' : 'none',
+                transition: 'background 0.15s, color 0.15s, box-shadow 0.15s',
               }}
             >
               {item.label}
@@ -86,23 +89,53 @@ export default function NNav() {
           )
         })}
 
+        {/* Divider */}
+        <div style={{
+          width: 1, height: 16,
+          background: 'rgba(0,0,0,0.12)',
+          margin: '0 10px',
+          flexShrink: 0,
+        }} />
+
+        {/* Search */}
+        <button
+          style={{
+            width: 30, height: 30,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            background: hovered === '__search' ? 'rgba(0,0,0,0.06)' : 'rgba(0,0,0,0.04)',
+            border: 'none',
+            borderRadius: 6,
+            cursor: 'pointer',
+            transition: 'background 0.15s',
+            flexShrink: 0,
+          }}
+          onMouseEnter={() => setHovered('__search')}
+          onMouseLeave={() => setHovered(null)}
+        >
+          <svg width="13" height="13" viewBox="0 0 13 13" fill="none" stroke="#555" strokeWidth="1.5">
+            <circle cx="5.5" cy="5.5" r="4.5" />
+            <line x1="9" y1="9" x2="12" y2="12" strokeLinecap="round" />
+          </svg>
+        </button>
+
         {/* Sign out */}
         <button
           onClick={logout}
           style={{
-            marginLeft: 4,
-            padding: '5px 14px',
-            fontSize: 13, fontWeight: 400,
+            marginLeft: 6,
+            padding: '6px 13px',
+            fontSize: 12, fontWeight: 500,
             fontFamily: "'Urbanist', sans-serif",
+            letterSpacing: '-0.01em',
             color: '#888',
             background: 'transparent',
-            border: '1px solid rgba(0,0,0,0.12)',
-            borderRadius: 4,
+            border: '1px solid rgba(0,0,0,0.13)',
+            borderRadius: 6,
             cursor: 'pointer',
-            transition: 'background 0.2s',
+            transition: 'background 0.15s, color 0.15s',
           }}
-          onMouseEnter={e => e.currentTarget.style.background = '#f0f1ec'}
-          onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+          onMouseEnter={e => { e.currentTarget.style.background = 'rgba(0,0,0,0.05)'; e.currentTarget.style.color = '#444' }}
+          onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#888' }}
         >
           Sign out
         </button>
