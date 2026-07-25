@@ -14,6 +14,20 @@ import Alerts              from './pages/Alerts.jsx'
 import Overview            from './pages/Overview.jsx'
 import Home                from './pages/Home.jsx'
 
+// /n/* stub — renders a blank page with the Home nav until each section is built
+function NSectionStub({ title }) {
+  return (
+    <div style={{
+      fontFamily: "'Urbanist', sans-serif",
+      minHeight: '100vh',
+      background: 'linear-gradient(135deg, #ffffff 0%, #ffebda 100%)',
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
+    }}>
+      <p style={{ fontSize: 15, color: '#7C7C94' }}>{title} — coming soon</p>
+    </div>
+  )
+}
+
 function Protected({ children }) {
   const { role, authSyncing } = useAuth()
   if (authSyncing) return null
@@ -34,6 +48,12 @@ function AppRoutes() {
       <Route path="/alerts"           element={<Protected><Alerts /></Protected>} />
       <Route path="/overview"         element={<Protected><Overview /></Protected>} />
       <Route path="/home"             element={<Protected><Home /></Protected>} />
+      {/* New /n/* routes — independent from old pages */}
+      <Route path="/n/overview"  element={<Protected><NSectionStub title="Overview" /></Protected>} />
+      <Route path="/n/analytics" element={<Protected><NSectionStub title="Analytics" /></Protected>} />
+      <Route path="/n/alerts"    element={<Protected><NSectionStub title="Alerts" /></Protected>} />
+      <Route path="/n/tools"     element={<Protected><NSectionStub title="Tools" /></Protected>} />
+      <Route path="/n/settings"  element={<Protected><NSectionStub title="Settings" /></Protected>} />
       <Route path="*" element={<Navigate to="/hub" replace />} />
     </Routes>
   )
