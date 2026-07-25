@@ -13,17 +13,33 @@ import CompanyIntel        from './CompanyIntel.jsx'
 import Alerts              from './pages/Alerts.jsx'
 import Overview            from './pages/Overview.jsx'
 import Home                from './pages/Home.jsx'
+import NNav               from './components/NNav.jsx'
 
-// /n/* stub — renders a blank page with the Home nav until each section is built
+// /n/* stub — uses NNav, independent from old pages
 function NSectionStub({ title }) {
   return (
     <div style={{
       fontFamily: "'Urbanist', sans-serif",
       minHeight: '100vh',
       background: 'linear-gradient(135deg, #ffffff 0%, #ffebda 100%)',
-      display: 'flex', alignItems: 'center', justifyContent: 'center',
+      position: 'relative',
+      overflow: 'hidden',
     }}>
-      <p style={{ fontSize: 15, color: '#7C7C94' }}>{title} — coming soon</p>
+      <div style={{
+        position: 'absolute', top: '50%', left: '50%',
+        transform: 'translate(-50%, -50%)',
+        width: 600, height: 600, pointerEvents: 'none',
+        background: 'radial-gradient(circle, rgba(126,108,212,0.2) 0%, rgba(255,255,255,0) 70%)',
+      }} />
+      <NNav />
+      <div style={{
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        paddingTop: 120, position: 'relative', zIndex: 1,
+      }}>
+        <p style={{ fontSize: 15, color: '#7C7C94', fontFamily: "'Urbanist', sans-serif" }}>
+          {title} — coming soon
+        </p>
+      </div>
     </div>
   )
 }
