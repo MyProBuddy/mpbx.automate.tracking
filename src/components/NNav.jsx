@@ -25,11 +25,11 @@ export default function NNav() {
       zIndex: 10,
     }}>
 
-      {/* Logo */}
+      {/* Left — Logo */}
       <div
         onClick={() => navigate('/home')}
         style={{
-          marginRight: 'auto',
+          flex: 1,
           cursor: 'pointer',
           display: 'flex',
           alignItems: 'baseline',
@@ -53,9 +53,8 @@ export default function NNav() {
         }}>Tracking</span>
       </div>
 
-      {/* Nav pills + icon */}
+      {/* Centre — Nav pills */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-
         {NAV_ITEMS.map(item => {
           const isActive = activeLabel === item.label
           const isHov = hovered === item.label
@@ -82,6 +81,10 @@ export default function NNav() {
             </a>
           )
         })}
+      </div>
+
+      {/* Right — icon buttons */}
+      <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 6 }}>
 
         {/* Search */}
         <button
@@ -89,12 +92,8 @@ export default function NNav() {
             width: 34, height: 34,
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             background: hovered === '__search' ? '#e8e9e4' : '#f0f1ec',
-            border: 'none',
-            borderRadius: 7,
-            cursor: 'pointer',
-            transition: 'background 0.15s',
-            flexShrink: 0,
-            marginLeft: 2,
+            border: 'none', borderRadius: 7, cursor: 'pointer',
+            transition: 'background 0.15s', flexShrink: 0,
           }}
           onMouseEnter={() => setHovered('__search')}
           onMouseLeave={() => setHovered(null)}
@@ -105,26 +104,20 @@ export default function NNav() {
           </svg>
         </button>
 
-        {/* Profile / account icon button — hexagon with inner circle */}
+        {/* Profile — hexagon with inner circle */}
         <button
           style={{
             width: 34, height: 34,
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             background: hovered === '__profile' ? '#e8e9e4' : '#f0f1ec',
-            border: 'none',
-            borderRadius: 7,
-            cursor: 'pointer',
-            transition: 'background 0.15s',
-            flexShrink: 0,
-            marginLeft: 2,
+            border: 'none', borderRadius: 7, cursor: 'pointer',
+            transition: 'background 0.15s', flexShrink: 0,
           }}
           onMouseEnter={() => setHovered('__profile')}
           onMouseLeave={() => setHovered(null)}
         >
           <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#555" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
-            {/* hexagon */}
             <path d="M12 2 L20.66 7 L20.66 17 L12 22 L3.34 17 L3.34 7 Z" />
-            {/* inner circle */}
             <circle cx="12" cy="12" r="3.5" />
           </svg>
         </button>
