@@ -26,7 +26,7 @@ export default function NNav() {
       width: '100%',
       position: 'relative',
       zIndex: 10,
-      borderBottom: '1px solid rgba(0,0,0,0.07)',
+      borderBottom: 'none',
     }}>
 
       {/* Logo */}
