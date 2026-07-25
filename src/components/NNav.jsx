@@ -52,7 +52,7 @@ export default function NNav() {
         }}>Tracking</span>
       </div>
 
-      {/* Centre — Nav pills, absolutely centred so logo width doesn't affect position */}
+      {/* Centre — Nav pills + search, absolutely centred */}
       <div style={{
         position: 'absolute', left: '50%', transform: 'translateX(-50%)',
         display: 'flex', alignItems: 'center', gap: 4,
@@ -83,12 +83,8 @@ export default function NNav() {
             </a>
           )
         })}
-      </div>
 
-      {/* Right — icon buttons */}
-      <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 6 }}>
-
-        {/* Search */}
+        {/* Search — part of centre group */}
         <button
           style={{
             width: 34, height: 34,
@@ -105,8 +101,10 @@ export default function NNav() {
             <line x1="9" y1="9" x2="12" y2="12" strokeLinecap="round" />
           </svg>
         </button>
+      </div>
 
-        {/* Profile — hexagon with inner circle */}
+      {/* Right — hexagon profile button only */}
+      <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center' }}>
         <button
           style={{
             width: 34, height: 34,
