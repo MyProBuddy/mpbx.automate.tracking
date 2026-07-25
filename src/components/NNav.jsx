@@ -57,6 +57,24 @@ export default function NNav() {
         position: 'absolute', left: '50%', transform: 'translateX(-50%)',
         display: 'flex', alignItems: 'center', gap: 4,
       }}>
+        {/* Search — first in centre group */}
+        <button
+          style={{
+            width: 34, height: 34,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            background: hovered === '__search' ? '#e8e9e4' : '#f0f1ec',
+            border: 'none', borderRadius: 7, cursor: 'pointer',
+            transition: 'background 0.15s', flexShrink: 0,
+          }}
+          onMouseEnter={() => setHovered('__search')}
+          onMouseLeave={() => setHovered(null)}
+        >
+          <svg width="14" height="14" viewBox="0 0 13 13" fill="none" stroke="#555" strokeWidth="1.6">
+            <circle cx="5.5" cy="5.5" r="4.5" />
+            <line x1="9" y1="9" x2="12" y2="12" strokeLinecap="round" />
+          </svg>
+        </button>
+
         {NAV_ITEMS.map(item => {
           const isActive = activeLabel === item.label
           const isHov = hovered === item.label
@@ -84,23 +102,6 @@ export default function NNav() {
           )
         })}
 
-        {/* Search — part of centre group */}
-        <button
-          style={{
-            width: 34, height: 34,
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            background: hovered === '__search' ? '#e8e9e4' : '#f0f1ec',
-            border: 'none', borderRadius: 7, cursor: 'pointer',
-            transition: 'background 0.15s', flexShrink: 0,
-          }}
-          onMouseEnter={() => setHovered('__search')}
-          onMouseLeave={() => setHovered(null)}
-        >
-          <svg width="14" height="14" viewBox="0 0 13 13" fill="none" stroke="#555" strokeWidth="1.6">
-            <circle cx="5.5" cy="5.5" r="4.5" />
-            <line x1="9" y1="9" x2="12" y2="12" strokeLinecap="round" />
-          </svg>
-        </button>
       </div>
 
       {/* Right — hexagon profile button only */}
