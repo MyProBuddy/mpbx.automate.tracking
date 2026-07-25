@@ -12,6 +12,7 @@ import Analytics           from './Analytics.jsx'
 import CompanyIntel        from './CompanyIntel.jsx'
 import Alerts              from './pages/Alerts.jsx'
 import Overview            from './pages/Overview.jsx'
+import Home                from './pages/Home.jsx'
 
 function Protected({ children }) {
   const { role, authSyncing } = useAuth()
@@ -32,6 +33,7 @@ function AppRoutes() {
       <Route path="/company-intel"    element={<Protected><CompanyIntel /></Protected>} />
       <Route path="/alerts"           element={<Protected><Alerts /></Protected>} />
       <Route path="/overview"         element={<Protected><Overview /></Protected>} />
+      <Route path="/home"             element={<Protected><Home /></Protected>} />
       <Route path="*" element={<Navigate to="/hub" replace />} />
     </Routes>
   )
