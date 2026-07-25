@@ -2,6 +2,10 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../AuthContext.jsx'
 
+// Typography scale from TYPOGRAPHY.md
+// nav label: 12px/500, logo: 18px/700, tracking sub: 12px/400, eyebrow: 10px/700+uppercase
+// hero: 32px/800, section heading: 22px/700, body: 13px/400, caption: 11px/400
+
 const NAV_ITEMS = [
   { label: 'Overview',  path: '/overview' },
   { label: 'Analytics', path: '/analytics' },
@@ -20,7 +24,6 @@ export default function Home() {
     <div style={{
       fontFamily: "'Urbanist', sans-serif",
       minHeight: '100vh',
-      background: 'linear-gradient(135deg, #ffffff 0%, #ffebda 100%)',
       position: 'relative',
       overflow: 'hidden',
     }}>
@@ -32,6 +35,7 @@ export default function Home() {
         background: 'radial-gradient(circle, rgba(126,108,212,0.18) 0%, rgba(255,255,255,0) 70%)',
       }} />
 
+      {/* Nav — UI label scale: 12px/500/-0.01em */}
       <nav style={{
         display: 'flex',
         alignItems: 'center',
@@ -41,7 +45,7 @@ export default function Home() {
         zIndex: 10,
       }}>
 
-        {/* Logo */}
+        {/* Logo — brand scale: MPBx 18px/700, Tracking 12px/400 */}
         <div
           onClick={() => navigate('/home')}
           style={{ marginRight: 'auto', cursor: 'pointer', display: 'flex', alignItems: 'baseline', gap: 1 }}
@@ -56,7 +60,7 @@ export default function Home() {
             color: '#ca1b49',
           }}>x</span>
           <span style={{
-            fontSize: 12, fontWeight: 400, marginLeft: 3,
+            fontSize: 12, fontWeight: 400, marginLeft: 3, letterSpacing: '-0.01em',
             background: 'linear-gradient(to right, #eb212c, #5e238d)',
             WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
           }}>Tracking</span>
@@ -83,6 +87,7 @@ export default function Home() {
             </svg>
           </div>
 
+          {/* Nav pills — UI label: 12px / 500 (inactive) / 600 (active) / -0.01em */}
           {NAV_ITEMS.map(item => {
             const isActive = active === item.label
             const isHov = hovered === item.label
@@ -97,13 +102,14 @@ export default function Home() {
                   padding: '5px 14px',
                   fontSize: 12,
                   fontWeight: isActive ? 600 : 500,
+                  letterSpacing: '-0.01em',
                   textDecoration: 'none',
-                  color: isActive ? '#111' : '#444',
+                  color: isActive ? '#0D0D14' : '#444',
                   borderRadius: 6,
                   background: isActive ? '#ffffff' : isHov ? '#e4e5df' : '#eeefe9',
                   boxShadow: isActive ? '0 1px 4px rgba(0,0,0,0.08)' : 'none',
                   transition: 'background 0.15s, box-shadow 0.15s',
-                  letterSpacing: '-0.01em',
+                  lineHeight: 1.2,
                 }}
               >
                 {item.label}
@@ -111,7 +117,7 @@ export default function Home() {
             )
           })}
 
-          {/* Sign out */}
+          {/* Sign out — UI label: 12px/500 */}
           <button
             onClick={logout}
             style={{
@@ -119,13 +125,14 @@ export default function Home() {
               padding: '5px 14px',
               fontSize: 12, fontWeight: 500,
               fontFamily: "'Urbanist', sans-serif",
-              color: '#888',
+              letterSpacing: '-0.01em',
+              color: '#7C7C94',
               background: 'transparent',
               border: '1px solid rgba(0,0,0,0.1)',
               borderRadius: 6,
               cursor: 'pointer',
-              letterSpacing: '-0.01em',
               transition: 'background 0.15s',
+              lineHeight: 1.2,
             }}
             onMouseEnter={e => e.currentTarget.style.background = '#eeefe9'}
             onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
@@ -134,6 +141,32 @@ export default function Home() {
           </button>
         </div>
       </nav>
+
+      {/* Hero section — display: 32px/800/-0.03em */}
+      <div style={{
+        maxWidth: 960, margin: '0 auto', padding: '72px 48px 0',
+        position: 'relative', zIndex: 1,
+      }}>
+        <div style={{
+          fontSize: 10, fontWeight: 700, letterSpacing: '0.08em',
+          textTransform: 'uppercase', color: '#5647E0',
+          marginBottom: 12,
+        }}>
+          Dashboard
+        </div>
+        <h1 style={{
+          fontSize: 32, fontWeight: 800, letterSpacing: '-0.03em',
+          color: '#0D0D14', marginBottom: 10, lineHeight: 1.2,
+        }}>
+          What would you like to do?
+        </h1>
+        <p style={{
+          fontSize: 13, fontWeight: 400, letterSpacing: '-0.01em',
+          color: '#7C7C94', lineHeight: 1.6,
+        }}>
+          Choose an action to get started with your outreach campaigns.
+        </p>
+      </div>
     </div>
   )
 }
