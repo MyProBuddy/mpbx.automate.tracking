@@ -79,7 +79,7 @@ export default function NNav() {
                 color: '#000',
                 borderRadius: 7,
                 background: isActive ? '#ffffff' : isHov ? '#e8e9e4' : '#f0f1ec',
-                boxShadow: isActive ? '0 1px 4px rgba(0,0,0,0.1)' : 'none',
+                boxShadow: 'none',
                 transition: 'background 0.15s, color 0.15s, box-shadow 0.15s',
               }}
             >
