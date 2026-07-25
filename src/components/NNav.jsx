@@ -29,7 +29,6 @@ export default function NNav() {
       <div
         onClick={() => navigate('/home')}
         style={{
-          flex: 1,
           cursor: 'pointer',
           display: 'flex',
           alignItems: 'baseline',
@@ -53,8 +52,11 @@ export default function NNav() {
         }}>Tracking</span>
       </div>
 
-      {/* Centre — Nav pills */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+      {/* Centre — Nav pills, absolutely centred so logo width doesn't affect position */}
+      <div style={{
+        position: 'absolute', left: '50%', transform: 'translateX(-50%)',
+        display: 'flex', alignItems: 'center', gap: 4,
+      }}>
         {NAV_ITEMS.map(item => {
           const isActive = activeLabel === item.label
           const isHov = hovered === item.label
@@ -84,7 +86,7 @@ export default function NNav() {
       </div>
 
       {/* Right — icon buttons */}
-      <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 6 }}>
+      <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 6 }}>
 
         {/* Search */}
         <button
