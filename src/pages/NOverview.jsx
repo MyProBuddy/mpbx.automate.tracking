@@ -91,21 +91,6 @@ export default function NOverview() {
         maxWidth: 1100, margin: '0 auto',
         padding: '48px 52px',
       }}>
-        {/* Page title */}
-        <div style={{ marginBottom: 36 }}>
-          <p style={{
-            fontSize: 11, fontWeight: 700, letterSpacing: '0.08em',
-            textTransform: 'uppercase', color: '#5647E0', marginBottom: 8,
-          }}>Overview</p>
-          <h1 style={{
-            fontSize: 32, fontWeight: 800, letterSpacing: '-0.03em',
-            color: '#0D0D14', lineHeight: 1.2, marginBottom: 6,
-          }}>Campaign snapshot</h1>
-          <p style={{
-            fontSize: 13, color: '#7C7C94', lineHeight: 1.6,
-          }}>All clients and campaigns at a glance.</p>
-        </div>
-
         {/* Stat cards */}
         <div style={{
           display: 'grid',
