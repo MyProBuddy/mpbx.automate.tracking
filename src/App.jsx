@@ -14,6 +14,7 @@ import Alerts              from './pages/Alerts.jsx'
 import Overview            from './pages/Overview.jsx'
 import Home                from './pages/Home.jsx'
 import NNav               from './components/NNav.jsx'
+import NOverview          from './pages/NOverview.jsx'
 
 // /n/* stub — uses NNav, independent from old pages
 function NSectionStub({ title }) {
@@ -65,7 +66,7 @@ function AppRoutes() {
       <Route path="/overview"         element={<Protected><Overview /></Protected>} />
       <Route path="/home"             element={<Protected><Home /></Protected>} />
       {/* New /n/* routes — independent from old pages */}
-      <Route path="/n/overview"  element={<Protected><NSectionStub title="Overview" /></Protected>} />
+      <Route path="/n/overview"  element={<Protected><NOverview /></Protected>} />
       <Route path="/n/analytics" element={<Protected><NSectionStub title="Analytics" /></Protected>} />
       <Route path="/n/alerts"    element={<Protected><NSectionStub title="Alerts" /></Protected>} />
       <Route path="/n/tools"     element={<Protected><NSectionStub title="Tools" /></Protected>} />
