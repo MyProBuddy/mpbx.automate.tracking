@@ -5,7 +5,7 @@ export default function Home() {
     <div style={{
       fontFamily: "'Urbanist', sans-serif",
       minHeight: '100vh',
-      background: 'linear-gradient(135deg, #fff8f4 0%, #ffd0a8 100%)',
+      background: 'linear-gradient(135deg, #ffffff 0%, #ffe4c8 100%)',
       position: 'relative',
       overflow: 'hidden',
     }}>
