@@ -29,7 +29,7 @@ function NSectionStub({ title }) {
         position: 'absolute', top: '50%', left: '50%',
         transform: 'translate(-50%, -50%)',
         width: 700, height: 700, pointerEvents: 'none',
-        background: 'radial-gradient(circle, rgba(126,108,212,0.1) 0%, rgba(255,255,255,0) 70%)',
+        background: 'radial-gradient(circle, rgba(126,108,212,0.18) 0%, rgba(255,255,255,0) 70%)',
       }} />
       <NNav />
       <div style={{
