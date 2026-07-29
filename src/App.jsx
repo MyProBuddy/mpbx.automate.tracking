@@ -21,15 +21,15 @@ function NSectionStub({ title }) {
     <div style={{
       fontFamily: "'Urbanist', sans-serif",
       minHeight: '100vh',
-      background: 'linear-gradient(135deg, #ffffff 0%, #ffebda 100%)',
+      background: 'linear-gradient(135deg, #fff8f4 0%, #ffd0a8 100%)',
       position: 'relative',
       overflow: 'hidden',
     }}>
       <div style={{
         position: 'absolute', top: '50%', left: '50%',
         transform: 'translate(-50%, -50%)',
-        width: 600, height: 600, pointerEvents: 'none',
-        background: 'radial-gradient(circle, rgba(126,108,212,0.2) 0%, rgba(255,255,255,0) 70%)',
+        width: 700, height: 700, pointerEvents: 'none',
+        background: 'radial-gradient(circle, rgba(126,108,212,0.35) 0%, rgba(255,255,255,0) 70%)',
       }} />
       <NNav />
       <div style={{
