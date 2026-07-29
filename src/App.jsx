@@ -21,7 +21,7 @@ function NSectionStub({ title }) {
     <div style={{
       fontFamily: "'Urbanist', sans-serif",
       minHeight: '100vh',
-      background: 'linear-gradient(135deg, #fff8f4 0%, #ffd9b0 100%)',
+      background: 'linear-gradient(135deg, #fff8f4 0%, #ffe1be 100%)',
       position: 'relative',
       overflow: 'hidden',
     }}>
