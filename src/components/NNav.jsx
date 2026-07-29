@@ -32,7 +32,7 @@ export default function NNav() {
           cursor: 'pointer',
           display: 'flex',
           alignItems: 'baseline',
-          gap: 0,
+          gap: 6,
           userSelect: 'none',
         }}
       >
@@ -46,7 +46,7 @@ export default function NNav() {
           color: '#ca1b49',
         }}>x</span>
         <span style={{
-          fontSize: 15, fontWeight: 500, marginLeft: 7,
+          fontSize: 15, fontWeight: 500,
           background: 'linear-gradient(to right, #eb212c, #5e238d)',
           WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
         }}>Tracking</span>
