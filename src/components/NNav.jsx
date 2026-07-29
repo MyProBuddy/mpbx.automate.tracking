@@ -1,5 +1,6 @@
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
+import { useAuth } from '../AuthContext.jsx'
 
 const NAV_ITEMS = [
   { label: 'Overview',  path: '/n/overview' },
@@ -8,11 +9,32 @@ const NAV_ITEMS = [
   { label: 'Tools',     path: '/n/tools' },
 ]
 
+const DROPDOWN_ITEMS = [
+  { label: 'Settings',    icon: '⚙' },
+  { label: 'Profile',     icon: '👤' },
+  { label: 'Sign out',    icon: '→', action: 'signout' },
+]
+
 export default function NNav() {
+  const { logout } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
   const activeLabel = NAV_ITEMS.find(i => location.pathname === i.path)?.label ?? ''
   const [hovered, setHovered] = useState(null)
+  const [dropdownOpen, setDropdownOpen] = useState(false)
+  const [dropHovered, setDropHovered] = useState(null)
+  const dropdownRef = useRef(null)
+
+  // close on outside click
+  useEffect(() => {
+    function handleClick(e) {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+        setDropdownOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClick)
+    return () => document.removeEventListener('mousedown', handleClick)
+  }, [])
 
   return (
     <nav style={{
@@ -52,12 +74,12 @@ export default function NNav() {
         }}>Tracking</span>
       </div>
 
-      {/* Centre — Nav pills + search, absolutely centred */}
+      {/* Centre — Search + Nav pills */}
       <div style={{
         position: 'absolute', left: '50%', transform: 'translateX(-50%)',
         display: 'flex', alignItems: 'center', gap: 6,
       }}>
-        {/* Search — first in centre group */}
+        {/* Search */}
         <button
           style={{
             width: 40, height: 40,
@@ -101,16 +123,16 @@ export default function NNav() {
             </a>
           )
         })}
-
       </div>
 
-      {/* Right — hexagon profile button only */}
-      <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center' }}>
+      {/* Right — hexagon button + dropdown */}
+      <div ref={dropdownRef} style={{ marginLeft: 'auto', position: 'relative' }}>
         <button
+          onClick={() => setDropdownOpen(o => !o)}
           style={{
             width: 40, height: 40,
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            background: hovered === '__profile' ? '#e8e9e4' : '#f0f1ec',
+            background: dropdownOpen || hovered === '__profile' ? '#e8e9e4' : '#f0f1ec',
             border: 'none', borderRadius: 7, cursor: 'pointer',
             transition: 'background 0.15s', flexShrink: 0,
           }}
@@ -122,6 +144,48 @@ export default function NNav() {
             <circle cx="12" cy="12" r="3.5" />
           </svg>
         </button>
+
+        {/* Dropdown */}
+        {dropdownOpen && (
+          <div style={{
+            position: 'absolute', top: 'calc(100% + 8px)', right: 0,
+            minWidth: 180,
+            background: '#ffffff',
+            borderRadius: 10,
+            border: '1px solid rgba(0,0,0,0.08)',
+            boxShadow: '0 8px 24px rgba(0,0,0,0.10)',
+            overflow: 'hidden',
+            zIndex: 100,
+          }}>
+            {DROPDOWN_ITEMS.map(item => (
+              <button
+                key={item.label}
+                onClick={() => {
+                  setDropdownOpen(false)
+                  if (item.action === 'signout') logout()
+                }}
+                onMouseEnter={() => setDropHovered(item.label)}
+                onMouseLeave={() => setDropHovered(null)}
+                style={{
+                  width: '100%',
+                  display: 'flex', alignItems: 'center', gap: 10,
+                  padding: '11px 16px',
+                  fontSize: 14, fontWeight: 500,
+                  fontFamily: "'Urbanist', sans-serif",
+                  letterSpacing: '-0.01em',
+                  color: item.action === 'signout' ? '#d21e40' : '#111',
+                  background: dropHovered === item.label ? '#f5f5f5' : 'transparent',
+                  border: 'none', cursor: 'pointer',
+                  transition: 'background 0.12s',
+                  textAlign: 'left',
+                }}
+              >
+                <span style={{ fontSize: 15, opacity: 0.7 }}>{item.icon}</span>
+                {item.label}
+              </button>
+            ))}
+          </div>
+        )}
       </div>
     </nav>
   )
