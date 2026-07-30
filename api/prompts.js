@@ -2,7 +2,7 @@ import { createClient } from '@supabase/supabase-js'
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*')
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PATCH, OPTIONS')
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type')
   if (req.method === 'OPTIONS') return res.status(200).end()
 
@@ -15,6 +15,14 @@ export default async function handler(req, res) {
       .order('id', { ascending: true })
     if (error) return res.status(500).json({ error: error.message })
     return res.json(data)
+  }
+
+  if (req.method === 'PATCH') {
+    const { id, prompt } = req.body || {}
+    if (!id) return res.status(400).json({ error: 'id is required' })
+    const { error } = await supabase.from('prompt_editor_tool').update({ prompt }).eq('id', id)
+    if (error) return res.status(500).json({ error: error.message })
+    return res.json({ ok: true })
   }
 
   if (req.method === 'POST') {
