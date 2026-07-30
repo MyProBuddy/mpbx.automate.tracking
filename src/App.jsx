@@ -80,11 +80,8 @@ export default function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
-        <div style={{ position: 'relative', minHeight: '100vh' }}>
-          <MeshBackground />
-          <div style={{ position: 'relative', zIndex: 1 }}>
-            <AppRoutes />
-          </div>
+        <div style={{ minHeight: '100vh' }}>
+          <AppRoutes />
         </div>
       </AuthProvider>
     </BrowserRouter>
