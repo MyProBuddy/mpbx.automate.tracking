@@ -119,7 +119,7 @@ export default function Hub() {
 
   function downloadEnv() {
     const vars = [
-      'VITE_SUPABASE_URL', 'VITE_SUPABASE_KEY',
+      'VITE_SUPABASE_URL', 'VITE_SUPABASE_ANON',
       'VITE_SA_EMAIL', 'VITE_SA_PASSWORD',
       'VITE_GOOGLE_CLIENT_ID', 'VITE_GOOGLE_CLIENT_SECRET',
       'VITE_DRIVE_CLIENTS_FOLDER_ID', 'VITE_DRIVE_SHEETS_FOLDER_ID',
