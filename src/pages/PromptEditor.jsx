@@ -38,7 +38,7 @@ function AddClientModal({ onClose, onAdded }) {
     const data = await res.json()
     setSaving(false)
     if (!res.ok) { setError(data.error || 'Failed to add'); return }
-    onAdded(); onClose()
+    onAdded(email); onClose()
   }
 
   return (
@@ -78,6 +78,8 @@ function PromptBlock({ promptType, data, onSaved }) {
   const [saving, setSaving]   = useState(false)
   const [saved, setSaved]     = useState(false)
 
+  useEffect(() => { setText(data.text) }, [data.text])
+
   const save = async () => {
     setSaving(true)
     await fetch('/api/prompts', {
@@ -92,22 +94,20 @@ function PromptBlock({ promptType, data, onSaved }) {
     onSaved()
   }
 
-  const cancel = () => { setText(data.text); setEditing(false) }
-
   return (
-    <div style={{ padding: '20px 24px', borderBottom: `1px solid ${T.border}` }}>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-        <div style={{ fontSize: 11, fontWeight: 700, color: T.accent, letterSpacing: '0.07em', textTransform: 'uppercase' }}>{TYPE_LABELS[promptType]}</div>
+    <div style={{ background: '#fff', borderRadius: 12, border: `1.5px solid ${editing ? T.accent : T.border}`, padding: '20px 24px', transition: 'border-color 0.15s' }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
+        <div style={{ fontSize: 12, fontWeight: 700, color: T.text, letterSpacing: '-0.01em' }}>{TYPE_LABELS[promptType]}</div>
         <div style={{ display: 'flex', gap: 8 }}>
           {editing ? (
             <>
-              <button onClick={cancel} style={{ fontSize: 11, fontWeight: 600, padding: '4px 12px', borderRadius: 6, border: `1px solid ${T.border}`, background: T.surface, color: T.muted, cursor: 'pointer', fontFamily: 'inherit' }}>Cancel</button>
-              <button onClick={save} disabled={saving} style={{ fontSize: 11, fontWeight: 700, padding: '4px 12px', borderRadius: 6, border: 'none', background: T.accent, color: '#fff', cursor: saving ? 'default' : 'pointer', fontFamily: 'inherit' }}>
+              <button onClick={() => { setText(data.text); setEditing(false) }} style={{ fontSize: 11, fontWeight: 600, padding: '5px 14px', borderRadius: 6, border: `1px solid ${T.border}`, background: T.surface, color: T.muted, cursor: 'pointer', fontFamily: 'inherit' }}>Cancel</button>
+              <button onClick={save} disabled={saving} style={{ fontSize: 11, fontWeight: 700, padding: '5px 14px', borderRadius: 6, border: 'none', background: T.accent, color: '#fff', cursor: saving ? 'default' : 'pointer', fontFamily: 'inherit' }}>
                 {saving ? 'Saving…' : 'Save'}
               </button>
             </>
           ) : (
-            <button onClick={() => setEditing(true)} style={{ fontSize: 11, fontWeight: 600, padding: '4px 12px', borderRadius: 6, border: `1px solid ${T.border}`, background: T.surface, color: saved ? T.green : T.muted, cursor: 'pointer', fontFamily: 'inherit' }}>
+            <button onClick={() => setEditing(true)} style={{ fontSize: 11, fontWeight: 600, padding: '5px 14px', borderRadius: 6, border: `1px solid ${T.border}`, background: T.surface, color: saved ? T.green : T.muted, cursor: 'pointer', fontFamily: 'inherit' }}>
               {saved ? '✓ Saved' : 'Edit'}
             </button>
           )}
@@ -115,105 +115,90 @@ function PromptBlock({ promptType, data, onSaved }) {
       </div>
 
       {editing ? (
-        <textarea
-          value={text}
-          onChange={e => setText(e.target.value)}
-          rows={6}
-          style={{
-            width: '100%', padding: '10px 12px', border: `1.5px solid ${T.accent}`,
-            borderRadius: 8, fontSize: 13, fontFamily: 'inherit', color: T.text,
-            lineHeight: 1.7, resize: 'vertical', outline: 'none', boxSizing: 'border-box',
-            background: '#fff',
-          }}
-        />
+        <textarea value={text} onChange={e => setText(e.target.value)} rows={6}
+          style={{ width: '100%', padding: '10px 12px', border: `1px solid ${T.border}`, borderRadius: 8, fontSize: 13, fontFamily: 'inherit', color: T.text, lineHeight: 1.7, resize: 'vertical', outline: 'none', boxSizing: 'border-box', background: T.bg }} />
       ) : (
         text
           ? <div style={{ fontSize: 13, color: T.text, lineHeight: 1.7, whiteSpace: 'pre-wrap' }}>{text}</div>
-          : <div style={{ fontSize: 13, color: T.faint, fontStyle: 'italic' }}>No prompt set yet — click Edit to add one.</div>
-      )}
-    </div>
-  )
-}
-
-function ClientCard({ client, onSaved }) {
-  const [open, setOpen] = useState(false)
-
-  return (
-    <div style={{ background: T.surface, borderRadius: 14, border: `1.5px solid ${T.border}`, overflow: 'hidden' }}>
-      <div onClick={() => setOpen(o => !o)} style={{ padding: '20px 24px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <div>
-          <div style={{ fontSize: 15, fontWeight: 700, color: T.text, marginBottom: 2 }}>{client.client_name || '—'}</div>
-          <div style={{ fontSize: 12, color: T.muted, fontFamily: T.mono }}>{client.client_email}</div>
-        </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <div style={{ display: 'flex', gap: 6 }}>
-            {PROMPT_TYPES.map(pt => (
-              <span key={pt} style={{
-                fontSize: 10, fontWeight: 600, padding: '3px 8px', borderRadius: 99,
-                background: client.prompts[pt]?.text ? T.accentLight : T.bg,
-                color: client.prompts[pt]?.text ? T.accent : T.faint,
-              }}>{TYPE_LABELS[pt]}</span>
-            ))}
-          </div>
-          <div style={{ fontSize: 18, color: T.muted }}>{open ? '−' : '+'}</div>
-        </div>
-      </div>
-
-      {open && (
-        <div style={{ borderTop: `1px solid ${T.border}` }}>
-          {PROMPT_TYPES.map(pt => (
-            client.prompts[pt]
-              ? <PromptBlock key={pt} promptType={pt} data={client.prompts[pt]} onSaved={onSaved} />
-              : null
-          ))}
-        </div>
+          : <div style={{ fontSize: 13, color: T.faint, fontStyle: 'italic' }}>No prompt yet — click Edit to add.</div>
       )}
     </div>
   )
 }
 
 export default function PromptEditor() {
-  const [clients, setClients]     = useState([])
-  const [loading, setLoading]     = useState(true)
-  const [showModal, setShowModal] = useState(false)
+  const [clients, setClients]         = useState([])
+  const [loading, setLoading]         = useState(true)
+  const [selected, setSelected]       = useState('')
+  const [showModal, setShowModal]     = useState(false)
 
-  const load = async () => {
+  const load = async (selectEmail) => {
     setLoading(true)
     const res = await fetch('/api/prompts')
     const data = await res.json()
-    setClients(groupByClient(data))
+    const grouped = groupByClient(data)
+    setClients(grouped)
+    if (selectEmail) setSelected(selectEmail)
+    else if (grouped.length && !selected) setSelected(grouped[0].client_email)
     setLoading(false)
   }
 
   useEffect(() => { load() }, [])
 
+  const activeClient = clients.find(c => c.client_email === selected)
+
   return (
     <div style={{ minHeight: '100vh', fontFamily: T.sans }}>
       <Nav title="Prompt Editor" backTo="/tools" />
-      <div style={{ maxWidth: 1000, margin: '0 auto', padding: '40px 48px 80px' }}>
-        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 44 }}>
+      <div style={{ maxWidth: 900, margin: '0 auto', padding: '40px 48px 80px' }}>
+
+        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 36 }}>
           <div>
             <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: '.1em', textTransform: 'uppercase', color: '#7C3AED', marginBottom: 8 }}>Tools</div>
             <div style={{ fontSize: 30, fontWeight: 800, letterSpacing: '-0.03em', color: T.text, marginBottom: 6 }}>Prompt Editor</div>
             <div style={{ fontSize: 13, color: T.muted }}>Manage AI prompt templates per client.</div>
           </div>
-          <button onClick={() => setShowModal(true)} style={{
-            padding: '10px 20px', background: T.accent, color: '#fff', border: 'none',
-            borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', marginTop: 6,
-          }}>+ Add Client</button>
+          <button onClick={() => setShowModal(true)} style={{ padding: '10px 20px', background: T.accent, color: '#fff', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', marginTop: 6 }}>
+            + Add Client
+          </button>
         </div>
 
         {loading
           ? <div style={{ fontSize: 13, color: T.muted }}>Loading…</div>
           : clients.length === 0
             ? <div style={{ fontSize: 13, color: T.muted }}>No clients yet. Add one to get started.</div>
-            : <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-                {clients.map(c => <ClientCard key={c.client_email} client={c} onSaved={load} />)}
-              </div>
+            : <>
+                {/* Client selector */}
+                <div style={{ marginBottom: 32 }}>
+                  <div style={{ fontSize: 11, fontWeight: 600, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 8 }}>Client</div>
+                  <select
+                    value={selected}
+                    onChange={e => setSelected(e.target.value)}
+                    style={{ padding: '10px 14px', border: `1.5px solid ${T.border}`, borderRadius: 8, fontSize: 13, fontFamily: 'inherit', color: T.text, background: '#fff', outline: 'none', cursor: 'pointer', minWidth: 280 }}
+                  >
+                    {clients.map(c => (
+                      <option key={c.client_email} value={c.client_email}>
+                        {c.client_name ? `${c.client_name} — ${c.client_email}` : c.client_email}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Prompts for selected client */}
+                {activeClient && (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                    {PROMPT_TYPES.map(pt => (
+                      activeClient.prompts[pt]
+                        ? <PromptBlock key={pt} promptType={pt} data={activeClient.prompts[pt]} onSaved={() => load(selected)} />
+                        : null
+                    ))}
+                  </div>
+                )}
+              </>
         }
       </div>
 
-      {showModal && <AddClientModal onClose={() => setShowModal(false)} onAdded={load} />}
+      {showModal && <AddClientModal onClose={() => setShowModal(false)} onAdded={email => load(email)} />}
     </div>
   )
 }
