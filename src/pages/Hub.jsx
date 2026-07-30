@@ -1,8 +1,7 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { T } from '../constants.js'
 import Nav from '../components/Nav.jsx'
-import { fetchDbStats } from '../lib/supabase.js'
 
 const OPTIONS = [
   {
@@ -47,6 +46,13 @@ const OPTIONS = [
     desc: 'Utilities to validate emails, check bounce risk, and run diagnostics across your outreach campaigns.',
     items: ['Mail validation & bounce check', 'Email health diagnostics', 'Campaign audit utilities'],
     disabled: true,
+  },
+  {
+    path: '/data-workflows',
+    color: '#0891B2', colorLight: '#ECFEFF',
+    label: 'DATABASE', title: 'Data Workflows',
+    desc: 'Explore the master investor and firm database — view counts, activity status, and geographic density.',
+    items: ['Master firms & investors database', 'Active vs inactive breakdown', 'Geographic density map'],
   },
 ]
 
@@ -160,11 +166,6 @@ function MasterDatabasePanel({ stats }) {
 }
 
 export default function Hub() {
-  const [dbStats, setDbStats] = useState(null)
-
-  useEffect(() => {
-    fetchDbStats().then(setDbStats)
-  }, [])
 
   function downloadEnv() {
     const vars = [
@@ -199,10 +200,6 @@ export default function Hub() {
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 20, gridAutoRows: '1fr' }}>
           {OPTIONS.map(o => <HubCard key={o.label} o={o} />)}
-        </div>
-
-        <div style={{ marginTop: 20 }}>
-          <MasterDatabasePanel stats={dbStats} />
         </div>
       </div>
     </div>
