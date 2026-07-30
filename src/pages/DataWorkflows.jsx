@@ -83,18 +83,6 @@ export default function DataWorkflows() {
           <div style={{ fontSize: 13, color: T.faint, fontStyle: 'italic' }}>Content coming soon</div>
         </div>
 
-        {/* Geo density */}
-        <div style={{ fontSize: 12, fontWeight: 700, color: T.muted, letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 16 }}>Geographic Density</div>
-        <div style={{ background: T.surface, borderRadius: 14, padding: 32, border: `1.5px solid ${T.border}` }}>
-          {loading
-            ? <div style={{ fontSize: 13, color: T.muted }}>Loading…</div>
-            : geo.length === 0
-              ? <div style={{ fontSize: 13, color: T.muted }}>No geography data available.</div>
-              : <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-                  {geo.map(g => <GeoBar key={g.name} name={g.name} count={g.count} max={maxGeo} />)}
-                </div>
-          }
-        </div>
 
       </div>
     </div>
