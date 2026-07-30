@@ -1,9 +1,11 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { T } from '../constants.js'
 import Nav from '../components/Nav.jsx'
 
 const TOOLS = [
   {
+    path: null,
     color: '#7C3AED', colorLight: '#F5F3FF',
     title: 'Check Sent Mail',
     desc: 'Review sent emails across your outreach campaigns — inspect delivery status, open rates, and bounce flags.',
@@ -11,25 +13,28 @@ const TOOLS = [
     disabled: true,
   },
   {
+    path: '/tools/prompt-editor',
     color: '#D97706', colorLight: '#FFFBEB',
     title: 'Edit Prompt Template',
     desc: 'Modify the AI prompt templates used to generate outreach emails and followups for your campaigns.',
     items: ['Edit intro email prompt', 'Edit followup prompt', 'Preview generated output'],
-    disabled: true,
+    disabled: false,
   },
 ]
 
 function ToolCard({ t }) {
+  const navigate = useNavigate()
   const [hov, setHov] = useState(false)
   return (
     <div
+      onClick={() => !t.disabled && t.path && navigate(t.path)}
       onMouseEnter={() => setHov(true)}
       onMouseLeave={() => setHov(false)}
       style={{
         background: T.surface, borderRadius: 14, padding: 32,
-        border: `1.5px solid ${hov ? t.color : T.border}`,
+        border: `1.5px solid ${hov && !t.disabled ? t.color : T.border}`,
         transition: 'border-color 0.15s', display: 'flex', flexDirection: 'column',
-        opacity: t.disabled ? 0.6 : 1,
+        opacity: t.disabled ? 0.6 : 1, cursor: t.disabled ? 'default' : 'pointer',
       }}
     >
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>

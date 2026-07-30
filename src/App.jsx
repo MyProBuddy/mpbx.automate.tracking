@@ -17,6 +17,7 @@ import NNav               from './components/NNav.jsx'
 import NOverview          from './pages/NOverview.jsx'
 import DataWorkflows      from './pages/DataWorkflows.jsx'
 import Tools              from './pages/Tools.jsx'
+import PromptEditor       from './pages/PromptEditor.jsx'
 
 // /n/* stub — uses NNav, independent from old pages
 function NSectionStub({ title }) {
@@ -67,7 +68,8 @@ function AppRoutes() {
       <Route path="/alerts"           element={<Protected><Alerts /></Protected>} />
       <Route path="/overview"         element={<Protected><Overview /></Protected>} />
       <Route path="/data-workflows"   element={<Protected><DataWorkflows /></Protected>} />
-      <Route path="/tools"            element={<Protected><Tools /></Protected>} />
+      <Route path="/tools"                    element={<Protected><Tools /></Protected>} />
+      <Route path="/tools/prompt-editor"      element={<Protected><PromptEditor /></Protected>} />
       <Route path="/home"             element={<Protected><Home /></Protected>} />
       {/* New /n/* routes — independent from old pages */}
       <Route path="/n/overview"  element={<Protected><NOverview /></Protected>} />
