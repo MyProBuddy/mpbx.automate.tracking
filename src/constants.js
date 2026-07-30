@@ -28,19 +28,12 @@ export const ROLE_META = {
   member:     { label: 'Member',      color: '#059669', light: '#ECFDF5' },
 }
 
-const SA = {
-  email:    import.meta.env.VITE_SA_EMAIL,
-  password: import.meta.env.VITE_SA_PASSWORD,
-}
-
-// Add admin / member emails + passwords here. Role is assigned purely by email.
-export const MEMBERS = [
-  { email: 'admin@example.com',  password: 'admin123',  role: 'admin'  },
-  { email: 'member@example.com', password: 'member123', role: 'member' },
-]
-
-export function authenticate(email, password) {
-  if (email === SA.email && password === SA.password) return 'superadmin'
-  const match = MEMBERS.find(u => u.email === email && u.password === password)
-  return match ? match.role : null
+export async function authenticate(email, password) {
+  const res = await fetch('/api/auth', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, password }),
+  })
+  const data = await res.json()
+  return data.role || null
 }

@@ -11,9 +11,17 @@ import { useAuth } from './AuthContext.jsx'
 import Nav from './components/Nav.jsx'
 import { T } from './constants.js'
 
-const ROOT_FOLDER     = import.meta.env.VITE_DRIVE_CLIENTS_FOLDER_ID
-const TEMPLATE_SHEET  = import.meta.env.VITE_TEMPLATE_SHEET_ID
-const SHEETS_FOLDER_ID = import.meta.env.VITE_DRIVE_SHEETS_FOLDER_ID
+import { getConfig } from './lib/config.js'
+
+let ROOT_FOLDER     = null
+let TEMPLATE_SHEET  = null
+let SHEETS_FOLDER_ID = null
+
+getConfig().then(c => {
+  ROOT_FOLDER      = c.clientsFolderId
+  TEMPLATE_SHEET   = c.templateSheetId
+  SHEETS_FOLDER_ID = c.sheetsFolderId
+})
 
 function FieldLabel({ children }) {
   return <div style={{ fontSize: 11, fontWeight: 600, color: T.muted, marginBottom: 7, letterSpacing: '0.04em', textTransform: 'uppercase', fontFamily: T.sans }}>{children}</div>

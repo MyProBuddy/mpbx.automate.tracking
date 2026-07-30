@@ -22,9 +22,9 @@ export default function Login() {
     letterSpacing: '-0.01em',
   })
 
-  const submit = e => {
+  const submit = async e => {
     e.preventDefault()
-    const r = authenticate(email, password)
+    const r = await authenticate(email, password)
     if (r) login(r)
     else setError('Incorrect email or password.')
   }

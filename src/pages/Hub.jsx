@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { T } from '../constants.js'
 import Nav from '../components/Nav.jsx'
-import { supabase } from '../lib/supabase.js'
+import { fetchDbStats } from '../lib/supabase.js'
 
 const OPTIONS = [
   {
@@ -92,15 +92,7 @@ export default function Hub() {
   const [dbStats, setDbStats] = useState({ firms: null, investors: null })
 
   useEffect(() => {
-    async function fetchStats() {
-      if (!supabase) return
-      const [{ count: firms }, { count: investors }] = await Promise.all([
-        supabase.from('firms').select('*', { count: 'exact', head: true }),
-        supabase.from('investors').select('*', { count: 'exact', head: true }),
-      ])
-      setDbStats({ firms, investors })
-    }
-    fetchStats()
+    fetchDbStats().then(setDbStats)
   }, [])
 
   const options = OPTIONS.map(o =>

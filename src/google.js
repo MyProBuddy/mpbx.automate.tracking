@@ -1,6 +1,14 @@
-const CLIENT_ID      = import.meta.env.VITE_GOOGLE_CLIENT_ID
-const CLIENTS_FOLDER = import.meta.env.VITE_DRIVE_CLIENTS_FOLDER_ID
-const SHEETS_FOLDER  = import.meta.env.VITE_DRIVE_SHEETS_FOLDER_ID
+import { getConfig } from './lib/config.js'
+
+let CLIENT_ID      = null
+let CLIENTS_FOLDER = null
+let SHEETS_FOLDER  = null
+
+getConfig().then(c => {
+  CLIENT_ID      = c.googleClientId
+  CLIENTS_FOLDER = c.clientsFolderId
+  SHEETS_FOLDER  = c.sheetsFolderId
+})
 const SCOPES        = 'https://www.googleapis.com/auth/drive https://www.googleapis.com/auth/spreadsheets'
 
 let tokenClient = null

@@ -1,6 +1,5 @@
-import { createClient } from '@supabase/supabase-js'
-
-const url = import.meta.env.VITE_SUPABASE_URL
-const key = import.meta.env.VITE_SUPABASE_ANON
-
-export const supabase = url && key ? createClient(url, key) : null
+export async function fetchDbStats() {
+  const res = await fetch('/api/db-stats')
+  if (!res.ok) return { firms: null, investors: null }
+  return res.json()
+}

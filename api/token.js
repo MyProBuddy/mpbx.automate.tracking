@@ -1,11 +1,11 @@
 import crypto from 'crypto'
 
-const GIST_ID  = process.env.VITE_GIST_ID
-const GH_TOKEN = process.env.VITE_GITHUB_TOKEN
-const ENC_KEY  = process.env.VITE_ENCRYPT_KEY
+const GIST_ID  = process.env.GIST_ID
+const GH_TOKEN = process.env.GITHUB_TOKEN
+const ENC_KEY  = process.env.ENCRYPT_KEY
 
-const CLIENT_ID     = process.env.VITE_GOOGLE_CLIENT_ID
-const CLIENT_SECRET = process.env.VITE_GOOGLE_CLIENT_SECRET
+const CLIENT_ID     = process.env.GOOGLE_CLIENT_ID
+const CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET
 
 const FILES = {
   token: 'token.enc',
