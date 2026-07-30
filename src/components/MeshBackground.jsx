@@ -40,8 +40,7 @@ export default function MeshBackground() {
     let t = 0
     function draw() {
       const W = canvas.width, H = canvas.height
-      ctx.fillStyle = '#faf8ff'
-      ctx.fillRect(0, 0, W, H)
+      ctx.clearRect(0, 0, W, H)
 
       const radius = Math.max(W, H) * 0.68
       POINTS.forEach((p, i) => {
