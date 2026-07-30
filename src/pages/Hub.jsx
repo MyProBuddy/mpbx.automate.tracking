@@ -93,6 +93,7 @@ export default function Hub() {
 
   useEffect(() => {
     async function fetchStats() {
+      if (!supabase) return
       const [{ count: firms }, { count: investors }] = await Promise.all([
         supabase.from('firms').select('*', { count: 'exact', head: true }),
         supabase.from('investors').select('*', { count: 'exact', head: true }),
