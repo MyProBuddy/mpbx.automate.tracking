@@ -177,7 +177,7 @@ export default function DataWorkflows() {
 
   return (
     <div style={{ minHeight: '100vh', fontFamily: T.sans }}>
-      <Nav title="Data Workflows" />
+      <Nav title="Data Workflows" backTo="/hub" />
       <div style={{ maxWidth: 1200, margin: '0 auto', padding: '40px 48px 80px' }}>
 
         <div style={{ marginBottom: 44 }}>
