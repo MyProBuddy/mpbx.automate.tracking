@@ -275,7 +275,7 @@ export default function PromptEditor() {
                     style={{ padding: '10px 14px', border: `1.5px solid ${T.border}`, borderRadius: 8, fontSize: 13, fontFamily: 'inherit', color: T.text, background: '#fff', outline: 'none', cursor: 'pointer', minWidth: 320 }}>
                     {clients.map(c => (
                       <option key={c.client_email} value={c.client_email}>
-                        {c.client_name ? `${c.client_name} — ${c.client_email}` : c.client_email}
+                        {c.client_name || c.client_email}
                       </option>
                     ))}
                   </select>
