@@ -12,7 +12,7 @@ export default async function handler(req, res) {
   const { type = 'investors', status = 'all', page = '1', limit = '20' } = req.query
   const table = type === 'firms' ? 'firms' : 'investors'
   const pageNum = Math.max(1, parseInt(page))
-  const pageSize = Math.min(50, Math.max(1, parseInt(limit)))
+  const pageSize = 5
   const from = (pageNum - 1) * pageSize
   const to = from + pageSize - 1
 

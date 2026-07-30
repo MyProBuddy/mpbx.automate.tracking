@@ -97,7 +97,7 @@ function DataOverview() {
   const fetchData = useCallback(async (t, s, p) => {
     setLoading(true)
     try {
-      const res = await fetch(`/api/data?type=${t}&status=${s}&page=${p}&limit=20`)
+      const res = await fetch(`/api/data?type=${t}&status=${s}&page=${p}&limit=5`)
       const json = await res.json()
       setRecords(json.data || [])
       setTotal(json.total)
@@ -113,7 +113,7 @@ function DataOverview() {
   const changeType = (t) => { setType(t); setPage(1) }
   const changeStatus = (s) => { setStatus(s); setPage(1) }
 
-  const totalPages = total !== null ? Math.ceil(total / 20) : null
+  const totalPages = total !== null ? Math.ceil(total / 5) : null
 
   return (
     <div>
