@@ -40,12 +40,11 @@ const OPTIONS = [
     items: ['All clients in one view', 'Followup stage breakdown', 'Replies and this week stats'],
   },
   {
-    path: null,
+    path: '/tools',
     color: '#7C3AED', colorLight: '#F5F3FF',
-    label: 'BUILD IN PROGRESS', title: 'Tools',
+    label: 'TOOLS', title: 'Tools',
     desc: 'Utilities to validate emails, check bounce risk, and run diagnostics across your outreach campaigns.',
-    items: ['Mail validation & bounce check', 'Email health diagnostics', 'Campaign audit utilities'],
-    disabled: true,
+    items: ['Check sent mail', 'Edit prompt template', 'Campaign audit utilities'],
   },
   {
     path: '/data-workflows',
