@@ -48,14 +48,6 @@ const OPTIONS = [
     items: ['Mail validation & bounce check', 'Email health diagnostics', 'Campaign audit utilities'],
     disabled: true,
   },
-  {
-    path: null,
-    color: T.muted, colorLight: T.bg,
-    label: 'COMING SOON', title: 'Data Workflows',
-    desc: 'Automated pipelines that enrich, validate, and sync your investor data across sources.',
-    items: ['Enrich investor records', 'Validate and deduplicate', 'Sync across sheets'],
-    disabled: true,
-  },
 ]
 
 function HubCard({ o }) {
@@ -88,26 +80,91 @@ function HubCard({ o }) {
   )
 }
 
+function StatPill({ label, value, color }) {
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+      <div style={{ fontSize: 11, fontWeight: 600, color: T.muted, letterSpacing: '0.06em', textTransform: 'uppercase' }}>{label}</div>
+      <div style={{ fontSize: 26, fontWeight: 800, color: color || T.text, letterSpacing: '-0.03em', lineHeight: 1 }}>
+        {value !== null && value !== undefined ? Number(value).toLocaleString() : '—'}
+      </div>
+    </div>
+  )
+}
+
+function GeoBar({ name, count, max }) {
+  const pct = max > 0 ? (count / max) * 100 : 0
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+      <div style={{ width: 130, fontSize: 12, color: T.muted, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', flexShrink: 0 }}>{name}</div>
+      <div style={{ flex: 1, height: 6, background: T.border, borderRadius: 99, overflow: 'hidden' }}>
+        <div style={{ width: `${pct}%`, height: '100%', background: '#5647E0', borderRadius: 99, transition: 'width 0.6s ease' }} />
+      </div>
+      <div style={{ fontSize: 11, fontWeight: 600, color: T.muted, width: 40, textAlign: 'right', flexShrink: 0 }}>{count.toLocaleString()}</div>
+    </div>
+  )
+}
+
+function MasterDatabasePanel({ stats }) {
+  const loading = !stats
+  const firms = stats?.firms
+  const investors = stats?.investors
+  const geo = stats?.topGeographies || []
+  const maxGeo = geo[0]?.count || 1
+
+  return (
+    <div style={{
+      background: T.surface, borderRadius: 14, padding: 32,
+      border: `1.5px solid ${T.border}`, gridColumn: '1 / -1',
+    }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 28 }}>
+        <div>
+          <div style={{ fontSize: 10, fontWeight: 700, color: '#5647E0', letterSpacing: '0.1em', marginBottom: 6 }}>MASTER DATABASE</div>
+          <div style={{ fontSize: 20, fontWeight: 800, color: T.text, letterSpacing: '-0.03em' }}>Data Workflows</div>
+        </div>
+        <div style={{ fontSize: 11, fontWeight: 600, color: T.muted, background: T.bg, border: `1px solid ${T.border}`, borderRadius: 8, padding: '4px 12px' }}>COMING SOON</div>
+      </div>
+
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 32 }}>
+        {/* Stats */}
+        <div>
+          <div style={{ fontSize: 11, fontWeight: 700, color: T.muted, letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 20 }}>Firms</div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 24, marginBottom: 32 }}>
+            <StatPill label="Total" value={loading ? null : firms?.total} />
+            <StatPill label="Active" value={loading ? null : firms?.active} color={T.green} />
+            <StatPill label="Inactive" value={loading ? null : firms?.inactive} color={T.muted} />
+          </div>
+
+          <div style={{ fontSize: 11, fontWeight: 700, color: T.muted, letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 20 }}>Investors</div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 24 }}>
+            <StatPill label="Total" value={loading ? null : investors?.total} />
+            <StatPill label="Active" value={loading ? null : investors?.active} color={T.green} />
+            <StatPill label="Inactive" value={loading ? null : investors?.inactive} color={T.muted} />
+          </div>
+        </div>
+
+        {/* Geo density */}
+        <div>
+          <div style={{ fontSize: 11, fontWeight: 700, color: T.muted, letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 20 }}>Geographic Density</div>
+          {loading
+            ? <div style={{ fontSize: 13, color: T.muted }}>Loading…</div>
+            : geo.length === 0
+              ? <div style={{ fontSize: 13, color: T.muted }}>No geography data</div>
+              : <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                  {geo.map(g => <GeoBar key={g.name} name={g.name} count={g.count} max={maxGeo} />)}
+                </div>
+          }
+        </div>
+      </div>
+    </div>
+  )
+}
+
 export default function Hub() {
-  const [dbStats, setDbStats] = useState({ firms: null, investors: null })
+  const [dbStats, setDbStats] = useState(null)
 
   useEffect(() => {
     fetchDbStats().then(setDbStats)
   }, [])
-
-  const options = OPTIONS.map(o =>
-    o.title === 'Data Workflows'
-      ? {
-          ...o,
-          items: [
-            dbStats.firms !== null ? `${dbStats.firms.toLocaleString()} firms in master database` : 'Loading firms…',
-            dbStats.investors !== null ? `${dbStats.investors.toLocaleString()} investors in master database` : 'Loading investors…',
-            'Validate and deduplicate',
-            'Sync across sheets',
-          ],
-        }
-      : o
-  )
 
   function downloadEnv() {
     const vars = [
@@ -118,9 +175,7 @@ export default function Hub() {
       'VITE_TEMPLATE_SHEET_ID', 'VITE_GIST_ID',
       'VITE_GITHUB_TOKEN', 'VITE_ENCRYPT_KEY',
     ]
-    const lines = vars
-      .map(k => `${k}=${import.meta.env[k] ?? ''}`)
-      .join('\n')
+    const lines = vars.map(k => `${k}=${import.meta.env[k] ?? ''}`).join('\n')
     const a = document.createElement('a')
     a.href = URL.createObjectURL(new Blob([lines], { type: 'text/plain' }))
     a.download = '.env'
@@ -141,8 +196,13 @@ export default function Hub() {
             Download .env
           </button>
         </div>
+
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 20, gridAutoRows: '1fr' }}>
-          {options.map(o => <HubCard key={o.label} o={o} />)}
+          {OPTIONS.map(o => <HubCard key={o.label} o={o} />)}
+        </div>
+
+        <div style={{ marginTop: 20 }}>
+          <MasterDatabasePanel stats={dbStats} />
         </div>
       </div>
     </div>
