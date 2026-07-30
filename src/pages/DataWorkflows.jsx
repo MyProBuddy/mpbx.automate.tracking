@@ -71,6 +71,18 @@ export default function DataWorkflows() {
           <StatCard label="Inactive Investors" value={loading ? null : investors?.inactive} color={T.muted} sub="Not yet activated" />
         </div>
 
+        {/* Antigravity OpenWeb Enrichment */}
+        <div style={{ fontSize: 12, fontWeight: 700, color: T.muted, letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 16 }}>Antigravity OpenWeb Enrichment Workflow</div>
+        <div style={{ background: T.surface, borderRadius: 14, padding: 32, border: `1.5px solid ${T.border}`, marginBottom: 40, display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 120 }}>
+          <div style={{ fontSize: 13, color: T.faint, fontStyle: 'italic' }}>Content coming soon</div>
+        </div>
+
+        {/* Apollo / PhantomBuster / LinkedIn Discovery */}
+        <div style={{ fontSize: 12, fontWeight: 700, color: T.muted, letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 16 }}>Apollo / PhantomBuster / LinkedIn Discovery Workflow</div>
+        <div style={{ background: T.surface, borderRadius: 14, padding: 32, border: `1.5px solid ${T.border}`, marginBottom: 40, display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 120 }}>
+          <div style={{ fontSize: 13, color: T.faint, fontStyle: 'italic' }}>Content coming soon</div>
+        </div>
+
         {/* Geo density */}
         <div style={{ fontSize: 12, fontWeight: 700, color: T.muted, letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 16 }}>Geographic Density</div>
         <div style={{ background: T.surface, borderRadius: 14, padding: 32, border: `1.5px solid ${T.border}` }}>
