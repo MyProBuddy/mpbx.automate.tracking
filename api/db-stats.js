@@ -9,6 +9,12 @@ export default async function handler(req, res) {
 
   const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON)
 
+  const todayStart = new Date()
+  todayStart.setHours(0, 0, 0, 0)
+  const weekStart = new Date()
+  weekStart.setDate(weekStart.getDate() - weekStart.getDay())
+  weekStart.setHours(0, 0, 0, 0)
+
   const [
     { count: totalFirms },
     { count: activeFirms },
@@ -16,7 +22,13 @@ export default async function handler(req, res) {
     { count: totalInvestors },
     { count: activeInvestors },
     { count: inactiveInvestors },
-    { data: geoRows },
+    { count: enrichedToday },
+    { count: enrichedWeek },
+    { count: activeFoundToday },
+    { count: inactiveFoundToday },
+    { count: activeFoundWeek },
+    { count: inactiveFoundWeek },
+    { count: totalEnriched },
   ] = await Promise.all([
     supabase.from('firms').select('*', { count: 'exact', head: true }),
     supabase.from('firms').select('*', { count: 'exact', head: true }).eq('activity_status', 'active'),
@@ -24,26 +36,22 @@ export default async function handler(req, res) {
     supabase.from('investors').select('*', { count: 'exact', head: true }),
     supabase.from('investors').select('*', { count: 'exact', head: true }).eq('activity_status', 'active'),
     supabase.from('investors').select('*', { count: 'exact', head: true }).eq('activity_status', 'inactive'),
-    supabase.from('investors').select('geography_focus').not('geography_focus', 'is', null),
+    supabase.from('antigravity_status').select('*', { count: 'exact', head: true }).gte('last_enrichment_date', todayStart.toISOString()),
+    supabase.from('antigravity_status').select('*', { count: 'exact', head: true }).gte('last_enrichment_date', weekStart.toISOString()),
+    supabase.from('antigravity_status').select('*', { count: 'exact', head: true }).gte('last_enrichment_date', todayStart.toISOString()).eq('activity_status', 'active'),
+    supabase.from('antigravity_status').select('*', { count: 'exact', head: true }).gte('last_enrichment_date', todayStart.toISOString()).eq('activity_status', 'inactive'),
+    supabase.from('antigravity_status').select('*', { count: 'exact', head: true }).gte('last_enrichment_date', weekStart.toISOString()).eq('activity_status', 'active'),
+    supabase.from('antigravity_status').select('*', { count: 'exact', head: true }).gte('last_enrichment_date', weekStart.toISOString()).eq('activity_status', 'inactive'),
+    supabase.from('antigravity_status').select('*', { count: 'exact', head: true }),
   ])
 
-  // Count geography density
-  const geoCounts = {}
-  for (const row of geoRows || []) {
-    const parts = row.geography_focus.split(/[,;\/]+/).map(s => s.trim()).filter(Boolean)
-    for (const part of parts) {
-      if (part.length > 1) geoCounts[part] = (geoCounts[part] || 0) + 1
-    }
-  }
-
-  const topGeo = Object.entries(geoCounts)
-    .sort((a, b) => b[1] - a[1])
-    .slice(0, 8)
-    .map(([name, count]) => ({ name, count }))
-
   return res.json({
-    firms:           { total: totalFirms,     active: activeFirms,     inactive: inactiveFirms },
-    investors:       { total: totalInvestors, active: activeInvestors, inactive: inactiveInvestors },
-    topGeographies:  topGeo,
+    firms:      { total: totalFirms,     active: activeFirms,     inactive: inactiveFirms },
+    investors:  { total: totalInvestors, active: activeInvestors, inactive: inactiveInvestors },
+    antigravity: {
+      totalEnriched,
+      today: { total: enrichedToday,  active: activeFoundToday,  inactive: inactiveFoundToday },
+      week:  { total: enrichedWeek,   active: activeFoundWeek,   inactive: inactiveFoundWeek },
+    },
   })
 }

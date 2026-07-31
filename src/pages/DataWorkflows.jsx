@@ -202,6 +202,66 @@ export default function DataWorkflows() {
           <StatCard label="Inactive Investors" value={loading ? null : investors?.inactive} color={T.muted} sub="Not yet activated" />
         </div>
 
+        {/* Antigravity Enrichment Status */}
+        <div style={{ fontSize: 12, fontWeight: 700, color: T.muted, letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 16 }}>Antigravity Enrichment Status</div>
+        <div style={{ background: T.surface, borderRadius: 14, border: `1.5px solid ${T.border}`, marginBottom: 40, overflow: 'hidden' }}>
+          {/* Total enriched banner */}
+          <div style={{ padding: '20px 28px', borderBottom: `1px solid ${T.border}`, display: 'flex', alignItems: 'center', gap: 16 }}>
+            <div style={{ fontSize: 28, fontWeight: 800, color: T.text, letterSpacing: '-0.03em' }}>
+              {loading ? '—' : (stats?.antigravity?.totalEnriched ?? 0).toLocaleString()}
+            </div>
+            <div style={{ fontSize: 13, color: T.muted }}>total investors processed through Antigravity enrichment</div>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 0 }}>
+            {/* Today */}
+            <div style={{ padding: '24px 28px', borderRight: `1px solid ${T.border}` }}>
+              <div style={{ fontSize: 11, fontWeight: 700, color: T.muted, letterSpacing: '0.07em', textTransform: 'uppercase', marginBottom: 16 }}>Today</div>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 20 }}>
+                <div>
+                  <div style={{ fontSize: 11, color: T.muted, marginBottom: 4 }}>Processed</div>
+                  <div style={{ fontSize: 24, fontWeight: 800, color: T.text, letterSpacing: '-0.02em' }}>{loading ? '—' : (stats?.antigravity?.today?.total ?? 0).toLocaleString()}</div>
+                </div>
+                <div>
+                  <div style={{ fontSize: 11, color: T.muted, marginBottom: 4 }}>Active Found</div>
+                  <div style={{ fontSize: 24, fontWeight: 800, color: T.green, letterSpacing: '-0.02em' }}>{loading ? '—' : (stats?.antigravity?.today?.active ?? 0).toLocaleString()}</div>
+                </div>
+                <div>
+                  <div style={{ fontSize: 11, color: T.muted, marginBottom: 4 }}>Inactive</div>
+                  <div style={{ fontSize: 24, fontWeight: 800, color: T.muted, letterSpacing: '-0.02em' }}>{loading ? '—' : (stats?.antigravity?.today?.inactive ?? 0).toLocaleString()}</div>
+                </div>
+              </div>
+            </div>
+
+            {/* This week */}
+            <div style={{ padding: '24px 28px' }}>
+              <div style={{ fontSize: 11, fontWeight: 700, color: T.muted, letterSpacing: '0.07em', textTransform: 'uppercase', marginBottom: 16 }}>This Week</div>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 20 }}>
+                <div>
+                  <div style={{ fontSize: 11, color: T.muted, marginBottom: 4 }}>Processed</div>
+                  <div style={{ fontSize: 24, fontWeight: 800, color: T.text, letterSpacing: '-0.02em' }}>{loading ? '—' : (stats?.antigravity?.week?.total ?? 0).toLocaleString()}</div>
+                </div>
+                <div>
+                  <div style={{ fontSize: 11, color: T.muted, marginBottom: 4 }}>Active Found</div>
+                  <div style={{ fontSize: 24, fontWeight: 800, color: T.green, letterSpacing: '-0.02em' }}>{loading ? '—' : (stats?.antigravity?.week?.active ?? 0).toLocaleString()}</div>
+                </div>
+                <div>
+                  <div style={{ fontSize: 11, color: T.muted, marginBottom: 4 }}>Inactive</div>
+                  <div style={{ fontSize: 24, fontWeight: 800, color: T.muted, letterSpacing: '-0.02em' }}>{loading ? '—' : (stats?.antigravity?.week?.inactive ?? 0).toLocaleString()}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Note */}
+          <div style={{ padding: '14px 28px', borderTop: `1px solid ${T.border}`, background: T.bg, display: 'flex', alignItems: 'flex-start', gap: 8 }}>
+            <span style={{ fontSize: 12, color: '#D97706', fontWeight: 700, flexShrink: 0 }}>Note</span>
+            <span style={{ fontSize: 12, color: T.muted, lineHeight: 1.6 }}>
+              Inactive does not mean permanently excluded. It means we could not confirm the activity status in this cycle — the investor will be re-checked in the next enrichment run to determine if they are active or not.
+            </span>
+          </div>
+        </div>
+
         {/* Antigravity OpenWeb Enrichment */}
         <div style={{ fontSize: 12, fontWeight: 700, color: T.muted, letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 16 }}>Antigravity OpenWeb Enrichment Workflow</div>
         <div style={{ background: T.surface, borderRadius: 14, padding: 32, border: `1.5px solid ${T.border}`, marginBottom: 40, display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 120 }}>
