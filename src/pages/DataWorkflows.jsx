@@ -202,8 +202,8 @@ export default function DataWorkflows() {
           <StatCard label="Inactive Investors" value={loading ? null : investors?.inactive} color={T.muted} sub="Not yet activated" />
         </div>
 
-        {/* Antigravity Enrichment Status */}
-        <div style={{ fontSize: 12, fontWeight: 700, color: T.muted, letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 16 }}>Antigravity Enrichment Status</div>
+        {/* Antigravity OpenWeb Enrichment */}
+        <div style={{ fontSize: 12, fontWeight: 700, color: T.muted, letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 16 }}>Antigravity OpenWeb Enrichment Workflow</div>
         <div style={{ background: T.surface, borderRadius: 14, border: `1.5px solid ${T.border}`, marginBottom: 40, overflow: 'hidden' }}>
           {/* Total enriched banner */}
           <div style={{ padding: '20px 28px', borderBottom: `1px solid ${T.border}`, display: 'flex', alignItems: 'center', gap: 16 }}>
@@ -260,12 +260,6 @@ export default function DataWorkflows() {
               Inactive does not mean permanently excluded. It means we could not confirm the activity status in this cycle — the investor will be re-checked in the next enrichment run to determine if they are active or not.
             </span>
           </div>
-        </div>
-
-        {/* Antigravity OpenWeb Enrichment */}
-        <div style={{ fontSize: 12, fontWeight: 700, color: T.muted, letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 16 }}>Antigravity OpenWeb Enrichment Workflow</div>
-        <div style={{ background: T.surface, borderRadius: 14, padding: 32, border: `1.5px solid ${T.border}`, marginBottom: 40, display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 120 }}>
-          <div style={{ fontSize: 13, color: T.faint, fontStyle: 'italic' }}>Content coming soon</div>
         </div>
 
         {/* Apollo / PhantomBuster / LinkedIn Discovery */}
