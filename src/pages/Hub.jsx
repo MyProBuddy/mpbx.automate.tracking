@@ -166,35 +166,14 @@ function MasterDatabasePanel({ stats }) {
 
 export default function Hub() {
 
-  function downloadEnv() {
-    const vars = [
-      'VITE_SUPABASE_URL', 'VITE_SUPABASE_ANON',
-      'VITE_SA_EMAIL', 'VITE_SA_PASSWORD',
-      'VITE_GOOGLE_CLIENT_ID', 'VITE_GOOGLE_CLIENT_SECRET',
-      'VITE_DRIVE_CLIENTS_FOLDER_ID', 'VITE_DRIVE_SHEETS_FOLDER_ID',
-      'VITE_TEMPLATE_SHEET_ID', 'VITE_GIST_ID',
-      'VITE_GITHUB_TOKEN', 'VITE_ENCRYPT_KEY',
-    ]
-    const lines = vars.map(k => `${k}=${import.meta.env[k] ?? ''}`).join('\n')
-    const a = document.createElement('a')
-    a.href = URL.createObjectURL(new Blob([lines], { type: 'text/plain' }))
-    a.download = '.env'
-    a.click()
-  }
-
   return (
     <div style={{ minHeight: '100vh', fontFamily: T.sans }}>
       <Nav title="Workflow Configurator" />
       <div style={{ maxWidth: 1200, margin: '0 auto', padding: '40px 48px 80px' }}>
-        <div style={{ marginBottom: 44, display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
-          <div>
-            <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: '.1em', textTransform: 'uppercase', color: T.accent, marginBottom: 8 }}>Dashboard</div>
-            <div style={{ fontSize: 30, fontWeight: 800, letterSpacing: '-0.03em', color: T.text, marginBottom: 6 }}>What would you like to do?</div>
-            <div style={{ fontSize: 13, color: T.muted, lineHeight: 1.6 }}>Choose an action to get started.</div>
-          </div>
-          <button onClick={downloadEnv} style={{ fontSize: 12, fontWeight: 600, color: T.muted, background: T.surface, border: `1px solid ${T.border}`, borderRadius: 8, padding: '8px 16px', cursor: 'pointer', marginTop: 6 }}>
-            Download .env
-          </button>
+        <div style={{ marginBottom: 44 }}>
+          <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: '.1em', textTransform: 'uppercase', color: T.accent, marginBottom: 8 }}>Dashboard</div>
+          <div style={{ fontSize: 30, fontWeight: 800, letterSpacing: '-0.03em', color: T.text, marginBottom: 6 }}>What would you like to do?</div>
+          <div style={{ fontSize: 13, color: T.muted, lineHeight: 1.6 }}>Choose an action to get started.</div>
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 20, gridAutoRows: '1fr' }}>
