@@ -269,7 +269,7 @@ function PromptBlock({ promptType, data, onSaved }) {
               style={{ width: '100%', padding: '12px 14px', border: `1.5px solid ${T.accent}`, borderRadius: 8, fontSize: 12, fontFamily: T.mono, color: T.text, lineHeight: 1.7, resize: 'vertical', outline: 'none', boxSizing: 'border-box', background: '#FDFCFF' }} />
           ) : (
             text
-              ? <pre style={{ fontSize: 12, color: T.text, lineHeight: 1.8, whiteSpace: 'pre-wrap', fontFamily: T.mono, margin: 0, background: T.bg, borderRadius: 8, padding: '12px 14px', maxHeight: 260, overflowY: 'auto' }}>{text}</pre>
+              ? <pre style={{ fontSize: 12, color: T.text, lineHeight: 1.8, whiteSpace: 'pre-wrap', fontFamily: T.mono, margin: 0, background: T.bg, borderRadius: 8, padding: '12px 14px' }}>{text}</pre>
               : <div style={{ fontSize: 13, color: T.faint, fontStyle: 'italic' }}>No prompt yet — click Edit to add.</div>
           )}
         </div>
