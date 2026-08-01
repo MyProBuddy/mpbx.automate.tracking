@@ -94,17 +94,13 @@ function Badge({ children, color }) {
 
 function parseSheetDate(raw) {
   if (!raw) return null
-  // Google Sheets may return ISO strings, MM/DD/YYYY, DD/MM/YYYY, or serial numbers
-  // Try native parse first
   const d = new Date(raw)
   if (!isNaN(d.getTime())) return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
-  // Try DD/MM/YYYY
   const dmY = raw.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/)
   if (dmY) {
     const d2 = new Date(`${dmY[3]}-${dmY[2].padStart(2,'0')}-${dmY[1].padStart(2,'0')}`)
     if (!isNaN(d2.getTime())) return d2.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
   }
-  // Fallback: show raw string
   return raw
 }
 
@@ -372,7 +368,10 @@ export default function CompanyIntel() {
                 </div>
               ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 10, maxHeight: 520, overflowY: 'auto' }}>
-                  {[...rows].reverse().map((row, i) => (
+                  {[...rows].reverse().filter((row, i, arr) => {
+                    const upd = updateCol >= 0 ? row[updateCol] : row[0]
+                    return arr.findIndex(r => (updateCol >= 0 ? r[updateCol] : r[0]) === upd) === i
+                  }).map((row, i) => (
                     <LogCard key={i} row={row} updateCol={updateCol} dateCol={dateCol} />
                   ))}
                 </div>
