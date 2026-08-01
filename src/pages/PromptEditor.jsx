@@ -244,7 +244,7 @@ function PromptBlock({ promptType, data, onSaved }) {
             onClick={openTest}
             style={{ fontSize: 11, fontWeight: 600, padding: '5px 14px', borderRadius: 6, border: `1px solid ${showTest ? T.accent : T.border}`, background: showTest ? T.accentLight : '#fff', color: showTest ? T.accent : T.muted, cursor: 'pointer', fontFamily: 'inherit' }}
           >
-            {showTest ? 'Hide Test' : 'Test Prompt'}
+            {showTest ? 'Done' : 'Test Prompt'}
           </button>
           {!showTest && (editing ? (
             <>
@@ -263,7 +263,7 @@ function PromptBlock({ promptType, data, onSaved }) {
 
       {/* Edit / preview body */}
       {!showTest && (
-        <div style={{ padding: '20px 24px 12px', flex: 1, overflowY: 'auto', scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+        <div className="no-scroll" style={{ padding: '20px 24px 12px', flex: 1, overflowY: 'auto' }}>
           {editing ? (
             <textarea value={text} onChange={e => setText(e.target.value)} rows={12}
               style={{ width: '100%', padding: '12px 14px', border: `1.5px solid ${T.accent}`, borderRadius: 8, fontSize: 12, fontFamily: T.mono, color: T.text, lineHeight: 1.7, resize: 'vertical', outline: 'none', boxSizing: 'border-box', background: '#FDFCFF' }} />
