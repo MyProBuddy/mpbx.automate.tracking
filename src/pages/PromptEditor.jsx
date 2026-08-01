@@ -263,13 +263,13 @@ function PromptBlock({ promptType, data, onSaved }) {
 
       {/* Edit / preview body */}
       {!showTest && (
-        <div className="no-scroll" style={{ padding: '20px 24px 12px', flex: 1, overflowY: 'auto' }}>
+        <div className="no-scroll" style={{ padding: '20px 24px 12px', flex: 1, overflowY: 'hidden', minHeight: 0 }}>
           {editing ? (
             <textarea value={text} onChange={e => setText(e.target.value)} rows={12}
               style={{ width: '100%', padding: '12px 14px', border: `1.5px solid ${T.accent}`, borderRadius: 8, fontSize: 12, fontFamily: T.mono, color: T.text, lineHeight: 1.7, resize: 'vertical', outline: 'none', boxSizing: 'border-box', background: '#FDFCFF' }} />
           ) : (
             text
-              ? <pre style={{ fontSize: 12, color: T.text, lineHeight: 1.8, whiteSpace: 'pre-wrap', fontFamily: T.mono, margin: 0, background: T.bg, borderRadius: 8, padding: '12px 14px' }}>{text}</pre>
+              ? <pre style={{ fontSize: 12, color: T.text, lineHeight: 1.8, whiteSpace: 'pre-wrap', fontFamily: T.mono, margin: 0, background: T.bg, borderRadius: 8, padding: '12px 14px', height: '100%', overflowY: 'auto', boxSizing: 'border-box' }}>{text}</pre>
               : <div style={{ fontSize: 13, color: T.faint, fontStyle: 'italic' }}>No prompt yet — click Edit to add.</div>
           )}
         </div>
