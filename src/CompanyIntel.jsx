@@ -105,8 +105,17 @@ function parseSheetDate(raw) {
 }
 
 function LogCard({ row, updateCol, dateCol }) {
-  const upd = updateCol >= 0 ? row[updateCol] : row[0]
-  const dt  = dateCol   >= 0 ? row[dateCol]   : row[1]
+  const upd = (updateCol >= 0 ? row[updateCol] : row[0]) ?? ''
+  // scan all cells in the row for a parseable timestamp
+  const dt = (() => {
+    const candidates = dateCol >= 0 ? [row[dateCol]] : row
+    for (const cell of candidates) {
+      if (!cell) continue
+      const d = new Date(cell)
+      if (!isNaN(d.getTime()) && d.getFullYear() > 2000) return cell
+    }
+    return null
+  })()
   const dateStr = parseSheetDate(dt)
 
   return (
@@ -369,8 +378,8 @@ export default function CompanyIntel() {
               ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 10, maxHeight: 520, overflowY: 'auto' }}>
                   {[...rows].reverse().filter((row, i, arr) => {
-                    const upd = updateCol >= 0 ? row[updateCol] : row[0]
-                    return arr.findIndex(r => (updateCol >= 0 ? r[updateCol] : r[0]) === upd) === i
+                    const key = ((updateCol >= 0 ? row[updateCol] : row[0]) ?? '').trim()
+                    return arr.findIndex(r => ((updateCol >= 0 ? r[updateCol] : r[0]) ?? '').trim() === key) === i
                   }).map((row, i) => (
                     <LogCard key={i} row={row} updateCol={updateCol} dateCol={dateCol} />
                   ))}
