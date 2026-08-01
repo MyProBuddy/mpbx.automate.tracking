@@ -94,28 +94,24 @@ function Badge({ children, color }) {
 
 function parseSheetDate(raw) {
   if (!raw) return null
-  const d = new Date(raw)
-  if (!isNaN(d.getTime())) return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
-  const dmY = raw.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/)
-  if (dmY) {
-    const d2 = new Date(`${dmY[3]}-${dmY[2].padStart(2,'0')}-${dmY[1].padStart(2,'0')}`)
-    if (!isNaN(d2.getTime())) return d2.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
+  // ISO timestamp like 2026-07-07T03:39:42.941-04:00 — extract date part directly
+  const iso = raw.match(/^(\d{4})-(\d{2})-(\d{2})/)
+  if (iso) {
+    const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
+    return `${parseInt(iso[3])} ${months[parseInt(iso[2]) - 1]} ${iso[1]}`
+  }
+  // DD/MM/YYYY
+  const dmy = raw.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/)
+  if (dmy) {
+    const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
+    return `${parseInt(dmy[1])} ${months[parseInt(dmy[2]) - 1]} ${dmy[3]}`
   }
   return raw
 }
 
 function LogCard({ row, updateCol, dateCol }) {
   const upd = (updateCol >= 0 ? row[updateCol] : row[0]) ?? ''
-  // scan all cells in the row for a parseable timestamp
-  const dt = (() => {
-    const candidates = dateCol >= 0 ? [row[dateCol]] : row
-    for (const cell of candidates) {
-      if (!cell) continue
-      const d = new Date(cell)
-      if (!isNaN(d.getTime()) && d.getFullYear() > 2000) return cell
-    }
-    return null
-  })()
+  const dt  = (dateCol >= 0 ? row[dateCol] : row[1]) ?? ''
   const dateStr = parseSheetDate(dt)
 
   return (
