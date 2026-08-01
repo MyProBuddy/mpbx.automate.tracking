@@ -92,57 +92,35 @@ function Badge({ children, color }) {
   return <span style={{ fontSize: 11, fontWeight: 600, background: color + '18', color, borderRadius: 6, padding: '3px 10px', fontFamily: T.sans }}>{children}</span>
 }
 
+function parseSheetDate(raw) {
+  if (!raw) return null
+  // Google Sheets may return ISO strings, MM/DD/YYYY, DD/MM/YYYY, or serial numbers
+  // Try native parse first
+  const d = new Date(raw)
+  if (!isNaN(d.getTime())) return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
+  // Try DD/MM/YYYY
+  const dmY = raw.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/)
+  if (dmY) {
+    const d2 = new Date(`${dmY[3]}-${dmY[2].padStart(2,'0')}-${dmY[1].padStart(2,'0')}`)
+    if (!isNaN(d2.getTime())) return d2.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
+  }
+  // Fallback: show raw string
+  return raw
+}
+
 function LogCard({ row, updateCol, dateCol }) {
   const upd = updateCol >= 0 ? row[updateCol] : row[0]
   const dt  = dateCol   >= 0 ? row[dateCol]   : row[1]
-  const dateStr = dt ? new Date(dt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : null
-  const [summary, setSummary]     = useState('')
-  const [summarising, setSummarising] = useState(false)
-  const [summaryErr, setSummaryErr]   = useState('')
-
-  const summarise = async () => {
-    if (!upd) return
-    setSummarising(true); setSummaryErr(''); setSummary('')
-    try {
-      const res = await fetch('/api/summarize', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text: upd }),
-      })
-      const data = await res.json()
-      if (!res.ok) { setSummaryErr(data.error || 'Failed'); return }
-      setSummary(data.summary)
-    } catch (e) {
-      setSummaryErr(e.message)
-    } finally {
-      setSummarising(false)
-    }
-  }
+  const dateStr = parseSheetDate(dt)
 
   return (
-    <div style={{ background: '#fff', borderRadius: 10, border: `1.5px solid ${T.border}`, borderLeft: `3px solid ${T.accent}`, overflow: 'hidden' }}>
-      <div style={{ padding: '12px 16px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-          {dateStr
-            ? <span style={{ fontSize: 11, fontWeight: 700, color: T.accent, background: T.accentLight, borderRadius: 5, padding: '2px 8px' }}>{dateStr}</span>
-            : <span />}
-          <button
-            onClick={summarise}
-            disabled={summarising}
-            style={{ fontSize: 11, fontWeight: 600, color: summarising ? T.muted : T.accent, background: 'transparent', border: `1px solid ${T.accent}30`, borderRadius: 6, padding: '3px 10px', cursor: summarising ? 'default' : 'pointer', fontFamily: T.sans }}
-          >
-            {summarising ? 'Summarising…' : summary ? '↻ Re-summarise' : '✦ Summarise'}
-          </button>
-        </div>
-        <div style={{ fontSize: 13, color: T.text, lineHeight: 1.7, fontWeight: 400 }}>{upd || '—'}</div>
-      </div>
-      {(summary || summaryErr) && (
-        <div style={{ padding: '10px 16px', borderTop: `1px solid ${T.border}`, background: summary ? T.accentLight : '#FEF2F2' }}>
-          {summaryErr
-            ? <span style={{ fontSize: 12, color: T.red }}>{summaryErr}</span>
-            : <span style={{ fontSize: 12, fontWeight: 600, color: T.accent }}>✦ {summary}</span>}
+    <div style={{ background: '#fff', borderRadius: 10, border: `1.5px solid ${T.border}`, borderLeft: `3px solid ${T.accent}`, padding: '12px 16px' }}>
+      {dateStr && (
+        <div style={{ marginBottom: 8 }}>
+          <span style={{ fontSize: 11, fontWeight: 700, color: T.accent, background: T.accentLight, borderRadius: 5, padding: '2px 8px' }}>{dateStr}</span>
         </div>
       )}
+      <div style={{ fontSize: 13, color: T.text, lineHeight: 1.7 }}>{upd || '—'}</div>
     </div>
   )
 }
