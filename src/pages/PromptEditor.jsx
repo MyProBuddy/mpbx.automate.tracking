@@ -235,7 +235,7 @@ function PromptBlock({ promptType, data, onSaved }) {
   )
 
   return (
-    <div style={{ background: '#fff', borderRadius: 12, border: `1.5px solid ${showTest ? T.accent : editing ? T.accent : T.border}`, overflow: 'hidden', transition: 'border-color 0.15s' }}>
+    <div style={{ background: '#fff', borderRadius: 12, border: `1.5px solid ${showTest ? T.accent : editing ? T.accent : T.border}`, overflow: 'hidden', transition: 'border-color 0.15s', height: 420, display: 'flex', flexDirection: 'column' }}>
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 20px', borderBottom: `1px solid ${T.border}`, background: '#FAFAFA' }}>
         <div style={{ fontSize: 13, fontWeight: 700, color: T.text }}>{TYPE_LABELS[promptType]}</div>
@@ -263,7 +263,7 @@ function PromptBlock({ promptType, data, onSaved }) {
 
       {/* Edit / preview body */}
       {!showTest && (
-        <div style={{ padding: '20px 24px' }}>
+        <div style={{ padding: '20px 24px', flex: 1, overflowY: 'auto' }}>
           {editing ? (
             <textarea value={text} onChange={e => setText(e.target.value)} rows={12}
               style={{ width: '100%', padding: '12px 14px', border: `1.5px solid ${T.accent}`, borderRadius: 8, fontSize: 12, fontFamily: T.mono, color: T.text, lineHeight: 1.7, resize: 'vertical', outline: 'none', boxSizing: 'border-box', background: '#FDFCFF' }} />
@@ -277,10 +277,10 @@ function PromptBlock({ promptType, data, onSaved }) {
 
       {/* Test panel */}
       {showTest && (
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', minHeight: 400 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', flex: 1, overflow: 'hidden' }}>
 
           {/* LEFT — tabs: Prompt | Investor */}
-          <div style={{ borderRight: `1px solid ${T.border}`, display: 'flex', flexDirection: 'column' }}>
+          <div style={{ borderRight: `1px solid ${T.border}`, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
             {/* Tab bar */}
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 16px', borderBottom: `1px solid ${T.border}`, background: '#FAFAFA' }}>
               <div style={{ display: 'flex', gap: 4 }}>
@@ -319,7 +319,7 @@ function PromptBlock({ promptType, data, onSaved }) {
           </div>
 
           {/* RIGHT — output */}
-          <div style={{ display: 'flex', flexDirection: 'column', overflowY: 'auto', maxHeight: 560 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
             <div style={{ padding: '10px 20px', borderBottom: `1px solid ${T.border}`, background: '#FAFAFA', fontSize: 10, fontWeight: 700, color: T.muted, letterSpacing: '0.07em', textTransform: 'uppercase' }}>
               Generated Output
             </div>
