@@ -297,11 +297,22 @@ function PromptBlock({ promptType, data, onSaved }) {
             )}
 
             {output && (
-              <div>
-                <div style={{ fontSize: 11, fontWeight: 700, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 4 }}>Subject</div>
-                <div style={{ fontSize: 12, fontWeight: 600, color: T.text, marginBottom: 16, padding: '8px 12px', background: '#fff', borderRadius: 7, border: `1px solid ${T.border}` }}>{output.subject}</div>
-                <div style={{ fontSize: 11, fontWeight: 700, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 4 }}>Body</div>
-                <div style={{ fontSize: 12, color: T.text, lineHeight: 1.9, whiteSpace: 'pre-wrap', fontFamily: 'Georgia, serif', background: '#fff', borderRadius: 7, border: `1px solid ${T.border}`, padding: '12px 14px' }}>{output.body}</div>
+              <div style={{ background: '#fff', borderRadius: 10, border: `1px solid ${T.border}`, overflow: 'hidden' }}>
+                {/* Email header */}
+                <div style={{ padding: '14px 18px', borderBottom: `1px solid ${T.border}`, background: '#FAFAFA' }}>
+                  <div style={{ fontSize: 10, fontWeight: 700, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 4 }}>Subject</div>
+                  <div style={{ fontSize: 13, fontWeight: 600, color: T.text }}>{output.subject}</div>
+                </div>
+                {/* Email body */}
+                <div style={{ padding: '18px 18px', borderBottom: output.signature ? `1px solid ${T.border}` : 'none' }}>
+                  <div style={{ fontSize: 13, color: T.text, lineHeight: 2, whiteSpace: 'pre-wrap', fontFamily: 'Georgia, serif' }}>{output.body}</div>
+                </div>
+                {/* Signature */}
+                {output.signature && (
+                  <div style={{ padding: '12px 18px', background: '#F8F8FC' }}>
+                    <div style={{ fontSize: 11, color: T.muted, whiteSpace: 'pre-wrap', fontFamily: T.mono }}>{output.signature}</div>
+                  </div>
+                )}
               </div>
             )}
           </div>

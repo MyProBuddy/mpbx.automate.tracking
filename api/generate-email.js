@@ -107,13 +107,27 @@ Enlighten Capital
     }
 
     const geminiData = await geminiRes.json()
-    const raw = geminiData.candidates?.[0]?.content?.parts?.[0]?.text || ''
+    const text = geminiData.candidates?.[0]?.content?.parts?.[0]?.text
+      ?? geminiData.content?.parts?.[0]?.text
+      ?? geminiData.content
+      ?? ''
+
+    const str = String(text).replace(/^```(?:json)?\s*/i, '').replace(/\s*```\s*$/,'').trim()
 
     let parsed
-    try { parsed = JSON.parse(raw) }
-    catch { return res.status(200).json({ subject: '', body: raw, _raw: true }) }
+    try { parsed = JSON.parse(str) } catch {
+      return res.status(200).json({ subject: '', body: str, signature: '', _raw: true })
+    }
 
-    return res.json({ subject: parsed.subject || '', body: parsed.body || '', thinking: parsed._thinking || '' })
+    if (!parsed.subject || !parsed.body) {
+      return res.status(502).json({ error: 'Missing subject or body. Keys: ' + JSON.stringify(Object.keys(parsed)) })
+    }
+
+    const parts     = parsed.body.split(/\n---\n/)
+    const body      = parts[0].trim()
+    const signature = parts.length > 1 ? parts[1].trim() : ''
+
+    return res.json({ subject: parsed.subject, body, signature, thinking: parsed._thinking || '' })
   } catch (e) {
     return res.status(500).json({ error: e.message })
   }
