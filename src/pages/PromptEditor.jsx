@@ -253,25 +253,35 @@ function PromptBlock({ promptType, data, onSaved }) {
       {/* Body */}
       {showTest ? (
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', minHeight: 320 }}>
-          {/* Left — Investor data */}
-          <div style={{ padding: '20px 24px', borderRight: `1px solid ${T.border}` }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-              <div style={{ fontSize: 10, fontWeight: 700, color: T.muted, letterSpacing: '0.07em', textTransform: 'uppercase' }}>Sample Investor</div>
-              <button
-                onClick={runTest}
-                disabled={generating}
-                style={{ fontSize: 11, fontWeight: 700, padding: '5px 16px', borderRadius: 6, border: 'none', background: generating ? T.faint : T.accent, color: '#fff', cursor: generating ? 'default' : 'pointer', fontFamily: 'inherit' }}
-              >
-                {generating ? 'Generating…' : '▶ Run'}
-              </button>
+          {/* Left — Prompt + Investor data */}
+          <div style={{ borderRight: `1px solid ${T.border}`, display: 'flex', flexDirection: 'column', maxHeight: 600, overflowY: 'auto' }}>
+            {/* Prompt section */}
+            <div style={{ padding: '16px 24px', borderBottom: `1px solid ${T.border}` }}>
+              <div style={{ fontSize: 10, fontWeight: 700, color: T.muted, letterSpacing: '0.07em', textTransform: 'uppercase', marginBottom: 10 }}>Prompt</div>
+              <div style={{ fontSize: 11, color: T.text, lineHeight: 1.8, whiteSpace: 'pre-wrap', fontFamily: T.mono, background: T.bg, borderRadius: 8, padding: '10px 12px' }}>
+                {text || <span style={{ color: T.faint, fontStyle: 'italic' }}>No prompt set yet.</span>}
+              </div>
             </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-              {Object.entries(SAMPLE_INVESTOR).map(([k, v]) => (
-                <div key={k} style={{ display: 'flex', gap: 8, fontSize: 11 }}>
-                  <span style={{ color: T.faint, fontFamily: T.mono, minWidth: 100, flexShrink: 0 }}>{k}</span>
-                  <span style={{ color: T.text, lineHeight: 1.5, wordBreak: 'break-word' }}>{v}</span>
-                </div>
-              ))}
+            {/* Investor section */}
+            <div style={{ padding: '16px 24px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
+                <div style={{ fontSize: 10, fontWeight: 700, color: T.muted, letterSpacing: '0.07em', textTransform: 'uppercase' }}>Sample Investor</div>
+                <button
+                  onClick={runTest}
+                  disabled={generating}
+                  style={{ fontSize: 11, fontWeight: 700, padding: '5px 16px', borderRadius: 6, border: 'none', background: generating ? T.faint : T.accent, color: '#fff', cursor: generating ? 'default' : 'pointer', fontFamily: 'inherit' }}
+                >
+                  {generating ? 'Generating…' : '▶ Run'}
+                </button>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                {Object.entries(SAMPLE_INVESTOR).map(([k, v]) => (
+                  <div key={k} style={{ display: 'flex', gap: 8, fontSize: 11 }}>
+                    <span style={{ color: T.faint, fontFamily: T.mono, minWidth: 100, flexShrink: 0 }}>{k}</span>
+                    <span style={{ color: T.text, lineHeight: 1.5, wordBreak: 'break-word' }}>{v}</span>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
 
