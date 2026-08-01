@@ -299,14 +299,14 @@ function PromptBlock({ promptType, data, onSaved }) {
             </div>
 
             {/* Tab content */}
-            <div className="hide-scroll" style={{ flex: 1, overflowY: 'auto', padding: '16px 20px 12px', minHeight: 0 }}>
+            <div className="hide-scroll" style={{ flex: 1, overflowY: 'auto', padding: '16px 20px 0', minHeight: 0 }}>
               {leftTab === 'prompt' && (
                 text
-                  ? <pre style={{ fontSize: 11, color: T.text, lineHeight: 1.8, whiteSpace: 'pre-wrap', fontFamily: T.mono, margin: 0 }}>{text}</pre>
-                  : <div style={{ fontSize: 13, color: T.faint, fontStyle: 'italic' }}>No prompt set — go back and click Edit to add one.</div>
+                  ? <pre style={{ fontSize: 11, color: T.text, lineHeight: 1.8, whiteSpace: 'pre-wrap', fontFamily: T.mono, margin: 0, background: T.bg, borderRadius: 8, padding: '12px 14px', marginBottom: 16 }}>{text}</pre>
+                  : <div style={{ fontSize: 13, color: T.faint, fontStyle: 'italic', paddingBottom: 16 }}>No prompt set — go back and click Edit to add one.</div>
               )}
               {leftTab === 'investor' && (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8, paddingBottom: 16 }}>
                   {Object.entries(SAMPLE_INVESTOR).map(([k, v]) => (
                     <div key={k} style={{ display: 'grid', gridTemplateColumns: '120px 1fr', gap: 8, fontSize: 12 }}>
                       <span style={{ color: T.faint, fontFamily: T.mono, fontSize: 11, paddingTop: 1 }}>{k}</span>
@@ -323,9 +323,9 @@ function PromptBlock({ promptType, data, onSaved }) {
             <div style={{ padding: '10px 20px', borderBottom: `1px solid ${T.border}`, background: '#FAFAFA', fontSize: 10, fontWeight: 700, color: T.muted, letterSpacing: '0.07em', textTransform: 'uppercase' }}>
               Generated Output
             </div>
-            <div className="hide-scroll" style={{ flex: 1, padding: '16px 18px 12px', overflowY: 'auto', minHeight: 0 }}>
+            <div className="hide-scroll" style={{ flex: 1, padding: '16px 18px 0', overflowY: 'auto', minHeight: 0 }}>
               {!output && !genError && !generating && (
-                <div style={{ fontSize: 13, color: T.faint, fontStyle: 'italic' }}>Click ▶ Run to generate a real email via Gemini.</div>
+                <div style={{ fontSize: 13, color: T.faint, fontStyle: 'italic', paddingBottom: 16 }}>Click ▶ Run to generate a real email via Gemini.</div>
               )}
 
               {generating && (
@@ -342,7 +342,7 @@ function PromptBlock({ promptType, data, onSaved }) {
               )}
 
               {output && (
-                <div style={{ background: '#fff', borderRadius: 10, border: `1px solid ${T.border}`, overflow: 'hidden', boxShadow: '0 1px 6px rgba(0,0,0,0.05)' }}>
+                <div style={{ background: '#fff', borderRadius: 10, border: `1px solid ${T.border}`, overflow: 'hidden', boxShadow: '0 1px 6px rgba(0,0,0,0.05)', marginBottom: 16 }}>
                   <div style={{ padding: '12px 16px', borderBottom: `1px solid ${T.border}`, background: '#F8F8FC' }}>
                     <div style={{ fontSize: 10, fontWeight: 700, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 4 }}>Subject</div>
                     <div style={{ fontSize: 13, fontWeight: 600, color: T.text, lineHeight: 1.5 }}>{output.subject}</div>
