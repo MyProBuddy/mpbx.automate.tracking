@@ -282,7 +282,7 @@ function PromptBlock({ promptType, data, onSaved }) {
           {/* LEFT — tabs: Prompt | Investor */}
           <div style={{ flex: 1, borderRight: `1px solid ${T.border}`, display: 'flex', flexDirection: 'column', overflow: 'hidden', minHeight: 0 }}>
             {/* Tab bar */}
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 16px', borderBottom: `1px solid ${T.border}`, background: '#FAFAFA' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 16px', borderBottom: `1px solid ${T.border}`, background: '#FAFAFA', height: 44, flexShrink: 0 }}>
               <div style={{ display: 'flex', gap: 4 }}>
                 {tabBtn('prompt', 'Prompt')}
                 {tabBtn('investor', 'Investor Data')}
@@ -320,7 +320,7 @@ function PromptBlock({ promptType, data, onSaved }) {
 
           {/* RIGHT — output */}
           <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', minHeight: 0 }}>
-            <div style={{ padding: '10px 20px', borderBottom: `1px solid ${T.border}`, background: '#FAFAFA', fontSize: 10, fontWeight: 700, color: T.muted, letterSpacing: '0.07em', textTransform: 'uppercase' }}>
+            <div style={{ display: 'flex', alignItems: 'center', padding: '10px 20px', borderBottom: `1px solid ${T.border}`, background: '#FAFAFA', fontSize: 10, fontWeight: 700, color: T.muted, letterSpacing: '0.07em', textTransform: 'uppercase', height: 44, flexShrink: 0 }}>
               Generated Output
             </div>
             <div style={{ flex: 1, overflow: 'hidden', minHeight: 0, padding: '16px 18px' }}>
