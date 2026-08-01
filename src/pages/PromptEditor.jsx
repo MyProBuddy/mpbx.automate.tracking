@@ -326,7 +326,18 @@ function PromptBlock({ promptType, data, onSaved }) {
             <div style={{ flex: 1, overflow: 'hidden', minHeight: 0 }}>
               <div className="hide-scroll" style={{ height: '100%', padding: '16px 18px', overflowY: 'auto', boxSizing: 'border-box' }}>
                 {!output && !genError && !generating && (
-                  <div style={{ fontSize: 13, color: T.faint, fontStyle: 'italic' }}>Click ▶ Run to generate a real email via Gemini.</div>
+                  <div style={{ background: '#fff', borderRadius: 10, border: `1px solid ${T.border}`, overflow: 'hidden', boxShadow: '0 1px 6px rgba(0,0,0,0.05)' }}>
+                    <div style={{ padding: '12px 16px', borderBottom: `1px solid ${T.border}`, background: '#F8F8FC' }}>
+                      <div style={{ fontSize: 10, fontWeight: 700, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 4 }}>Subject</div>
+                      <div style={{ fontSize: 13, fontWeight: 600, color: '#C4C4D4', lineHeight: 1.5 }}>Investment Opportunity | SEBI-Registered Category I Angel Fund…</div>
+                    </div>
+                    <div style={{ padding: '16px' }}>
+                      <div style={{ fontSize: 13, color: '#D1D5DB', lineHeight: 2, whiteSpace: 'pre-wrap', fontFamily: 'Georgia, serif' }}>{`Dear David,\n\nI hope this message finds you well. Given Mangrove Capital Partners' focus on early-stage transformational technology across Europe, Enlighten Capital's thesis on India's underserved Tier 2/3 markets represents a complementary emerging-market opportunity.\n\nI am reaching out from the Investor Relations team at Enlighten Capital, a SEBI-registered Category I Angel Fund currently raising $10.6M USD to invest in post-revenue, high-growth companies across India's Tier 2 and Tier 3 markets.\n\nOur investment strategy is built on three core principles:\n• Investing in revenue-generating businesses with disciplined entry valuations.\n• Concentrating on underserved regional ecosystems with strong long-term growth potential.\n• Preserving capital through structured portfolio construction, including a dedicated 30% follow-on reserve.\n\nThe fund currently has an active pipeline of nine investment opportunities under due diligence, positioning us for immediate capital deployment following the first close.\n\nIf this opportunity aligns with Mangrove Capital Partners' investment mandate, we would welcome the opportunity to share our investment memorandum and discuss the fund in greater detail.\n\nKind regards,\nInvestor Relations\nEnlighten Capital`}</div>
+                    </div>
+                    <div style={{ padding: '10px 16px', borderTop: `1px solid ${T.border}`, background: '#FAFAFA' }}>
+                      <div style={{ fontSize: 11, color: '#D1D5DB', fontFamily: T.mono }}>{'Investor Relations\nEnlighten Capital'}</div>
+                    </div>
+                  </div>
                 )}
 
                 {generating && (
