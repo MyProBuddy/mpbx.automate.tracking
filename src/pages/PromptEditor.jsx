@@ -223,120 +223,142 @@ function PromptBlock({ promptType, data, onSaved }) {
     setEditing(false)
   }
 
+  const [leftTab, setLeftTab] = useState('prompt') // 'prompt' | 'investor'
+
+  const tabBtn = (id, label) => (
+    <button onClick={() => setLeftTab(id)} style={{
+      fontSize: 11, fontWeight: 700, padding: '5px 14px', borderRadius: 6, border: 'none',
+      background: leftTab === id ? T.accentLight : 'transparent',
+      color: leftTab === id ? T.accent : T.muted,
+      cursor: 'pointer', fontFamily: 'inherit',
+    }}>{label}</button>
+  )
+
   return (
-    <div style={{ background: '#fff', borderRadius: 12, border: `1.5px solid ${editing ? T.accent : T.border}`, overflow: 'hidden', transition: 'border-color 0.15s' }}>
+    <div style={{ background: '#fff', borderRadius: 12, border: `1.5px solid ${showTest ? T.accent : editing ? T.accent : T.border}`, overflow: 'hidden', transition: 'border-color 0.15s' }}>
       {/* Header */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 24px', borderBottom: `1px solid ${T.border}` }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 20px', borderBottom: `1px solid ${T.border}`, background: '#FAFAFA' }}>
         <div style={{ fontSize: 13, fontWeight: 700, color: T.text }}>{TYPE_LABELS[promptType]}</div>
         <div style={{ display: 'flex', gap: 8 }}>
           <button
             onClick={openTest}
-            style={{ fontSize: 11, fontWeight: 600, padding: '5px 14px', borderRadius: 6, border: `1px solid ${T.border}`, background: showTest ? T.accentLight : T.surface, color: showTest ? T.accent : T.muted, cursor: 'pointer', fontFamily: 'inherit' }}
+            style={{ fontSize: 11, fontWeight: 600, padding: '5px 14px', borderRadius: 6, border: `1px solid ${showTest ? T.accent : T.border}`, background: showTest ? T.accentLight : '#fff', color: showTest ? T.accent : T.muted, cursor: 'pointer', fontFamily: 'inherit' }}
           >
             {showTest ? 'Hide Test' : 'Test Prompt'}
           </button>
           {!showTest && (editing ? (
             <>
-              <button onClick={() => { setText(data.text); setEditing(false) }} style={{ fontSize: 11, fontWeight: 600, padding: '5px 14px', borderRadius: 6, border: `1px solid ${T.border}`, background: T.surface, color: T.muted, cursor: 'pointer', fontFamily: 'inherit' }}>Cancel</button>
+              <button onClick={() => { setText(data.text); setEditing(false) }} style={{ fontSize: 11, fontWeight: 600, padding: '5px 14px', borderRadius: 6, border: `1px solid ${T.border}`, background: '#fff', color: T.muted, cursor: 'pointer', fontFamily: 'inherit' }}>Cancel</button>
               <button onClick={save} disabled={saving} style={{ fontSize: 11, fontWeight: 700, padding: '5px 14px', borderRadius: 6, border: 'none', background: T.accent, color: '#fff', cursor: saving ? 'default' : 'pointer', fontFamily: 'inherit' }}>
                 {saving ? 'Saving…' : 'Save'}
               </button>
             </>
           ) : (
-            <button onClick={() => setEditing(true)} style={{ fontSize: 11, fontWeight: 600, padding: '5px 14px', borderRadius: 6, border: `1px solid ${T.border}`, background: T.surface, color: saved ? T.green : T.muted, cursor: 'pointer', fontFamily: 'inherit' }}>
+            <button onClick={() => setEditing(true)} style={{ fontSize: 11, fontWeight: 600, padding: '5px 14px', borderRadius: 6, border: `1px solid ${T.border}`, background: '#fff', color: saved ? T.green : T.muted, cursor: 'pointer', fontFamily: 'inherit' }}>
               {saved ? '✓ Saved' : 'Edit'}
             </button>
           ))}
         </div>
       </div>
 
-      {/* Body */}
-      {showTest ? (
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', minHeight: 320 }}>
-          {/* Left — Prompt + Investor data */}
-          <div style={{ borderRight: `1px solid ${T.border}`, display: 'flex', flexDirection: 'column', maxHeight: 600, overflowY: 'auto' }}>
-            {/* Prompt section */}
-            <div style={{ padding: '16px 24px', borderBottom: `1px solid ${T.border}` }}>
-              <div style={{ fontSize: 10, fontWeight: 700, color: T.muted, letterSpacing: '0.07em', textTransform: 'uppercase', marginBottom: 10 }}>Prompt</div>
-              <div style={{ fontSize: 11, color: T.text, lineHeight: 1.8, whiteSpace: 'pre-wrap', fontFamily: T.mono, background: T.bg, borderRadius: 8, padding: '10px 12px' }}>
-                {text || <span style={{ color: T.faint, fontStyle: 'italic' }}>No prompt set yet.</span>}
-              </div>
-            </div>
-            {/* Investor section */}
-            <div style={{ padding: '16px 24px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
-                <div style={{ fontSize: 10, fontWeight: 700, color: T.muted, letterSpacing: '0.07em', textTransform: 'uppercase' }}>Sample Investor</div>
-                <button
-                  onClick={runTest}
-                  disabled={generating}
-                  style={{ fontSize: 11, fontWeight: 700, padding: '5px 16px', borderRadius: 6, border: 'none', background: generating ? T.faint : T.accent, color: '#fff', cursor: generating ? 'default' : 'pointer', fontFamily: 'inherit' }}
-                >
-                  {generating ? 'Generating…' : '▶ Run'}
-                </button>
-              </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                {Object.entries(SAMPLE_INVESTOR).map(([k, v]) => (
-                  <div key={k} style={{ display: 'flex', gap: 8, fontSize: 11 }}>
-                    <span style={{ color: T.faint, fontFamily: T.mono, minWidth: 100, flexShrink: 0 }}>{k}</span>
-                    <span style={{ color: T.text, lineHeight: 1.5, wordBreak: 'break-word' }}>{v}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          {/* Right — Generated output */}
-          <div style={{ padding: '20px 24px', background: T.bg }}>
-            <div style={{ fontSize: 10, fontWeight: 700, color: T.muted, letterSpacing: '0.07em', textTransform: 'uppercase', marginBottom: 12 }}>Generated Output</div>
-
-            {!output && !genError && !generating && (
-              <div style={{ fontSize: 13, color: T.faint, fontStyle: 'italic' }}>Click ▶ Run to generate a real email via Gemini.</div>
-            )}
-
-            {generating && (
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 13, color: T.muted }}>
-                <span style={{ display: 'inline-block', width: 14, height: 14, border: `2px solid ${T.accent}`, borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 0.7s linear infinite' }} />
-                Calling Gemini API…
-              </div>
-            )}
-
-            {genError && (
-              <div style={{ fontSize: 12, color: T.red, background: '#FEF2F2', borderRadius: 8, padding: '10px 14px', lineHeight: 1.6 }}>
-                {genError}
-              </div>
-            )}
-
-            {output && (
-              <div style={{ background: '#fff', borderRadius: 10, border: `1px solid ${T.border}`, overflow: 'hidden' }}>
-                {/* Email header */}
-                <div style={{ padding: '14px 18px', borderBottom: `1px solid ${T.border}`, background: '#FAFAFA' }}>
-                  <div style={{ fontSize: 10, fontWeight: 700, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 4 }}>Subject</div>
-                  <div style={{ fontSize: 13, fontWeight: 600, color: T.text }}>{output.subject}</div>
-                </div>
-                {/* Email body */}
-                <div style={{ padding: '18px 18px', borderBottom: output.signature ? `1px solid ${T.border}` : 'none' }}>
-                  <div style={{ fontSize: 13, color: T.text, lineHeight: 2, whiteSpace: 'pre-wrap', fontFamily: 'Georgia, serif' }}>{output.body}</div>
-                </div>
-                {/* Signature */}
-                {output.signature && (
-                  <div style={{ padding: '12px 18px', background: '#F8F8FC' }}>
-                    <div style={{ fontSize: 11, color: T.muted, whiteSpace: 'pre-wrap', fontFamily: T.mono }}>{output.signature}</div>
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-        </div>
-      ) : (
+      {/* Edit / preview body */}
+      {!showTest && (
         <div style={{ padding: '20px 24px' }}>
           {editing ? (
-            <textarea value={text} onChange={e => setText(e.target.value)} rows={7}
-              style={{ width: '100%', padding: '10px 12px', border: `1px solid ${T.border}`, borderRadius: 8, fontSize: 13, fontFamily: 'inherit', color: T.text, lineHeight: 1.7, resize: 'vertical', outline: 'none', boxSizing: 'border-box', background: T.bg }} />
+            <textarea value={text} onChange={e => setText(e.target.value)} rows={12}
+              style={{ width: '100%', padding: '12px 14px', border: `1.5px solid ${T.accent}`, borderRadius: 8, fontSize: 12, fontFamily: T.mono, color: T.text, lineHeight: 1.7, resize: 'vertical', outline: 'none', boxSizing: 'border-box', background: '#FDFCFF' }} />
           ) : (
             text
-              ? <div style={{ fontSize: 13, color: T.text, lineHeight: 1.8, whiteSpace: 'pre-wrap' }}>{text}</div>
+              ? <pre style={{ fontSize: 12, color: T.text, lineHeight: 1.8, whiteSpace: 'pre-wrap', fontFamily: T.mono, margin: 0, background: T.bg, borderRadius: 8, padding: '12px 14px', maxHeight: 260, overflowY: 'auto' }}>{text}</pre>
               : <div style={{ fontSize: 13, color: T.faint, fontStyle: 'italic' }}>No prompt yet — click Edit to add.</div>
           )}
+        </div>
+      )}
+
+      {/* Test panel */}
+      {showTest && (
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', minHeight: 400 }}>
+
+          {/* LEFT — tabs: Prompt | Investor */}
+          <div style={{ borderRight: `1px solid ${T.border}`, display: 'flex', flexDirection: 'column' }}>
+            {/* Tab bar */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 16px', borderBottom: `1px solid ${T.border}`, background: '#FAFAFA' }}>
+              <div style={{ display: 'flex', gap: 4 }}>
+                {tabBtn('prompt', 'Prompt')}
+                {tabBtn('investor', 'Investor Data')}
+              </div>
+              <button
+                onClick={runTest}
+                disabled={generating}
+                style={{ fontSize: 11, fontWeight: 700, padding: '5px 18px', borderRadius: 6, border: 'none', background: generating ? T.faint : T.accent, color: '#fff', cursor: generating ? 'default' : 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: 6 }}
+              >
+                {generating
+                  ? <><span style={{ display: 'inline-block', width: 10, height: 10, border: '2px solid rgba(255,255,255,0.5)', borderTopColor: '#fff', borderRadius: '50%', animation: 'spin 0.7s linear infinite' }} /> Generating…</>
+                  : '▶ Run'}
+              </button>
+            </div>
+
+            {/* Tab content */}
+            <div style={{ flex: 1, overflowY: 'auto', padding: '16px 20px' }}>
+              {leftTab === 'prompt' && (
+                text
+                  ? <pre style={{ fontSize: 11, color: T.text, lineHeight: 1.8, whiteSpace: 'pre-wrap', fontFamily: T.mono, margin: 0 }}>{text}</pre>
+                  : <div style={{ fontSize: 13, color: T.faint, fontStyle: 'italic' }}>No prompt set — go back and click Edit to add one.</div>
+              )}
+              {leftTab === 'investor' && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  {Object.entries(SAMPLE_INVESTOR).map(([k, v]) => (
+                    <div key={k} style={{ display: 'grid', gridTemplateColumns: '120px 1fr', gap: 8, fontSize: 12 }}>
+                      <span style={{ color: T.faint, fontFamily: T.mono, fontSize: 11, paddingTop: 1 }}>{k}</span>
+                      <span style={{ color: T.text, lineHeight: 1.5, wordBreak: 'break-word' }}>{v}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* RIGHT — output */}
+          <div style={{ display: 'flex', flexDirection: 'column', overflowY: 'auto', maxHeight: 560 }}>
+            <div style={{ padding: '10px 20px', borderBottom: `1px solid ${T.border}`, background: '#FAFAFA', fontSize: 10, fontWeight: 700, color: T.muted, letterSpacing: '0.07em', textTransform: 'uppercase' }}>
+              Generated Output
+            </div>
+            <div style={{ flex: 1, padding: '20px', overflowY: 'auto' }}>
+              {!output && !genError && !generating && (
+                <div style={{ fontSize: 13, color: T.faint, fontStyle: 'italic' }}>Click ▶ Run to generate a real email via Gemini.</div>
+              )}
+
+              {generating && (
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 13, color: T.muted }}>
+                  <span style={{ display: 'inline-block', width: 14, height: 14, border: `2px solid ${T.accent}`, borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 0.7s linear infinite' }} />
+                  Calling Gemini API…
+                </div>
+              )}
+
+              {genError && (
+                <div style={{ fontSize: 12, color: T.red, background: '#FEF2F2', borderRadius: 8, padding: '12px 14px', lineHeight: 1.6, border: `1px solid #FECACA` }}>
+                  <span style={{ fontWeight: 700 }}>Error: </span>{genError}
+                </div>
+              )}
+
+              {output && (
+                <div style={{ background: '#fff', borderRadius: 10, border: `1px solid ${T.border}`, overflow: 'hidden', boxShadow: '0 1px 6px rgba(0,0,0,0.05)' }}>
+                  <div style={{ padding: '12px 16px', borderBottom: `1px solid ${T.border}`, background: '#F8F8FC' }}>
+                    <div style={{ fontSize: 10, fontWeight: 700, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 4 }}>Subject</div>
+                    <div style={{ fontSize: 13, fontWeight: 600, color: T.text, lineHeight: 1.5 }}>{output.subject}</div>
+                  </div>
+                  <div style={{ padding: '16px 16px' }}>
+                    <div style={{ fontSize: 13, color: T.text, lineHeight: 2, whiteSpace: 'pre-wrap', fontFamily: 'Georgia, serif' }}>{output.body}</div>
+                  </div>
+                  {output.signature && (
+                    <div style={{ padding: '10px 16px', borderTop: `1px solid ${T.border}`, background: '#FAFAFA' }}>
+                      <div style={{ fontSize: 11, color: T.muted, whiteSpace: 'pre-wrap', fontFamily: T.mono }}>{output.signature}</div>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
         </div>
       )}
     </div>

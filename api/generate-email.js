@@ -85,7 +85,9 @@ Enlighten Capital
 }
 </Output_Schema>`
 
-  const userMessage = `${client_prompt ? `Additional instructions from the user:\n${client_prompt}\n\n` : ''}<Investor_Data>\n${JSON.stringify(investor_data, null, 2)}\n</Investor_Data>`
+  // If the user has a saved prompt, use it as the system instruction; otherwise fall back to the built-in one
+  const effectiveSystem = (client_prompt && client_prompt.trim()) ? client_prompt.trim() : systemPrompt
+  const userMessage = `<Investor_Data>\n${JSON.stringify(investor_data, null, 2)}\n</Investor_Data>`
 
   try {
     const geminiRes = await fetch(
@@ -95,15 +97,17 @@ Enlighten Capital
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           contents: [{ role: 'user', parts: [{ text: userMessage }] }],
-          systemInstruction: { parts: [{ text: systemPrompt }] },
-          generationConfig: { temperature: 0.4, responseMimeType: 'application/json' },
+          systemInstruction: { role: 'user', parts: [{ text: effectiveSystem }] },
+          generationConfig: { temperature: 0.4 },
         }),
       }
     )
 
     if (!geminiRes.ok) {
-      const err = await geminiRes.text()
-      return res.status(502).json({ error: 'Gemini API error', detail: err })
+      let errDetail
+      try { errDetail = await geminiRes.json() } catch { errDetail = await geminiRes.text() }
+      const msg = errDetail?.error?.message || errDetail?.message || JSON.stringify(errDetail)
+      return res.status(502).json({ error: msg })
     }
 
     const geminiData = await geminiRes.json()
