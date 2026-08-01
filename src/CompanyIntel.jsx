@@ -242,18 +242,8 @@ export default function CompanyIntel() {
   // resolve column indices for display
   const colIdx = (pattern) => headers.findIndex(h => pattern.test(h))
   const updateCol = colIdx(/update|note|intel/i)
-  const dateCol   = colIdx(/date|time/i)
-
-  // deduplicate rows by update text
-  const seen = new Set()
-  const dedupedRows = [...rows].reverse().filter(row => {
-    const key = ((updateCol >= 0 ? row[updateCol] : row[0]) ?? '').replace(/\s+/g, ' ').trim().toLowerCase()
-    if (!key || seen.has(key)) return false
-    seen.add(key)
-    return true
-  })
-
-  console.log('raw rows:', rows.length, 'deduped:', dedupedRows.length)
+  // exclude updateCol so "update" header doesn't match /date/ substring
+  const dateCol = headers.findIndex((h, i) => i !== updateCol && /date|time/i.test(h))
 
   return (
     <div style={{ minHeight: '100vh', fontFamily: T.sans, color: T.text }}>
@@ -384,7 +374,7 @@ export default function CompanyIntel() {
                 </div>
               ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 10, maxHeight: 520, overflowY: 'auto' }}>
-                  {dedupedRows.map((row, i) => (
+                  {[...rows].reverse().map((row, i) => (
                     <LogCard key={i} row={row} updateCol={updateCol} dateCol={dateCol} />
                   ))}
                 </div>
