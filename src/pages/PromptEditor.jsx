@@ -2,6 +2,35 @@ import { useState, useEffect } from 'react'
 import { T } from '../constants.js'
 import Nav from '../components/Nav.jsx'
 
+const SAMPLE_INVESTOR = {
+  id: 'WZ-001',
+  first_name: 'David',
+  last_name: 'Waroquier',
+  title: 'Partner',
+  firm: 'Mangrove Capital Partners',
+  email: 'davidw@oakland.partners',
+  sectors: 'Fintech, SaaS, Cybersecurity, AI, Web3',
+  linkedin: 'https://www.linkedin.com/in/davidwaroquier/',
+  website: 'https://www.mangrove.vc',
+  firm_full: 'Mangrove Capital Partners, Luxembourg',
+  city: 'Luxembourg',
+  country: 'Luxembourg',
+  aum: '$1B',
+  fund_size: '$170M',
+  bio: 'Mangrove Capital Partners is a leading contrarian, early-stage venture capital firm based in Luxembourg. Partner David Waroquier is also associated with Oakland Partners.',
+  crunchbase: 'https://www.crunchbase.com/organization/mangrove-capital-partners',
+  stages: 'Seed, Series A',
+  thesis: 'Early-stage venture capital firm investing in transformational technology ideas across Europe.',
+  portfolio_count: '50+',
+  notable_investments: 'Skype, Wix, Flo Health, WalkMe, K Health, TBOL',
+  focus_areas: 'Fintech, SaaS, AI, Consumer Tech',
+  check_size: '$1M-$5M',
+  fund_name: 'Mangrove Capital Partners Funds',
+  exits: 'Skype, Wix, Flo Health',
+  mandate: 'Partner with bold entrepreneurs building global transformational tech platforms',
+  timezone: 'UTC+1',
+}
+
 const PROMPT_TYPES = ['outreach', 'outreach_followup', 'reply', 'reply_followup']
 const TYPE_LABELS = {
   outreach:          'Outreach',
@@ -141,11 +170,14 @@ function AddClientModal({ onClose, onAdded }) {
 }
 
 function PromptBlock({ promptType, data, onSaved }) {
-  const [editing, setEditing]   = useState(false)
-  const [text, setText]         = useState(data.text)
-  const [saving, setSaving]     = useState(false)
-  const [saved, setSaved]       = useState(false)
-  const [showTest, setShowTest] = useState(false)
+  const [editing, setEditing]     = useState(false)
+  const [text, setText]           = useState(data.text)
+  const [saving, setSaving]       = useState(false)
+  const [saved, setSaved]         = useState(false)
+  const [showTest, setShowTest]   = useState(false)
+  const [generating, setGenerating] = useState(false)
+  const [output, setOutput]       = useState(null)  // { subject, body } | null
+  const [genError, setGenError]   = useState(null)
 
   useEffect(() => { setText(data.text) }, [data.text])
 
@@ -163,6 +195,34 @@ function PromptBlock({ promptType, data, onSaved }) {
     onSaved()
   }
 
+  const runTest = async () => {
+    setGenerating(true)
+    setOutput(null)
+    setGenError(null)
+    try {
+      const res = await fetch('/api/generate-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ investor_data: SAMPLE_INVESTOR, client_prompt: text }),
+      })
+      const json = await res.json()
+      if (!res.ok) { setGenError(json.error || 'Generation failed'); return }
+      setOutput(json)
+    } catch (e) {
+      setGenError(e.message)
+    } finally {
+      setGenerating(false)
+    }
+  }
+
+  const openTest = () => {
+    setShowTest(s => {
+      if (!s) { setOutput(null); setGenError(null) }
+      return !s
+    })
+    setEditing(false)
+  }
+
   return (
     <div style={{ background: '#fff', borderRadius: 12, border: `1.5px solid ${editing ? T.accent : T.border}`, overflow: 'hidden', transition: 'border-color 0.15s' }}>
       {/* Header */}
@@ -170,7 +230,7 @@ function PromptBlock({ promptType, data, onSaved }) {
         <div style={{ fontSize: 13, fontWeight: 700, color: T.text }}>{TYPE_LABELS[promptType]}</div>
         <div style={{ display: 'flex', gap: 8 }}>
           <button
-            onClick={() => { setShowTest(s => !s); setEditing(false) }}
+            onClick={openTest}
             style={{ fontSize: 11, fontWeight: 600, padding: '5px 14px', borderRadius: 6, border: `1px solid ${T.border}`, background: showTest ? T.accentLight : T.surface, color: showTest ? T.accent : T.muted, cursor: 'pointer', fontFamily: 'inherit' }}
           >
             {showTest ? 'Hide Test' : 'Test Prompt'}
@@ -192,23 +252,58 @@ function PromptBlock({ promptType, data, onSaved }) {
 
       {/* Body */}
       {showTest ? (
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', minHeight: 280 }}>
-          {/* Prompt side */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', minHeight: 320 }}>
+          {/* Left — Investor data */}
           <div style={{ padding: '20px 24px', borderRight: `1px solid ${T.border}` }}>
-            <div style={{ fontSize: 10, fontWeight: 700, color: T.muted, letterSpacing: '0.07em', textTransform: 'uppercase', marginBottom: 12 }}>Prompt</div>
-            <div style={{ fontSize: 12, color: T.text, lineHeight: 1.8, whiteSpace: 'pre-wrap' }}>
-              {text || <span style={{ color: T.faint, fontStyle: 'italic' }}>No prompt set yet.</span>}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+              <div style={{ fontSize: 10, fontWeight: 700, color: T.muted, letterSpacing: '0.07em', textTransform: 'uppercase' }}>Sample Investor</div>
+              <button
+                onClick={runTest}
+                disabled={generating}
+                style={{ fontSize: 11, fontWeight: 700, padding: '5px 16px', borderRadius: 6, border: 'none', background: generating ? T.faint : T.accent, color: '#fff', cursor: generating ? 'default' : 'pointer', fontFamily: 'inherit' }}
+              >
+                {generating ? 'Generating…' : '▶ Run'}
+              </button>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+              {Object.entries(SAMPLE_INVESTOR).map(([k, v]) => (
+                <div key={k} style={{ display: 'flex', gap: 8, fontSize: 11 }}>
+                  <span style={{ color: T.faint, fontFamily: T.mono, minWidth: 100, flexShrink: 0 }}>{k}</span>
+                  <span style={{ color: T.text, lineHeight: 1.5, wordBreak: 'break-word' }}>{v}</span>
+                </div>
+              ))}
             </div>
           </div>
-          {/* Output side */}
+
+          {/* Right — Generated output */}
           <div style={{ padding: '20px 24px', background: T.bg }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
-              <div style={{ fontSize: 10, fontWeight: 700, color: T.muted, letterSpacing: '0.07em', textTransform: 'uppercase' }}>Sample Output</div>
-              <span style={{ fontSize: 9, fontWeight: 700, color: '#D97706', background: '#FFFBEB', border: '1px solid #FDE68A', borderRadius: 99, padding: '2px 8px', letterSpacing: '0.05em' }}>PLACEHOLDER</span>
-            </div>
-            <div style={{ fontSize: 12, color: T.text, lineHeight: 1.9, whiteSpace: 'pre-wrap', fontFamily: 'Georgia, serif' }}>
-              {PLACEHOLDER_OUTPUTS[promptType]}
-            </div>
+            <div style={{ fontSize: 10, fontWeight: 700, color: T.muted, letterSpacing: '0.07em', textTransform: 'uppercase', marginBottom: 12 }}>Generated Output</div>
+
+            {!output && !genError && !generating && (
+              <div style={{ fontSize: 13, color: T.faint, fontStyle: 'italic' }}>Click ▶ Run to generate a real email via Gemini.</div>
+            )}
+
+            {generating && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 13, color: T.muted }}>
+                <span style={{ display: 'inline-block', width: 14, height: 14, border: `2px solid ${T.accent}`, borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 0.7s linear infinite' }} />
+                Calling Gemini API…
+              </div>
+            )}
+
+            {genError && (
+              <div style={{ fontSize: 12, color: T.red, background: '#FEF2F2', borderRadius: 8, padding: '10px 14px', lineHeight: 1.6 }}>
+                {genError}
+              </div>
+            )}
+
+            {output && (
+              <div>
+                <div style={{ fontSize: 11, fontWeight: 700, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 4 }}>Subject</div>
+                <div style={{ fontSize: 12, fontWeight: 600, color: T.text, marginBottom: 16, padding: '8px 12px', background: '#fff', borderRadius: 7, border: `1px solid ${T.border}` }}>{output.subject}</div>
+                <div style={{ fontSize: 11, fontWeight: 700, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 4 }}>Body</div>
+                <div style={{ fontSize: 12, color: T.text, lineHeight: 1.9, whiteSpace: 'pre-wrap', fontFamily: 'Georgia, serif', background: '#fff', borderRadius: 7, border: `1px solid ${T.border}`, padding: '12px 14px' }}>{output.body}</div>
+              </div>
+            )}
           </div>
         </div>
       ) : (

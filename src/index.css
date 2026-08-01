@@ -40,6 +40,8 @@ body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans
 
 .mpbx-nav > * { position: relative; z-index: 1; }
 
+@keyframes spin { to { transform: rotate(360deg); } }
+
 /* MPBX brand gradient text */
 .mpbx-brand-name {
   font-size: 15px;
