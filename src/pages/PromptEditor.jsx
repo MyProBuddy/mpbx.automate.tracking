@@ -277,10 +277,10 @@ function PromptBlock({ promptType, data, onSaved }) {
 
       {/* Test panel */}
       {showTest && (
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', flex: 1, overflow: 'hidden' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', flex: 1, overflow: 'hidden', minHeight: 0 }}>
 
           {/* LEFT — tabs: Prompt | Investor */}
-          <div style={{ borderRight: `1px solid ${T.border}`, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+          <div style={{ borderRight: `1px solid ${T.border}`, display: 'flex', flexDirection: 'column', overflow: 'hidden', minHeight: 0 }}>
             {/* Tab bar */}
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 16px', borderBottom: `1px solid ${T.border}`, background: '#FAFAFA' }}>
               <div style={{ display: 'flex', gap: 4 }}>
@@ -299,7 +299,7 @@ function PromptBlock({ promptType, data, onSaved }) {
             </div>
 
             {/* Tab content */}
-            <div className="hide-scroll" style={{ flex: 1, overflowY: 'auto', padding: '16px 20px 12px' }}>
+            <div className="hide-scroll" style={{ flex: 1, overflowY: 'auto', padding: '16px 20px 12px', minHeight: 0 }}>
               {leftTab === 'prompt' && (
                 text
                   ? <pre style={{ fontSize: 11, color: T.text, lineHeight: 1.8, whiteSpace: 'pre-wrap', fontFamily: T.mono, margin: 0 }}>{text}</pre>
@@ -319,11 +319,11 @@ function PromptBlock({ promptType, data, onSaved }) {
           </div>
 
           {/* RIGHT — output */}
-          <div style={{ display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', overflow: 'hidden', minHeight: 0 }}>
             <div style={{ padding: '10px 20px', borderBottom: `1px solid ${T.border}`, background: '#FAFAFA', fontSize: 10, fontWeight: 700, color: T.muted, letterSpacing: '0.07em', textTransform: 'uppercase' }}>
               Generated Output
             </div>
-            <div className="hide-scroll" style={{ flex: 1, padding: '16px 18px 12px', overflowY: 'auto' }}>
+            <div className="hide-scroll" style={{ flex: 1, padding: '16px 18px 12px', overflowY: 'auto', minHeight: 0 }}>
               {!output && !genError && !generating && (
                 <div style={{ fontSize: 13, color: T.faint, fontStyle: 'italic' }}>Click ▶ Run to generate a real email via Gemini.</div>
               )}
