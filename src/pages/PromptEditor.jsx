@@ -323,8 +323,8 @@ function PromptBlock({ promptType, data, onSaved }) {
             <div style={{ padding: '10px 20px', borderBottom: `1px solid ${T.border}`, background: '#FAFAFA', fontSize: 10, fontWeight: 700, color: T.muted, letterSpacing: '0.07em', textTransform: 'uppercase' }}>
               Generated Output
             </div>
-            <div style={{ flex: 1, overflow: 'hidden', minHeight: 0 }}>
-              <div className="hide-scroll" style={{ height: '100%', padding: '16px 18px', overflowY: 'auto', boxSizing: 'border-box' }}>
+            <div style={{ flex: 1, overflow: 'hidden', minHeight: 0, padding: '16px 18px' }}>
+              <div className="hide-scroll" style={{ height: '100%', overflowY: 'auto', boxSizing: 'border-box' }}>
                 {!output && !genError && !generating && (
                   <div style={{ background: '#fff', borderRadius: 10, border: `1px solid ${T.border}`, overflow: 'hidden', boxShadow: '0 1px 6px rgba(0,0,0,0.05)' }}>
                     <div style={{ padding: '12px 16px', borderBottom: `1px solid ${T.border}`, background: '#F8F8FC' }}>
