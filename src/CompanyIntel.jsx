@@ -373,10 +373,15 @@ export default function CompanyIntel() {
                 </div>
               ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 10, maxHeight: 520, overflowY: 'auto' }}>
-                  {[...rows].reverse().filter((row, i, arr) => {
-                    const key = ((updateCol >= 0 ? row[updateCol] : row[0]) ?? '').trim()
-                    return arr.findIndex(r => ((updateCol >= 0 ? r[updateCol] : r[0]) ?? '').trim() === key) === i
-                  }).map((row, i) => (
+                  {(() => {
+                    const seen = new Set()
+                    return [...rows].reverse().filter(row => {
+                      const key = ((updateCol >= 0 ? row[updateCol] : row[0]) ?? '').replace(/\s+/g, ' ').trim().toLowerCase()
+                      if (seen.has(key)) return false
+                      seen.add(key)
+                      return true
+                    })
+                  })().map((row, i) => (
                     <LogCard key={i} row={row} updateCol={updateCol} dateCol={dateCol} />
                   ))}
                 </div>
