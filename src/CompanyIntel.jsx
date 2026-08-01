@@ -92,6 +92,61 @@ function Badge({ children, color }) {
   return <span style={{ fontSize: 11, fontWeight: 600, background: color + '18', color, borderRadius: 6, padding: '3px 10px', fontFamily: T.sans }}>{children}</span>
 }
 
+function LogCard({ row, updateCol, dateCol }) {
+  const upd = updateCol >= 0 ? row[updateCol] : row[0]
+  const dt  = dateCol   >= 0 ? row[dateCol]   : row[1]
+  const dateStr = dt ? new Date(dt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : null
+  const [summary, setSummary]     = useState('')
+  const [summarising, setSummarising] = useState(false)
+  const [summaryErr, setSummaryErr]   = useState('')
+
+  const summarise = async () => {
+    if (!upd) return
+    setSummarising(true); setSummaryErr(''); setSummary('')
+    try {
+      const res = await fetch('/api/summarize', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text: upd }),
+      })
+      const data = await res.json()
+      if (!res.ok) { setSummaryErr(data.error || 'Failed'); return }
+      setSummary(data.summary)
+    } catch (e) {
+      setSummaryErr(e.message)
+    } finally {
+      setSummarising(false)
+    }
+  }
+
+  return (
+    <div style={{ background: '#fff', borderRadius: 10, border: `1.5px solid ${T.border}`, borderLeft: `3px solid ${T.accent}`, overflow: 'hidden' }}>
+      <div style={{ padding: '12px 16px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+          {dateStr
+            ? <span style={{ fontSize: 11, fontWeight: 700, color: T.accent, background: T.accentLight, borderRadius: 5, padding: '2px 8px' }}>{dateStr}</span>
+            : <span />}
+          <button
+            onClick={summarise}
+            disabled={summarising}
+            style={{ fontSize: 11, fontWeight: 600, color: summarising ? T.muted : T.accent, background: 'transparent', border: `1px solid ${T.accent}30`, borderRadius: 6, padding: '3px 10px', cursor: summarising ? 'default' : 'pointer', fontFamily: T.sans }}
+          >
+            {summarising ? 'Summarising…' : summary ? '↻ Re-summarise' : '✦ Summarise'}
+          </button>
+        </div>
+        <div style={{ fontSize: 13, color: T.text, lineHeight: 1.7, fontWeight: 400 }}>{upd || '—'}</div>
+      </div>
+      {(summary || summaryErr) && (
+        <div style={{ padding: '10px 16px', borderTop: `1px solid ${T.border}`, background: summary ? T.accentLight : '#FEF2F2' }}>
+          {summaryErr
+            ? <span style={{ fontSize: 12, color: T.red }}>{summaryErr}</span>
+            : <span style={{ fontSize: 12, fontWeight: 600, color: T.accent }}>✦ {summary}</span>}
+        </div>
+      )}
+    </div>
+  )
+}
+
 function utcTimestamp() {
   const d = new Date()
   const offsetMs = -4 * 60 * 60 * 1000
@@ -321,14 +376,12 @@ export default function CompanyIntel() {
 
             {/* Existing updates */}
             <Card>
-              <div style={{ fontSize: 17, fontWeight: 700, letterSpacing: '-0.02em', marginBottom: 6, color: T.text }}>
-                Logged updates
-                {rows.length > 0 && (
-                  <span style={{ marginLeft: 10, fontSize: 13, fontWeight: 500, color: T.muted, letterSpacing: 0 }}>({rows.length})</span>
-                )}
+              <div style={{ display: 'flex', alignItems: 'baseline', gap: 10, marginBottom: 4 }}>
+                <div style={{ fontSize: 17, fontWeight: 800, letterSpacing: '-0.03em', color: T.text }}>Logged updates</div>
+                {rows.length > 0 && <span style={{ fontSize: 12, fontWeight: 600, color: '#fff', background: T.accent, borderRadius: 20, padding: '1px 9px' }}>{rows.length}</span>}
               </div>
-              <div style={{ fontSize: 13, color: T.muted, marginBottom: 20 }}>
-                All entries in the <strong style={{ color: T.text }}>{updateTabName}</strong> tab, newest at the bottom.
+              <div style={{ fontSize: 12, color: T.muted, marginBottom: 20, lineHeight: 1.5 }}>
+                Entries from the <strong style={{ color: T.text, fontWeight: 600 }}>{updateTabName}</strong> tab — newest first.
               </div>
 
               {loading ? (
@@ -341,18 +394,9 @@ export default function CompanyIntel() {
                 </div>
               ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 10, maxHeight: 520, overflowY: 'auto' }}>
-                  {[...rows].reverse().map((row, i) => {
-                    const upd = updateCol >= 0 ? row[updateCol] : row[0]
-                    const dt  = dateCol   >= 0 ? row[dateCol]   : row[1]
-                    return (
-                      <div key={i} style={{ padding: '14px 16px', background: T.bg, borderRadius: 10, border: `1.5px solid ${T.border}` }}>
-                        <div style={{ marginBottom: 6 }}>
-                          <span style={{ fontSize: 11, color: T.faint, fontFamily: T.mono }}>{dt || '—'}</span>
-                        </div>
-                        <div style={{ fontSize: 13, color: T.muted, lineHeight: 1.6 }}>{upd || '—'}</div>
-                      </div>
-                    )
-                  })}
+                  {[...rows].reverse().map((row, i) => (
+                    <LogCard key={i} row={row} updateCol={updateCol} dateCol={dateCol} />
+                  ))}
                 </div>
               )}
             </Card>
