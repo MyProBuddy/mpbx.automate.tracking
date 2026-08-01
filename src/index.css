@@ -42,6 +42,9 @@ body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans
 
 @keyframes spin { to { transform: rotate(360deg); } }
 
+.hide-scroll { scrollbar-width: none; -ms-overflow-style: none; }
+.hide-scroll::-webkit-scrollbar { display: none; }
+
 /* MPBX brand gradient text */
 .mpbx-brand-name {
   font-size: 15px;

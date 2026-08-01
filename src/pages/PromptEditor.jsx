@@ -235,7 +235,7 @@ function PromptBlock({ promptType, data, onSaved }) {
   )
 
   return (
-    <div style={{ background: '#fff', borderRadius: 12, border: `1.5px solid ${showTest ? T.accent : editing ? T.accent : T.border}`, overflow: 'hidden', transition: 'border-color 0.15s', height: 420, display: 'flex', flexDirection: 'column' }}>
+    <div style={{ background: '#fff', borderRadius: 12, border: `1.5px solid ${showTest ? T.accent : editing ? T.accent : T.border}`, overflow: 'hidden', transition: 'border-color 0.15s', height: 500, display: 'flex', flexDirection: 'column' }}>
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 20px', borderBottom: `1px solid ${T.border}`, background: '#FAFAFA' }}>
         <div style={{ fontSize: 13, fontWeight: 700, color: T.text }}>{TYPE_LABELS[promptType]}</div>
@@ -263,7 +263,7 @@ function PromptBlock({ promptType, data, onSaved }) {
 
       {/* Edit / preview body */}
       {!showTest && (
-        <div style={{ padding: '20px 24px', flex: 1, overflowY: 'auto' }}>
+        <div className="hide-scroll" style={{ padding: '20px 24px 32px', flex: 1, overflowY: 'auto' }}>
           {editing ? (
             <textarea value={text} onChange={e => setText(e.target.value)} rows={12}
               style={{ width: '100%', padding: '12px 14px', border: `1.5px solid ${T.accent}`, borderRadius: 8, fontSize: 12, fontFamily: T.mono, color: T.text, lineHeight: 1.7, resize: 'vertical', outline: 'none', boxSizing: 'border-box', background: '#FDFCFF' }} />
@@ -299,7 +299,7 @@ function PromptBlock({ promptType, data, onSaved }) {
             </div>
 
             {/* Tab content */}
-            <div style={{ flex: 1, overflowY: 'auto', padding: '16px 20px' }}>
+            <div className="hide-scroll" style={{ flex: 1, overflowY: 'auto', padding: '16px 20px 32px' }}>
               {leftTab === 'prompt' && (
                 text
                   ? <pre style={{ fontSize: 11, color: T.text, lineHeight: 1.8, whiteSpace: 'pre-wrap', fontFamily: T.mono, margin: 0 }}>{text}</pre>
@@ -323,7 +323,7 @@ function PromptBlock({ promptType, data, onSaved }) {
             <div style={{ padding: '10px 20px', borderBottom: `1px solid ${T.border}`, background: '#FAFAFA', fontSize: 10, fontWeight: 700, color: T.muted, letterSpacing: '0.07em', textTransform: 'uppercase' }}>
               Generated Output
             </div>
-            <div style={{ flex: 1, padding: '20px', overflowY: 'auto' }}>
+            <div className="hide-scroll" style={{ flex: 1, padding: '16px 18px 32px', overflowY: 'auto' }}>
               {!output && !genError && !generating && (
                 <div style={{ fontSize: 13, color: T.faint, fontStyle: 'italic' }}>Click ▶ Run to generate a real email via Gemini.</div>
               )}
