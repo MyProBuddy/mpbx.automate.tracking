@@ -170,16 +170,15 @@ function AddClientModal({ onClose, onAdded }) {
 }
 
 function PromptBlock({ promptType, data, onSaved }) {
-  const [editing, setEditing]     = useState(false)
-  const [text, setText]           = useState(data.text)
-  const [saving, setSaving]       = useState(false)
-  const [saved, setSaved]         = useState(false)
-  const [showTest, setShowTest]   = useState(true)
+  const [text, setText]             = useState(data.text)
+  const [saving, setSaving]         = useState(false)
   const [generating, setGenerating] = useState(false)
-  const [output, setOutput]       = useState(null)  // { subject, body } | null
-  const [genError, setGenError]   = useState(null)
+  const [output, setOutput]         = useState(null)
+  const [genError, setGenError]     = useState(null)
 
   useEffect(() => { setText(data.text) }, [data.text])
+
+  const dirty = text !== data.text
 
   const save = async () => {
     setSaving(true)
@@ -189,9 +188,6 @@ function PromptBlock({ promptType, data, onSaved }) {
       body: JSON.stringify({ id: data.id, prompt: text }),
     })
     setSaving(false)
-    setEditing(false)
-    setSaved(true)
-    setTimeout(() => setSaved(false), 2000)
     onSaved()
   }
 
@@ -215,15 +211,7 @@ function PromptBlock({ promptType, data, onSaved }) {
     }
   }
 
-  const openTest = () => {
-    setShowTest(s => {
-      if (!s) { setOutput(null); setGenError(null) }
-      return !s
-    })
-    setEditing(false)
-  }
-
-  const [leftTab, setLeftTab] = useState('prompt') // 'prompt' | 'investor'
+  const [leftTab, setLeftTab] = useState('prompt')
 
   const tabBtn = (id, label) => (
     <button onClick={() => setLeftTab(id)} style={{
@@ -235,75 +223,49 @@ function PromptBlock({ promptType, data, onSaved }) {
   )
 
   return (
-    <div style={{ background: '#fff', borderRadius: 12, border: `1.5px solid ${showTest ? T.accent : editing ? T.accent : T.border}`, overflow: 'hidden', transition: 'border-color 0.15s', height: 500, display: 'flex', flexDirection: 'column' }}>
-      {/* Header */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 20px', borderBottom: `1px solid ${T.border}`, background: '#FAFAFA' }}>
-        <div style={{ fontSize: 13, fontWeight: 700, color: T.text }}>{TYPE_LABELS[promptType]}</div>
-        <div style={{ display: 'flex', gap: 8 }}>
-          <button
-            onClick={openTest}
-            style={{ fontSize: 11, fontWeight: 600, padding: '5px 14px', borderRadius: 6, border: `1px solid ${showTest ? T.accent : T.border}`, background: showTest ? T.accentLight : '#fff', color: showTest ? T.accent : T.muted, cursor: 'pointer', fontFamily: 'inherit' }}
-          >
-            {showTest ? 'Done' : 'Test Prompt'}
-          </button>
-          {!showTest && (editing ? (
-            <>
-              <button onClick={() => { setText(data.text); setEditing(false) }} style={{ fontSize: 11, fontWeight: 600, padding: '5px 14px', borderRadius: 6, border: `1px solid ${T.border}`, background: '#fff', color: T.muted, cursor: 'pointer', fontFamily: 'inherit' }}>Cancel</button>
-              <button onClick={save} disabled={saving} style={{ fontSize: 11, fontWeight: 700, padding: '5px 14px', borderRadius: 6, border: 'none', background: T.accent, color: '#fff', cursor: saving ? 'default' : 'pointer', fontFamily: 'inherit' }}>
-                {saving ? 'Saving…' : 'Save'}
-              </button>
-            </>
-          ) : (
-            <button onClick={() => setEditing(true)} style={{ fontSize: 11, fontWeight: 600, padding: '5px 14px', borderRadius: 6, border: `1px solid ${T.border}`, background: '#fff', color: saved ? T.green : T.muted, cursor: 'pointer', fontFamily: 'inherit' }}>
-              {saved ? '✓ Saved' : 'Edit'}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* Edit / preview body */}
-      {!showTest && (
-        <div className="no-scroll" style={{ padding: '20px 24px 12px', flex: 1, overflowY: 'hidden', minHeight: 0 }}>
-          {editing ? (
-            <textarea value={text} onChange={e => setText(e.target.value)} rows={12}
-              style={{ width: '100%', padding: '12px 14px', border: `1.5px solid ${T.accent}`, borderRadius: 8, fontSize: 12, fontFamily: T.mono, color: T.text, lineHeight: 1.7, resize: 'vertical', outline: 'none', boxSizing: 'border-box', background: '#FDFCFF' }} />
-          ) : (
-            text
-              ? <pre style={{ fontSize: 12, color: T.text, lineHeight: 1.8, whiteSpace: 'pre-wrap', fontFamily: T.mono, margin: 0, background: T.bg, borderRadius: 8, padding: '12px 14px', height: '100%', overflowY: 'auto', boxSizing: 'border-box' }}>{text}</pre>
-              : <div style={{ fontSize: 13, color: T.faint, fontStyle: 'italic' }}>No prompt yet — click Edit to add.</div>
-          )}
-        </div>
-      )}
+    <div style={{ background: '#fff', borderRadius: 12, border: `1.5px solid ${dirty ? T.accent : T.border}`, overflow: 'hidden', transition: 'border-color 0.15s', height: 500, display: 'flex', flexDirection: 'column' }}>
 
       {/* Test panel */}
-      {showTest && (
-        <div style={{ display: 'flex', flex: 1, overflow: 'hidden', minHeight: 0 }}>
+      <div style={{ display: 'flex', flex: 1, overflow: 'hidden', minHeight: 0 }}>
 
           {/* LEFT — tabs: Prompt | Investor */}
           <div style={{ flex: 1, borderRight: `1px solid ${T.border}`, display: 'flex', flexDirection: 'column', overflow: 'hidden', minHeight: 0 }}>
             {/* Tab bar */}
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 16px', borderBottom: `1px solid ${T.border}`, background: '#FAFAFA', height: 44, flexShrink: 0 }}>
-              <div style={{ display: 'flex', gap: 4 }}>
+              <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
+                <span style={{ fontSize: 11, fontWeight: 700, color: T.muted, marginRight: 8, paddingRight: 8, borderRight: `1px solid ${T.border}` }}>{TYPE_LABELS[promptType]}</span>
                 {tabBtn('prompt', 'Prompt')}
                 {tabBtn('investor', 'Investor Data')}
               </div>
-              <button
-                onClick={runTest}
-                disabled={generating}
-                style={{ fontSize: 11, fontWeight: 700, padding: '5px 18px', borderRadius: 6, border: 'none', background: generating ? T.faint : T.accent, color: '#fff', cursor: generating ? 'default' : 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: 6 }}
-              >
-                {generating
-                  ? <><span style={{ display: 'inline-block', width: 10, height: 10, border: '2px solid rgba(255,255,255,0.5)', borderTopColor: '#fff', borderRadius: '50%', animation: 'spin 0.7s linear infinite' }} /> Generating…</>
-                  : '▶ Run'}
-              </button>
+              <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                <button
+                  onClick={save}
+                  disabled={saving || !dirty}
+                  style={{ fontSize: 11, fontWeight: 700, padding: '5px 14px', borderRadius: 6, border: `1px solid ${dirty ? T.green : T.border}`, background: dirty ? '#F0FDF4' : 'transparent', color: dirty ? T.green : T.faint, cursor: dirty ? 'pointer' : 'default', fontFamily: 'inherit', transition: 'all 0.15s' }}
+                >
+                  {saving ? 'Saving…' : 'Save'}
+                </button>
+                <button
+                  onClick={runTest}
+                  disabled={generating}
+                  style={{ fontSize: 11, fontWeight: 700, padding: '5px 18px', borderRadius: 6, border: 'none', background: generating ? T.faint : T.accent, color: '#fff', cursor: generating ? 'default' : 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: 6 }}
+                >
+                  {generating
+                    ? <><span style={{ display: 'inline-block', width: 10, height: 10, border: '2px solid rgba(255,255,255,0.5)', borderTopColor: '#fff', borderRadius: '50%', animation: 'spin 0.7s linear infinite' }} /> Generating…</>
+                    : '▶ Run'}
+                </button>
+              </div>
             </div>
 
             {/* Tab content */}
             <div style={{ flex: 1, overflow: 'hidden', minHeight: 0, padding: '16px 20px' }}>
               {leftTab === 'prompt' && (
-                text
-                  ? <pre className="hide-scroll" style={{ fontSize: 11, color: T.text, lineHeight: 1.8, whiteSpace: 'pre-wrap', fontFamily: T.mono, margin: 0, background: T.bg, borderRadius: 8, padding: '12px 14px', height: '100%', overflowY: 'auto', boxSizing: 'border-box' }}>{text}</pre>
-                  : <div style={{ fontSize: 13, color: T.faint, fontStyle: 'italic' }}>No prompt set — go back and click Edit to add one.</div>
+                <textarea
+                  className="hide-scroll"
+                  value={text}
+                  onChange={e => setText(e.target.value)}
+                  style={{ width: '100%', height: '100%', fontSize: 11, color: T.text, lineHeight: 1.8, fontFamily: T.mono, margin: 0, background: T.bg, borderRadius: 8, padding: '12px 14px', border: 'none', outline: 'none', resize: 'none', boxSizing: 'border-box', overflowY: 'auto' }}
+                />
               )}
               {leftTab === 'investor' && (
                 <div className="hide-scroll" style={{ display: 'flex', flexDirection: 'column', gap: 8, height: '100%', overflowY: 'auto', boxSizing: 'border-box', paddingBottom: 12 }}>
@@ -373,7 +335,6 @@ function PromptBlock({ promptType, data, onSaved }) {
             </div>
           </div>
         </div>
-      )}
     </div>
   )
 }
