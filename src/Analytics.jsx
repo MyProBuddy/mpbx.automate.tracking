@@ -439,6 +439,7 @@ export default function Analytics() {
   const [query,           setQuery]           = useState('')
   const [overview,        setOverview]        = useState([])
   const [overviewLoading, setOverviewLoading] = useState(false)
+  const [overviewTick,    setOverviewTick]    = useState(0)
   const [outlookAccounts, setOutlookAccounts] = useState([])
   const [outlookTotal,    setOutlookTotal]    = useState(0)
   const [outlookLoading,  setOutlookLoading]  = useState(true)
@@ -470,7 +471,7 @@ export default function Analytics() {
   useEffect(() => {
     if (!connected) return
     listClientSheets().then(setSheets).catch(() => {})
-  }, [connected])
+  }, [connected, overviewTick])
 
   useEffect(() => {
     if (!connected || sheets.length === 0) return
@@ -510,7 +511,7 @@ export default function Analytics() {
       }
     })).then(results => { setOverview(results); setOverviewLoading(false) })
       .catch(() => setOverviewLoading(false))
-  }, [sheets])
+  }, [sheets, overviewTick])
 
   const loadSheet = async id => {
     if (!id) return
@@ -784,10 +785,20 @@ export default function Analytics() {
 
         {!loading && !dashboard && (
           <div>
-            <div style={{ marginBottom: 28 }}>
-              <div style={{ fontSize: 10, fontWeight: 800, letterSpacing: '.12em', color: A, marginBottom: 8 }}>ALL CLIENTS — OUTREACH OVERVIEW</div>
-              <h2 style={{ fontSize: 28, letterSpacing: '-.03em', margin: '0 0 4px', color: INK }}>Outreach at a glance.</h2>
-              <p style={{ color: MUTED, fontSize: 13, margin: 0 }}>Select a client above to drill into the full command center.</p>
+            <div style={{ marginBottom: 28, display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between' }}>
+              <div>
+                <div style={{ fontSize: 10, fontWeight: 800, letterSpacing: '.12em', color: A, marginBottom: 8 }}>ALL CLIENTS — OUTREACH OVERVIEW</div>
+                <h2 style={{ fontSize: 28, letterSpacing: '-.03em', margin: '0 0 4px', color: INK }}>Outreach at a glance.</h2>
+                <p style={{ color: MUTED, fontSize: 13, margin: 0 }}>Select a client above to drill into the full command center.</p>
+              </div>
+              <button
+                onClick={() => { setOverview([]); setSheets([]); setOverviewTick(t => t + 1) }}
+                disabled={overviewLoading}
+                style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px', borderRadius: 8, border: `1px solid ${LINE}`, background: '#fff', fontSize: 12, fontWeight: 600, color: overviewLoading ? MUTED : INK, cursor: overviewLoading ? 'default' : 'pointer', fontFamily: FONT }}
+              >
+                <span style={{ display: 'inline-block', animation: overviewLoading ? 'spin 0.7s linear infinite' : 'none', fontSize: 14 }}>↻</span>
+                {overviewLoading ? 'Refreshing…' : 'Refresh'}
+              </button>
             </div>
 
             {overviewLoading && (
