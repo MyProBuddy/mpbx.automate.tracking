@@ -506,7 +506,7 @@ export default function Analytics() {
   }, [connected])
 
   const loadSheet = async id => {
-    if (!id) return
+    if (!id) { setBook(null); return }
     setLoading(true)
     setError('')
     try {
