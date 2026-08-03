@@ -445,10 +445,6 @@ export default function Analytics() {
   }, [])
 
   useEffect(() => {
-    if (connected) listClientSheets().then(setSheets).catch(() => {})
-  }, [connected])
-
-  useEffect(() => {
     fetch('https://n8n-appservice-prod-a7awa4ghbxf6ezfk.centralindia-01.azurewebsites.net/webhook/e5672bfb-6a0e-4bea-9c21-75076cab0046', { method: 'GET' })
       .then(r => { if (!r.ok) throw new Error(r.status); return r.json() })
       .then(raw => {
@@ -461,52 +457,53 @@ export default function Analytics() {
   }, [])
 
   useEffect(() => {
-    if (!connected || sheets.length === 0) return
+    if (!connected) return
     setOverviewLoading(true)
     const now = new Date()
     const oneWeekAgo = new Date(now.getTime() - 7 * 86400000)
 
-    Promise.all(sheets.map(async sheet => {
-      try {
-        const tabs = await getSheetTabs(sheet.id)
-        const trackTab = tabs.find(t => /^tracking$/i.test(t.title))
-        if (!trackTab) return { id: sheet.id, name: sheet.name, error: 'No Tracking tab' }
-        const values = await getSheetValues(sheet.id, `${trackTab.title}!A1:AF5000`)
-        if (!values.length) return { id: sheet.id, name: sheet.name, total: 0, initialSent: 0, thisWeek: 0, f1: 0, f2: 0, f3: 0, replies: 0 }
+    listClientSheets()
+      .then(async fetchedSheets => {
+        setSheets(fetchedSheets)
+        const results = await Promise.all(fetchedSheets.map(async sheet => {
+          try {
+            const tabs = await getSheetTabs(sheet.id)
+            const trackTab = tabs.find(t => /^tracking$/i.test(t.title))
+            if (!trackTab) return { id: sheet.id, name: sheet.name, error: 'No Tracking tab' }
+            const values = await getSheetValues(sheet.id, `${trackTab.title}!A1:AF5000`)
+            if (!values.length) return { id: sheet.id, name: sheet.name, total: 0, initialSent: 0, thisWeek: 0, f1: 0, f2: 0, f3: 0, replies: 0 }
 
-        const headers  = values[0].map(v => String(v).trim().toLowerCase())
-        const rows     = values.slice(1).filter(r => r.some(Boolean))
+            const headers  = values[0].map(v => String(v).trim().toLowerCase())
+            const rows     = values.slice(1).filter(r => r.some(Boolean))
+            const fIdx = pattern => headers.findIndex(h => pattern.test(h))
+            const countI   = fIdx(/follow.?up.?count/i)
+            const sentAtI  = fIdx(/follow.?up.?timestamps?/i)
+            const replyAtI = fIdx(/reply.?timestamps?/i)
 
-        // fuzzy column lookup — tolerate underscores vs spaces, case differences
-        const fIdx = pattern => headers.findIndex(h => pattern.test(h))
-        const countI   = fIdx(/follow.?up.?count/i)
-        const sentAtI  = fIdx(/follow.?up.?timestamps?/i)
-        const replyAtI = fIdx(/reply.?timestamps?/i)
-
-        let initialSent = 0, thisWeek = 0, f1 = 0, f2 = 0, f3 = 0, replies = 0
-        rows.forEach(row => {
-          const count     = Math.max(0, Number(row[countI]) || 0)
-          const sentDates = parseList(row[sentAtI])
-          const replyVal = String(row[replyAtI] ?? '').trim()
-          const hasReply = replyVal !== '' && replyVal.toUpperCase() !== 'N/A' && replyVal.toUpperCase() !== 'FALSE'
-
-          const stage = countI >= 0 ? count : sentDates.length
-          if (stage >= 1) initialSent++
-          if (stage === 2) f1++
-          if (stage === 3) f2++
-          if (stage >= 4) f3++
-          if (hasReply) replies++
-          if (sentDates.some(d => d >= oneWeekAgo)) thisWeek++
-        })
-        return { id: sheet.id, name: sheet.name, total: rows.length, initialSent, thisWeek, f1, f2, f3, replies }
-      } catch {
-        return { id: sheet.id, name: sheet.name, error: 'Failed to load' }
-      }
-    })).then(results => {
-      setOverview(results)
-      setOverviewLoading(false)
-    }).catch(() => setOverviewLoading(false))
-  }, [sheets, connected])
+            let initialSent = 0, thisWeek = 0, f1 = 0, f2 = 0, f3 = 0, replies = 0
+            rows.forEach(row => {
+              const count     = Math.max(0, Number(row[countI]) || 0)
+              const sentDates = parseList(row[sentAtI])
+              const replyVal  = String(row[replyAtI] ?? '').trim()
+              const hasReply  = replyVal !== '' && replyVal.toUpperCase() !== 'N/A' && replyVal.toUpperCase() !== 'FALSE'
+              const stage = countI >= 0 ? count : sentDates.length
+              if (stage >= 1) initialSent++
+              if (stage === 2) f1++
+              if (stage === 3) f2++
+              if (stage >= 4) f3++
+              if (hasReply) replies++
+              if (sentDates.some(d => d >= oneWeekAgo)) thisWeek++
+            })
+            return { id: sheet.id, name: sheet.name, total: rows.length, initialSent, thisWeek, f1, f2, f3, replies }
+          } catch {
+            return { id: sheet.id, name: sheet.name, error: 'Failed to load' }
+          }
+        }))
+        setOverview(results)
+        setOverviewLoading(false)
+      })
+      .catch(() => setOverviewLoading(false))
+  }, [connected])
 
   const loadSheet = async id => {
     if (!id) return
