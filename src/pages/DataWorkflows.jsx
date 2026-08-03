@@ -3,11 +3,15 @@ import { T } from '../constants.js'
 import Nav from '../components/Nav.jsx'
 import { fetchDbStats } from '../lib/supabase.js'
 
-function StatCard({ label, value, color, sub }) {
+const GRAD = 'linear-gradient(90deg, #C026D3, #F43F5E, #F97316)'
+
+function StatCard({ label, value, sub }) {
   return (
     <div style={{
       background: T.surface, borderRadius: 12, padding: '24px 28px',
-      border: `1.5px solid ${T.border}`, borderTop: `3px solid ${color || T.accent}`,
+      border: `1.5px solid ${T.border}`, borderTop: '3px solid transparent',
+      backgroundImage: `linear-gradient(${T.surface}, ${T.surface}), ${GRAD}`,
+      backgroundOrigin: 'border-box', backgroundClip: 'padding-box, border-box',
     }}>
       <div style={{ fontSize: 11, fontWeight: 700, color: T.muted, letterSpacing: '0.07em', textTransform: 'uppercase', marginBottom: 12 }}>{label}</div>
       <div style={{ fontSize: 36, fontWeight: 800, color: T.text, letterSpacing: '-0.03em', lineHeight: 1 }}>
@@ -22,9 +26,9 @@ function FilterBtn({ active, onClick, children }) {
   return (
     <button onClick={onClick} style={{
       padding: '7px 16px', borderRadius: 8, fontSize: 12, fontWeight: 600, cursor: 'pointer',
-      border: `1.5px solid ${active ? T.accent : T.border}`,
-      background: active ? T.accentLight : T.surface,
-      color: active ? T.accent : T.muted,
+      border: `1.5px solid ${active ? '#C026D3' : T.border}`,
+      background: active ? '#FDF4FF' : T.surface,
+      color: active ? '#C026D3' : T.muted,
       transition: 'all 0.15s',
     }}>{children}</button>
   )
@@ -60,8 +64,8 @@ function RecordCard({ record, type }) {
             <span style={{
               fontSize: 10, fontWeight: 700, letterSpacing: '0.07em', textTransform: 'uppercase', flexShrink: 0,
               padding: '2px 8px', borderRadius: 99,
-              background: status === 'active' ? '#ECFDF5' : T.bg,
-              color: status === 'active' ? T.green : T.muted,
+              background: status === 'active' ? '#FDF4FF' : T.bg,
+              color: status === 'active' ? '#C026D3' : T.muted,
             }}>{status}</span>
           </div>
           <div style={{ fontSize: 12, color: T.muted, display: 'flex', gap: 12 }}>
@@ -181,7 +185,7 @@ export default function DataWorkflows() {
       <div style={{ maxWidth: 1200, margin: '0 auto', padding: '40px 48px 80px' }}>
 
         <div style={{ marginBottom: 44 }}>
-          <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: '.1em', textTransform: 'uppercase', color: '#0891B2', marginBottom: 8 }}>Master Database</div>
+          <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: '.1em', textTransform: 'uppercase', background: GRAD, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', marginBottom: 8 }}>Master Database</div>
           <div style={{ fontSize: 30, fontWeight: 800, letterSpacing: '-0.03em', color: T.text, marginBottom: 6 }}>Data Workflows</div>
           <div style={{ fontSize: 13, color: T.muted }}>Live counts from the master investor and firm database.</div>
         </div>
@@ -189,17 +193,17 @@ export default function DataWorkflows() {
         {/* Firms */}
         <div style={{ fontSize: 12, fontWeight: 700, color: T.muted, letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 16 }}>Firms</div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16, marginBottom: 40 }}>
-          <StatCard label="Total Firms"    value={loading ? null : firms?.total}    color="#0891B2" sub="All firms in database" />
-          <StatCard label="Active Firms"   value={loading ? null : firms?.active}   color={T.green} sub="Currently active" />
-          <StatCard label="Inactive Firms" value={loading ? null : firms?.inactive} color={T.muted} sub="Not yet activated" />
+          <StatCard label="Total Firms"    value={loading ? null : firms?.total}    sub="All firms in database" />
+          <StatCard label="Active Firms"   value={loading ? null : firms?.active}   sub="Currently active" />
+          <StatCard label="Inactive Firms" value={loading ? null : firms?.inactive} sub="Not yet activated" />
         </div>
 
         {/* Investors */}
         <div style={{ fontSize: 12, fontWeight: 700, color: T.muted, letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 16 }}>Investors</div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16, marginBottom: 40 }}>
-          <StatCard label="Total Investors"    value={loading ? null : investors?.total}    color="#0891B2" sub="All investors in database" />
-          <StatCard label="Active Investors"   value={loading ? null : investors?.active}   color={T.green} sub="Currently active" />
-          <StatCard label="Inactive Investors" value={loading ? null : investors?.inactive} color={T.muted} sub="Not yet activated" />
+          <StatCard label="Total Investors"    value={loading ? null : investors?.total}    sub="All investors in database" />
+          <StatCard label="Active Investors"   value={loading ? null : investors?.active}   sub="Currently active" />
+          <StatCard label="Inactive Investors" value={loading ? null : investors?.inactive} sub="Not yet activated" />
         </div>
 
         {/* Antigravity OpenWeb Enrichment */}
