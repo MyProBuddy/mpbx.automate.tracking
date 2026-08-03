@@ -458,55 +458,51 @@ export default function Analytics() {
 
   useEffect(() => {
     if (!connected) return
+    listClientSheets().then(setSheets).catch(() => {})
+  }, [connected])
+
+  useEffect(() => {
+    if (!connected || sheets.length === 0) return
     setOverviewLoading(true)
     const now = new Date()
     const oneWeekAgo = new Date(now.getTime() - 7 * 86400000)
-
-    listClientSheets()
-      .then(async fetchedSheets => {
-        setSheets(fetchedSheets)
-        const results = await Promise.all(fetchedSheets.map(async sheet => {
-          try {
-            const tabs = await getSheetTabs(sheet.id)
-            const trackTab = tabs.find(t => /^tracking$/i.test(t.title))
-            if (!trackTab) return { id: sheet.id, name: sheet.name, error: 'No Tracking tab' }
-            const values = await getSheetValues(sheet.id, `${trackTab.title}!A1:AF5000`)
-            if (!values.length) return { id: sheet.id, name: sheet.name, total: 0, initialSent: 0, thisWeek: 0, f1: 0, f2: 0, f3: 0, replies: 0 }
-
-            const headers  = values[0].map(v => String(v).trim().toLowerCase())
-            const rows     = values.slice(1).filter(r => r.some(Boolean))
-            const fIdx = pattern => headers.findIndex(h => pattern.test(h))
-            const countI   = fIdx(/follow.?up.?count/i)
-            const sentAtI  = fIdx(/follow.?up.?timestamps?/i)
-            const replyAtI = fIdx(/reply.?timestamps?/i)
-
-            let initialSent = 0, thisWeek = 0, f1 = 0, f2 = 0, f3 = 0, replies = 0
-            rows.forEach(row => {
-              const count     = Math.max(0, Number(row[countI]) || 0)
-              const sentDates = parseList(row[sentAtI])
-              const replyVal  = String(row[replyAtI] ?? '').trim()
-              const hasReply  = replyVal !== '' && replyVal.toUpperCase() !== 'N/A' && replyVal.toUpperCase() !== 'FALSE'
-              const stage = countI >= 0 ? count : sentDates.length
-              if (stage >= 1) initialSent++
-              if (stage === 2) f1++
-              if (stage === 3) f2++
-              if (stage >= 4) f3++
-              if (hasReply) replies++
-              if (sentDates.some(d => d >= oneWeekAgo)) thisWeek++
-            })
-            return { id: sheet.id, name: sheet.name, total: rows.length, initialSent, thisWeek, f1, f2, f3, replies }
-          } catch {
-            return { id: sheet.id, name: sheet.name, error: 'Failed to load' }
-          }
-        }))
-        setOverview(results)
-        setOverviewLoading(false)
-      })
+    Promise.all(sheets.map(async sheet => {
+      try {
+        const tabs = await getSheetTabs(sheet.id)
+        const trackTab = tabs.find(t => /^tracking$/i.test(t.title))
+        if (!trackTab) return { id: sheet.id, name: sheet.name, error: 'No Tracking tab' }
+        const values = await getSheetValues(sheet.id, `${trackTab.title}!A1:AF5000`)
+        if (!values.length) return { id: sheet.id, name: sheet.name, total: 0, initialSent: 0, thisWeek: 0, f1: 0, f2: 0, f3: 0, replies: 0 }
+        const headers  = values[0].map(v => String(v).trim().toLowerCase())
+        const rows     = values.slice(1).filter(r => r.some(Boolean))
+        const fIdx = pattern => headers.findIndex(h => pattern.test(h))
+        const countI   = fIdx(/follow.?up.?count/i)
+        const sentAtI  = fIdx(/follow.?up.?timestamps?/i)
+        const replyAtI = fIdx(/reply.?timestamps?/i)
+        let initialSent = 0, thisWeek = 0, f1 = 0, f2 = 0, f3 = 0, replies = 0
+        rows.forEach(row => {
+          const count     = Math.max(0, Number(row[countI]) || 0)
+          const sentDates = parseList(row[sentAtI])
+          const replyVal  = String(row[replyAtI] ?? '').trim()
+          const hasReply  = replyVal !== '' && replyVal.toUpperCase() !== 'N/A' && replyVal.toUpperCase() !== 'FALSE'
+          const stage = countI >= 0 ? count : sentDates.length
+          if (stage >= 1) initialSent++
+          if (stage === 2) f1++
+          if (stage === 3) f2++
+          if (stage >= 4) f3++
+          if (hasReply) replies++
+          if (sentDates.some(d => d >= oneWeekAgo)) thisWeek++
+        })
+        return { id: sheet.id, name: sheet.name, total: rows.length, initialSent, thisWeek, f1, f2, f3, replies }
+      } catch {
+        return { id: sheet.id, name: sheet.name, error: 'Failed to load' }
+      }
+    })).then(results => { setOverview(results); setOverviewLoading(false) })
       .catch(() => setOverviewLoading(false))
-  }, [connected])
+  }, [sheets])
 
   const loadSheet = async id => {
-    if (!id) { setBook(null); return }
+    if (!id) return
     setLoading(true)
     setError('')
     try {
@@ -756,7 +752,7 @@ export default function Analytics() {
           {!googleSyncing && !connected && role !== 'superadmin' && (
             <span style={{ fontSize: 12, color: '#DC2626', background: '#FEF2F2', borderRadius: 6, padding: '4px 10px', fontWeight: 600 }}>Google not connected</span>
           )}
-          <select style={selectS} value={sheetId} onChange={e => { setSheetId(e.target.value); loadSheet(e.target.value) }}>
+          <select style={selectS} value={sheetId} onChange={e => { const v = e.target.value; setSheetId(v); if (v) loadSheet(v); else setBook(null) }}>
             <option value="">Overview</option>
             {sheets.map(sheet => <option key={sheet.id} value={sheet.id}>{sheet.name}</option>)}
           </select>
