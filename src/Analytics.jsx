@@ -6,11 +6,11 @@ import { useAuth } from './AuthContext.jsx'
 import Nav from './components/Nav.jsx'
 
 // ── color tokens ───────────────────────────────────────────────────────────────
-const A     = '#5B4AE8'
+const A     = '#C026D3'
 const GREEN = '#16A34A'
 const RED   = '#DC2626'
-const AMBER = '#D97706'
-const BLUE  = '#2563EB'
+const AMBER = '#F97316'
+const BLUE  = '#F43F5E'
 const INK   = '#111118'
 const MUTED = '#6B7280'
 const LINE  = '#E5E7EB'
@@ -79,7 +79,7 @@ function buildHeatmap(data, max) {
     grid: { left: 38, right: 8, top: 4, bottom: 25 },
     xAxis: { type: 'category', data: ['08','10','12','14','16','18'], axisLine: { show: false }, axisTick: { show: false }, axisLabel: { color: MUTED, fontSize: 9 } },
     yAxis: { type: 'category', data: ['Mon','Tue','Wed','Thu','Fri'], axisLine: { show: false }, axisTick: { show: false }, axisLabel: { color: MUTED, fontSize: 9 } },
-    visualMap: { show: false, min: 0, max: Math.max(1, max), inRange: { color: ['#EEF2FF', '#A5B4FC', A] } },
+    visualMap: { show: false, min: 0, max: Math.max(1, max), inRange: { color: ['#FDF2FF', '#E879F9', A] } },
     series: [{ type: 'heatmap', data, itemStyle: { borderWidth: 4, borderColor: '#fff', borderRadius: 6 } }],
   }
 }
@@ -88,12 +88,12 @@ function buildHeatmap(data, max) {
 function Card({ title, subtitle, action, children, dark }) {
   return (
     <section style={{
-      background: dark ? 'linear-gradient(140deg,#1E1640,#2D2060)' : '#fff',
+      background: dark ? 'linear-gradient(140deg,#3D0A45,#5C1230)' : '#fff',
       border: `1px solid ${dark ? 'transparent' : LINE}`,
       borderRadius: 16,
       padding: '20px 22px',
       minWidth: 0,
-      boxShadow: dark ? '0 4px 24px rgba(91,74,232,0.18)' : '0 1px 4px rgba(0,0,0,0.04)',
+      boxShadow: dark ? '0 4px 24px rgba(192,38,211,0.18)' : '0 1px 4px rgba(0,0,0,0.04)',
     }}>
       {(title || action) && (
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12, marginBottom: 16 }}>
@@ -1036,10 +1036,10 @@ export default function Analytics() {
             <div style={grid12('5fr 7fr')}>
               <Card title="Outreach funnel" subtitle="Measured workflow stages">
                 <ReactECharts style={{ height: 262 }} option={buildFunnel([
-                  { name: 'Investors',   value: dashboard.total,     itemStyle: { color: '#C4BFFA' } },
+                  { name: 'Investors',   value: dashboard.total,     itemStyle: { color: '#E879F9' } },
                   { name: 'Contacted',   value: dashboard.contacted, itemStyle: { color: A } },
                   { name: 'Replied',     value: dashboard.replies,   itemStyle: { color: BLUE } },
-                  { name: 'Conversation',value: dashboard.active,    itemStyle: { color: GREEN } },
+                  { name: 'Conversation',value: dashboard.active,    itemStyle: { color: AMBER } },
                 ].filter(item => item.value))} />
               </Card>
               <Card title="Daily activity" subtitle="Email and reply volume over the last 14 days" action={<Pill tone={GREEN}>● Live</Pill>}>
