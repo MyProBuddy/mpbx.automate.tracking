@@ -238,7 +238,6 @@ function PromptBlock({ promptType, data, onSaved }) {
             {/* Tab bar */}
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 16px', borderBottom: `1px solid ${T.border}`, background: '#FAFAFA', height: 44, flexShrink: 0 }}>
               <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
-                <span style={{ fontSize: 11, fontWeight: 700, color: T.muted, marginRight: 8, paddingRight: 8, borderRight: `1px solid ${T.border}` }}>{TYPE_LABELS[promptType]}</span>
                 {tabBtn('prompt', 'Prompt')}
                 {tabBtn('investor', 'Investor Data')}
               </div>
