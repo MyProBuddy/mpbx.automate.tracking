@@ -34,13 +34,16 @@ body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans
 .mpbx-nav::after {
   content: '';
   position: absolute; bottom: 0; left: 0; right: 0; height: 1.5px; z-index: 2;
-  background: linear-gradient(90deg, #C026D3 0%, #F43F5E 50%, #F97316 100%);
+  background: linear-gradient(90deg, #C026D3, #F43F5E, #F97316, #F43F5E, #C026D3);
+  background-size: 200% 100%;
   opacity: 0.85;
+  animation: nav-line-slide 3s linear infinite;
 }
 
 .mpbx-nav > * { position: relative; z-index: 1; }
 
 @keyframes spin { to { transform: rotate(360deg); } }
+@keyframes nav-line-slide { from { background-position: 0% 0%; } to { background-position: 200% 0%; } }
 
 .hide-scroll { scrollbar-width: thin; -ms-overflow-style: auto; }
 .no-scroll { scrollbar-width: none; -ms-overflow-style: none; }
