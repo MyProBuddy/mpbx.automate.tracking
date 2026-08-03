@@ -174,7 +174,7 @@ function PromptBlock({ promptType, data, onSaved }) {
   const [text, setText]           = useState(data.text)
   const [saving, setSaving]       = useState(false)
   const [saved, setSaved]         = useState(false)
-  const [showTest, setShowTest]   = useState(false)
+  const [showTest, setShowTest]   = useState(true)
   const [generating, setGenerating] = useState(false)
   const [output, setOutput]       = useState(null)  // { subject, body } | null
   const [genError, setGenError]   = useState(null)
