@@ -1036,10 +1036,10 @@ export default function Analytics() {
             <div style={grid12('5fr 7fr')}>
               <Card title="Outreach funnel" subtitle="Measured workflow stages">
                 <ReactECharts style={{ height: 262 }} option={buildFunnel([
-                  { name: 'Investors',   value: dashboard.total,     itemStyle: { color: '#E879F9' } },
-                  { name: 'Contacted',   value: dashboard.contacted, itemStyle: { color: A } },
-                  { name: 'Replied',     value: dashboard.replies,   itemStyle: { color: BLUE } },
-                  { name: 'Conversation',value: dashboard.active,    itemStyle: { color: AMBER } },
+                  { name: 'Investors',   value: dashboard.total,     itemStyle: { color: { type: 'linear', x: 0, y: 0, x2: 1, y2: 0, colorStops: [{ offset: 0, color: '#C026D3' }, { offset: 1, color: '#D4288C' }] } } },
+                  { name: 'Contacted',   value: dashboard.contacted, itemStyle: { color: { type: 'linear', x: 0, y: 0, x2: 1, y2: 0, colorStops: [{ offset: 0, color: '#D4288C' }, { offset: 1, color: '#F43F5E' }] } } },
+                  { name: 'Replied',     value: dashboard.replies,   itemStyle: { color: { type: 'linear', x: 0, y: 0, x2: 1, y2: 0, colorStops: [{ offset: 0, color: '#F43F5E' }, { offset: 1, color: '#F97316' }] } } },
+                  { name: 'Conversation',value: dashboard.active,    itemStyle: { color: { type: 'linear', x: 0, y: 0, x2: 1, y2: 0, colorStops: [{ offset: 0, color: '#F97316' }, { offset: 1, color: '#FBBF24' }] } } },
                 ].filter(item => item.value))} />
               </Card>
               <Card title="Daily activity" subtitle="Email and reply volume over the last 14 days" action={<Pill tone={GREEN}>● Live</Pill>}>
