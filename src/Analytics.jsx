@@ -52,8 +52,11 @@ function buildArea(labels, sent, replies) {
     xAxis: { type: 'category', data: labels, boundaryGap: false, axisLine: { show: false }, axisTick: { show: false }, axisLabel: { color: MUTED, fontSize: 9, fontFamily: FONT } },
     yAxis: { type: 'value', minInterval: 1, axisLabel: { show: false }, axisLine: { show: false }, axisTick: { show: false }, splitLine: { lineStyle: { color: LINE } } },
     series: [
-      { name: 'Emails',  type: 'line', data: sent,    smooth: .35, symbol: 'none', lineStyle: { color: A,     width: 2.5 }, areaStyle: { color: `${A}1A` } },
-      { name: 'Replies', type: 'line', data: replies, smooth: .35, symbol: 'none', lineStyle: { color: GREEN, width: 2.5 } },
+      { name: 'Emails',  type: 'line', data: sent,    smooth: .35, symbol: 'none',
+        lineStyle: { color: { type: 'linear', x: 0, y: 0, x2: 1, y2: 0, colorStops: [{ offset: 0, color: '#C026D3' }, { offset: 1, color: '#F97316' }] }, width: 2.5 },
+        areaStyle: { color: { type: 'linear', x: 0, y: 0, x2: 1, y2: 0, colorStops: [{ offset: 0, color: '#C026D320' }, { offset: 1, color: '#F9731620' }] } } },
+      { name: 'Replies', type: 'line', data: replies, smooth: .35, symbol: 'none',
+        lineStyle: { color: { type: 'linear', x: 0, y: 0, x2: 1, y2: 0, colorStops: [{ offset: 0, color: '#F43F5E' }, { offset: 1, color: '#FBBF24' }] }, width: 2.5 } },
     ],
   }
 }
@@ -124,9 +127,17 @@ function KPI({ label, value, hint, tone = INK, icon, delta, deltaLabel = 'vs las
       border: `1px solid ${LINE}`,
       borderRadius: 14,
       padding: '16px 18px',
-      borderTop: `3px solid ${tone}`,
+      borderTop: 'none',
       boxShadow: '0 1px 4px rgba(0,0,0,0.04)',
+      backgroundImage: 'linear-gradient(#fff 0%, #fff 100%), linear-gradient(90deg, #C026D3, #F43F5E, #F97316)',
+      backgroundOrigin: 'border-box',
+      backgroundClip: 'padding-box, border-box',
+      border: `1px solid transparent`,
+      borderRadius: 14,
+      outline: '3px solid transparent',
+      position: 'relative',
     }}>
+      <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 3, borderRadius: '14px 14px 0 0', background: 'linear-gradient(90deg, #C026D3, #F43F5E, #F97316)' }} />
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 9, fontWeight: 800, letterSpacing: '.08em', textTransform: 'uppercase', color: MUTED, fontFamily: FONT }}>
         <span>{label}</span>
         <span style={{ width: 24, height: 24, borderRadius: 7, background: `${tone}15`, color: tone, display: 'grid', placeItems: 'center', fontSize: 11 }}>{icon}</span>
@@ -971,7 +982,7 @@ export default function Analytics() {
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12, marginBottom: 16 }}>
 
               {/* Doc request rate */}
-              <div style={{ background: '#fff', border: `1px solid ${LINE}`, borderRadius: 14, padding: '16px 18px', borderTop: `3px solid ${BLUE}`, boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}>
+              <div style={{ background: '#fff', border: `1px solid ${LINE}`, borderRadius: 14, padding: '16px 18px', borderTop: '3px solid transparent', backgroundImage: 'linear-gradient(#fff,#fff), linear-gradient(90deg,#C026D3,#F43F5E,#F97316)', backgroundOrigin: 'border-box', backgroundClip: 'padding-box,border-box', boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
                   <div style={{ fontSize: 9, fontWeight: 800, letterSpacing: '.08em', textTransform: 'uppercase', color: MUTED }}>Doc requested</div>
                   <span style={{ fontSize: 11, background: `${BLUE}15`, color: BLUE, padding: '2px 8px', borderRadius: 99, fontWeight: 700 }}>📄</span>
@@ -983,12 +994,12 @@ export default function Analytics() {
                   {dashboard.docRequestedCount} of {dashboard.replies} investors asked for a one-pager
                 </div>
                 <div style={{ height: 4, background: '#F3F4F6', borderRadius: 99 }}>
-                  <div style={{ height: '100%', width: `${dashboard.docRequestRate}%`, background: BLUE, borderRadius: 99, transition: 'width 0.6s' }} />
+                  <div style={{ height: '100%', width: `${dashboard.docRequestRate}%`, background: 'linear-gradient(90deg,#C026D3,#F43F5E,#F97316)', borderRadius: 99, transition: 'width 0.6s' }} />
                 </div>
               </div>
 
               {/* Avg reply speed */}
-              <div style={{ background: '#fff', border: `1px solid ${LINE}`, borderRadius: 14, padding: '16px 18px', borderTop: `3px solid ${GREEN}`, boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}>
+              <div style={{ background: '#fff', border: `1px solid ${LINE}`, borderRadius: 14, padding: '16px 18px', borderTop: '3px solid transparent', backgroundImage: 'linear-gradient(#fff,#fff), linear-gradient(90deg,#C026D3,#F43F5E,#F97316)', backgroundOrigin: 'border-box', backgroundClip: 'padding-box,border-box', boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
                   <div style={{ fontSize: 9, fontWeight: 800, letterSpacing: '.08em', textTransform: 'uppercase', color: MUTED }}>Avg reply speed</div>
                   <span style={{ fontSize: 11, background: `${GREEN}15`, color: GREEN, padding: '2px 8px', borderRadius: 99, fontWeight: 700 }}>⚡</span>
@@ -1008,7 +1019,7 @@ export default function Analytics() {
               </div>
 
               {/* Weekly send pacing */}
-              <div style={{ background: '#fff', border: `1px solid ${LINE}`, borderRadius: 14, padding: '16px 18px', borderTop: `3px solid ${A}`, boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}>
+              <div style={{ background: '#fff', border: `1px solid ${LINE}`, borderRadius: 14, padding: '16px 18px', borderTop: '3px solid transparent', backgroundImage: 'linear-gradient(#fff,#fff), linear-gradient(90deg,#C026D3,#F43F5E,#F97316)', backgroundOrigin: 'border-box', backgroundClip: 'padding-box,border-box', boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
                   <div style={{ fontSize: 9, fontWeight: 800, letterSpacing: '.08em', textTransform: 'uppercase', color: MUTED }}>Weekly pacing</div>
                   <span style={{ fontSize: 11, background: `${A}15`, color: A, padding: '2px 8px', borderRadius: 99, fontWeight: 700 }}>📅</span>
@@ -1022,7 +1033,7 @@ export default function Analytics() {
                 <div style={{ height: 6, background: '#F3F4F6', borderRadius: 99, marginBottom: 6 }}>
                   <div style={{
                     height: '100%', width: `${dashboard.weeklyCapPct}%`,
-                    background: dashboard.weeklyCapPct > 80 ? AMBER : A,
+                    background: 'linear-gradient(90deg,#C026D3,#F43F5E,#F97316)',
                     borderRadius: 99, transition: 'width 0.6s',
                   }} />
                 </div>
