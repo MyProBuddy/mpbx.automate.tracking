@@ -428,6 +428,10 @@ export default function Analytics() {
   const [query,           setQuery]           = useState('')
   const [overview,        setOverview]        = useState([])
   const [overviewLoading, setOverviewLoading] = useState(false)
+  const [outlookAccounts, setOutlookAccounts] = useState([])
+  const [outlookTotal,    setOutlookTotal]    = useState(0)
+  const [outlookLoading,  setOutlookLoading]  = useState(true)
+  const [outlookError,    setOutlookError]    = useState(null)
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -443,6 +447,18 @@ export default function Analytics() {
   useEffect(() => {
     if (connected) listClientSheets().then(setSheets).catch(() => {})
   }, [connected])
+
+  useEffect(() => {
+    fetch('https://n8n-appservice-prod-a7awa4ghbxf6ezfk.centralindia-01.azurewebsites.net/webhook/e5672bfb-6a0e-4bea-9c21-75076cab0046', { method: 'GET' })
+      .then(r => { if (!r.ok) throw new Error(r.status); return r.json() })
+      .then(raw => {
+        const payload = Array.isArray(raw) ? raw[0] : raw?.value?.[0] ?? raw
+        setOutlookTotal(payload.total)
+        setOutlookAccounts(payload.accounts || [])
+      })
+      .catch(e => setOutlookError(e.message))
+      .finally(() => setOutlookLoading(false))
+  }, [])
 
   useEffect(() => {
     if (!connected || sheets.length === 0) return
@@ -850,6 +866,55 @@ export default function Analytics() {
             {!overviewLoading && !connected && (
               <div style={{ padding: '64px 0', textAlign: 'center', color: MUTED, fontSize: 13 }}>Connect Google to load the overview.</div>
             )}
+
+            {/* ── Connected Outlook Accounts ── */}
+            <div style={{ marginTop: 40 }}>
+              <div style={{ fontSize: 10, fontWeight: 800, letterSpacing: '.12em', color: A, marginBottom: 8, textTransform: 'uppercase' }}>Connected Accounts</div>
+              <h2 style={{ fontSize: 20, fontWeight: 700, letterSpacing: '-.02em', margin: '0 0 4px', color: INK }}>Outlook Sending Accounts</h2>
+              <p style={{ color: MUTED, fontSize: 13, margin: '0 0 20px' }}>All Microsoft Outlook accounts connected via n8n for outreach automation.</p>
+
+              {outlookLoading && (
+                <div style={{ padding: '32px 0', textAlign: 'center', color: MUTED, fontSize: 13 }}>Loading accounts…</div>
+              )}
+
+              {outlookError && (
+                <div style={{ padding: '12px 16px', background: '#FEF2F2', color: RED, border: `1px solid ${RED}30`, borderRadius: 10, fontSize: 13 }}>{outlookError}</div>
+              )}
+
+              {!outlookLoading && !outlookError && (
+                <div style={{ background: '#fff', borderRadius: 14, border: `1px solid ${LINE}`, overflow: 'hidden', boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}>
+                  <div style={{ padding: '12px 20px', borderBottom: `1px solid ${LINE}`, background: '#FAFAFA', display: 'flex', alignItems: 'center', gap: 10 }}>
+                    <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: '.06em', textTransform: 'uppercase', color: MUTED }}>
+                      {outlookTotal} account{outlookTotal !== 1 ? 's' : ''} connected
+                    </span>
+                  </div>
+                  <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                    <thead>
+                      <tr style={{ background: '#FAFAFA' }}>
+                        <th style={{ padding: '12px 20px', textAlign: 'left', fontSize: 11, fontWeight: 700, letterSpacing: '.06em', color: MUTED, borderBottom: `1px solid ${LINE}`, textTransform: 'uppercase' }}>Email</th>
+                        <th style={{ padding: '12px 20px', textAlign: 'left', fontSize: 11, fontWeight: 700, letterSpacing: '.06em', color: MUTED, borderBottom: `1px solid ${LINE}`, textTransform: 'uppercase' }}>Credential Name</th>
+                        <th style={{ padding: '12px 20px', textAlign: 'left', fontSize: 11, fontWeight: 700, letterSpacing: '.06em', color: MUTED, borderBottom: `1px solid ${LINE}`, textTransform: 'uppercase' }}>Type</th>
+                        <th style={{ padding: '12px 20px', textAlign: 'right', fontSize: 11, fontWeight: 700, letterSpacing: '.06em', color: MUTED, borderBottom: `1px solid ${LINE}`, textTransform: 'uppercase' }}>ID</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {outlookAccounts.map((acc, i) => (
+                        <tr key={acc.credentialId || i}
+                          onMouseEnter={e => e.currentTarget.style.background = '#F5F5FF'}
+                          onMouseLeave={e => e.currentTarget.style.background = ''}>
+                          <td style={{ padding: '14px 20px', fontSize: 13, color: INK, borderBottom: `1px solid ${LINE}`, fontWeight: 600 }}>{acc.email}</td>
+                          <td style={{ padding: '14px 20px', fontSize: 13, color: MUTED, borderBottom: `1px solid ${LINE}` }}>{acc.credentialName}</td>
+                          <td style={{ padding: '14px 20px', borderBottom: `1px solid ${LINE}` }}>
+                            <span style={{ display: 'inline-block', padding: '2px 10px', borderRadius: 20, fontSize: 11, fontWeight: 700, fontFamily: MONO, background: A + '18', color: A }}>{acc.credentialType}</span>
+                          </td>
+                          <td style={{ padding: '14px 20px', fontSize: 11, color: MUTED, borderBottom: `1px solid ${LINE}`, textAlign: 'right', fontFamily: MONO }}>{acc.credentialId}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
 
           </div>
         )}
