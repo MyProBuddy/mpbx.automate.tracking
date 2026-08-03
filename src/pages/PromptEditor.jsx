@@ -1,6 +1,119 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { T } from '../constants.js'
 import Nav from '../components/Nav.jsx'
+
+// Simple LCS-based line diff — returns array of {type:'eq'|'del'|'ins', line, oldNo, newNo}
+function computeDiff(oldText, newText) {
+  const a = oldText.split('\n')
+  const b = newText.split('\n')
+  const m = a.length, n = b.length
+  // LCS table
+  const dp = Array.from({ length: m + 1 }, () => new Array(n + 1).fill(0))
+  for (let i = m - 1; i >= 0; i--)
+    for (let j = n - 1; j >= 0; j--)
+      dp[i][j] = a[i] === b[j] ? dp[i+1][j+1] + 1 : Math.max(dp[i+1][j], dp[i][j+1])
+
+  const hunks = []
+  let i = 0, j = 0, oldNo = 1, newNo = 1
+  while (i < m || j < n) {
+    if (i < m && j < n && a[i] === b[j]) {
+      hunks.push({ type: 'eq', line: a[i], oldNo: oldNo++, newNo: newNo++ }); i++; j++
+    } else if (j < n && (i >= m || dp[i][j+1] >= dp[i+1][j])) {
+      hunks.push({ type: 'ins', line: b[j], newNo: newNo++ }); j++
+    } else {
+      hunks.push({ type: 'del', line: a[i], oldNo: oldNo++ }); i++
+    }
+  }
+  return hunks
+}
+
+// Collapse unchanged runs into collapsed blocks, keep 3 context lines around changes
+function collapseContext(hunks, ctx = 3) {
+  const changed = new Set(hunks.map((h, i) => h.type !== 'eq' ? i : -1).filter(x => x >= 0))
+  const visible = new Set()
+  for (const ci of changed)
+    for (let d = -ctx; d <= ctx; d++) { const x = ci + d; if (x >= 0 && x < hunks.length) visible.add(x) }
+
+  const result = []
+  let skipped = 0
+  for (let i = 0; i < hunks.length; i++) {
+    if (visible.has(i)) {
+      if (skipped > 0) { result.push({ type: 'collapse', count: skipped }); skipped = 0 }
+      result.push(hunks[i])
+    } else skipped++
+  }
+  if (skipped > 0) result.push({ type: 'collapse', count: skipped })
+  return result
+}
+
+function DiffModal({ original, updated, promptType, onConfirm, onCancel, saving }) {
+  const hunks = useMemo(() => collapseContext(computeDiff(original, updated)), [original, updated])
+  const added   = hunks.filter(h => h.type === 'ins').length
+  const removed = hunks.filter(h => h.type === 'del').length
+
+  return (
+    <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.45)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 200 }}>
+      <div style={{ background: '#fff', borderRadius: 14, width: 780, maxHeight: '80vh', display: 'flex', flexDirection: 'column', boxShadow: '0 16px 60px rgba(0,0,0,0.18)' }}>
+
+        {/* Modal header */}
+        <div style={{ padding: '18px 24px', borderBottom: `1px solid ${T.border}`, display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
+          <div>
+            <div style={{ fontSize: 15, fontWeight: 800, color: T.text, letterSpacing: '-0.02em' }}>Review Changes</div>
+            <div style={{ fontSize: 12, color: T.muted, marginTop: 3 }}>
+              {TYPE_LABELS[promptType]} prompt &nbsp;·&nbsp;
+              <span style={{ color: '#16a34a', fontWeight: 700 }}>+{added}</span>
+              &nbsp;
+              <span style={{ color: '#dc2626', fontWeight: 700 }}>−{removed}</span>
+            </div>
+          </div>
+          <button onClick={onCancel} style={{ background: 'none', border: 'none', fontSize: 20, color: T.faint, cursor: 'pointer', lineHeight: 1 }}>×</button>
+        </div>
+
+        {/* Diff view */}
+        <div className="hide-scroll" style={{ overflowY: 'auto', flex: 1, fontFamily: T.mono, fontSize: 12, lineHeight: 1.7 }}>
+          {/* file header bar */}
+          <div style={{ padding: '8px 16px', background: '#F6F8FA', borderBottom: `1px solid ${T.border}`, fontSize: 11, color: T.muted, fontFamily: T.sans }}>
+            prompt_template.txt
+          </div>
+          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+            <tbody>
+              {hunks.map((h, idx) => {
+                if (h.type === 'collapse') return (
+                  <tr key={idx} style={{ background: '#F6F8FA' }}>
+                    <td colSpan={3} style={{ padding: '4px 16px', fontSize: 11, color: T.muted, fontFamily: T.sans, borderTop: `1px solid ${T.border}`, borderBottom: `1px solid ${T.border}` }}>
+                      ··· {h.count} unchanged line{h.count !== 1 ? 's' : ''} ···
+                    </td>
+                  </tr>
+                )
+                const bg    = h.type === 'ins' ? '#f0fdf4' : h.type === 'del' ? '#fef2f2' : '#fff'
+                const color = h.type === 'ins' ? '#16a34a' : h.type === 'del' ? '#dc2626' : T.faint
+                const sign  = h.type === 'ins' ? '+' : h.type === 'del' ? '−' : ' '
+                return (
+                  <tr key={idx} style={{ background: bg }}>
+                    <td style={{ width: 42, padding: '1px 10px', textAlign: 'right', color: T.faint, userSelect: 'none', borderRight: `1px solid ${T.border}`, fontSize: 11 }}>{h.oldNo ?? ''}</td>
+                    <td style={{ width: 42, padding: '1px 10px', textAlign: 'right', color: T.faint, userSelect: 'none', borderRight: `1px solid ${T.border}`, fontSize: 11 }}>{h.newNo ?? ''}</td>
+                    <td style={{ padding: '1px 14px', whiteSpace: 'pre-wrap', wordBreak: 'break-all' }}>
+                      <span style={{ color, fontWeight: h.type !== 'eq' ? 600 : 400, marginRight: 8, userSelect: 'none' }}>{sign}</span>
+                      <span style={{ color: h.type === 'eq' ? T.text : color }}>{h.line}</span>
+                    </td>
+                  </tr>
+                )
+              })}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Footer */}
+        <div style={{ padding: '16px 24px', borderTop: `1px solid ${T.border}`, display: 'flex', gap: 10, justifyContent: 'flex-end', flexShrink: 0 }}>
+          <button onClick={onCancel} style={{ padding: '9px 20px', borderRadius: 8, border: `1.5px solid ${T.border}`, background: '#fff', fontSize: 13, fontWeight: 600, color: T.muted, cursor: 'pointer', fontFamily: 'inherit' }}>Cancel</button>
+          <button onClick={onConfirm} disabled={saving} style={{ padding: '9px 20px', borderRadius: 8, border: 'none', background: T.accent, fontSize: 13, fontWeight: 700, color: '#fff', cursor: saving ? 'default' : 'pointer', fontFamily: 'inherit' }}>
+            {saving ? 'Saving…' : 'Confirm & Save'}
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
 
 const SAMPLE_INVESTOR = {
   id: 'WZ-001',
@@ -172,6 +285,7 @@ function AddClientModal({ onClose, onAdded }) {
 function PromptBlock({ promptType, data, onSaved }) {
   const [text, setText]             = useState(data.text)
   const [saving, setSaving]         = useState(false)
+  const [showDiff, setShowDiff]     = useState(false)
   const [generating, setGenerating] = useState(false)
   const [output, setOutput]         = useState(null)
   const [genError, setGenError]     = useState(null)
@@ -180,7 +294,7 @@ function PromptBlock({ promptType, data, onSaved }) {
 
   const dirty = text !== data.text
 
-  const save = async () => {
+  const confirmSave = async () => {
     setSaving(true)
     await fetch('/api/prompts', {
       method: 'PATCH',
@@ -188,6 +302,7 @@ function PromptBlock({ promptType, data, onSaved }) {
       body: JSON.stringify({ id: data.id, prompt: text }),
     })
     setSaving(false)
+    setShowDiff(false)
     onSaved()
   }
 
@@ -223,6 +338,7 @@ function PromptBlock({ promptType, data, onSaved }) {
   )
 
   return (
+    <>
     <div style={{ background: '#fff', borderRadius: 12, border: `1.5px solid ${dirty ? T.accent : T.border}`, overflow: 'hidden', transition: 'border-color 0.15s', height: 500, display: 'flex', flexDirection: 'column' }}>
 
       {/* Header */}
@@ -243,11 +359,11 @@ function PromptBlock({ promptType, data, onSaved }) {
               </div>
               <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
                 <button
-                  onClick={save}
-                  disabled={saving || !dirty}
+                  onClick={() => dirty && setShowDiff(true)}
+                  disabled={!dirty}
                   style={{ fontSize: 11, fontWeight: 700, padding: '5px 14px', borderRadius: 6, border: `1px solid ${dirty ? T.green : T.border}`, background: dirty ? '#F0FDF4' : 'transparent', color: dirty ? T.green : T.faint, cursor: dirty ? 'pointer' : 'default', fontFamily: 'inherit', transition: 'all 0.15s' }}
                 >
-                  {saving ? 'Saving…' : 'Save'}
+                  Save
                 </button>
                 <button
                   onClick={runTest}
@@ -340,6 +456,18 @@ function PromptBlock({ promptType, data, onSaved }) {
           </div>
         </div>
     </div>
+
+    {showDiff && (
+      <DiffModal
+        original={data.text}
+        updated={text}
+        promptType={promptType}
+        onConfirm={confirmSave}
+        onCancel={() => setShowDiff(false)}
+        saving={saving}
+      />
+    )}
+    </>
   )
 }
 
