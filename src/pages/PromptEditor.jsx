@@ -225,6 +225,11 @@ function PromptBlock({ promptType, data, onSaved }) {
   return (
     <div style={{ background: '#fff', borderRadius: 12, border: `1.5px solid ${dirty ? T.accent : T.border}`, overflow: 'hidden', transition: 'border-color 0.15s', height: 500, display: 'flex', flexDirection: 'column' }}>
 
+      {/* Header */}
+      <div style={{ display: 'flex', alignItems: 'center', padding: '14px 20px', borderBottom: `1px solid ${T.border}`, background: '#FAFAFA', flexShrink: 0 }}>
+        <div style={{ fontSize: 13, fontWeight: 700, color: T.text }}>{TYPE_LABELS[promptType]}</div>
+      </div>
+
       {/* Test panel */}
       <div style={{ display: 'flex', flex: 1, overflow: 'hidden', minHeight: 0 }}>
 
