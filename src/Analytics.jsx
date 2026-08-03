@@ -891,10 +891,9 @@ export default function Analytics() {
                   <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                     <thead>
                       <tr style={{ background: '#FAFAFA' }}>
+                        <th style={{ padding: '12px 20px', textAlign: 'left', fontSize: 11, fontWeight: 700, letterSpacing: '.06em', color: MUTED, borderBottom: `1px solid ${LINE}`, textTransform: 'uppercase' }}>#</th>
                         <th style={{ padding: '12px 20px', textAlign: 'left', fontSize: 11, fontWeight: 700, letterSpacing: '.06em', color: MUTED, borderBottom: `1px solid ${LINE}`, textTransform: 'uppercase' }}>Email</th>
-                        <th style={{ padding: '12px 20px', textAlign: 'left', fontSize: 11, fontWeight: 700, letterSpacing: '.06em', color: MUTED, borderBottom: `1px solid ${LINE}`, textTransform: 'uppercase' }}>Credential Name</th>
-                        <th style={{ padding: '12px 20px', textAlign: 'left', fontSize: 11, fontWeight: 700, letterSpacing: '.06em', color: MUTED, borderBottom: `1px solid ${LINE}`, textTransform: 'uppercase' }}>Type</th>
-                        <th style={{ padding: '12px 20px', textAlign: 'right', fontSize: 11, fontWeight: 700, letterSpacing: '.06em', color: MUTED, borderBottom: `1px solid ${LINE}`, textTransform: 'uppercase' }}>ID</th>
+                        <th style={{ padding: '12px 20px', textAlign: 'left', fontSize: 11, fontWeight: 700, letterSpacing: '.06em', color: MUTED, borderBottom: `1px solid ${LINE}`, textTransform: 'uppercase' }}>Account Name</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -902,12 +901,9 @@ export default function Analytics() {
                         <tr key={acc.credentialId || i}
                           onMouseEnter={e => e.currentTarget.style.background = '#F5F5FF'}
                           onMouseLeave={e => e.currentTarget.style.background = ''}>
+                          <td style={{ padding: '14px 20px', fontSize: 12, color: MUTED, borderBottom: `1px solid ${LINE}`, fontFamily: MONO }}>{i + 1}</td>
                           <td style={{ padding: '14px 20px', fontSize: 13, color: INK, borderBottom: `1px solid ${LINE}`, fontWeight: 600 }}>{acc.email}</td>
                           <td style={{ padding: '14px 20px', fontSize: 13, color: MUTED, borderBottom: `1px solid ${LINE}` }}>{acc.credentialName}</td>
-                          <td style={{ padding: '14px 20px', borderBottom: `1px solid ${LINE}` }}>
-                            <span style={{ display: 'inline-block', padding: '2px 10px', borderRadius: 20, fontSize: 11, fontWeight: 700, fontFamily: MONO, background: A + '18', color: A }}>{acc.credentialType}</span>
-                          </td>
-                          <td style={{ padding: '14px 20px', fontSize: 11, color: MUTED, borderBottom: `1px solid ${LINE}`, textAlign: 'right', fontFamily: MONO }}>{acc.credentialId}</td>
                         </tr>
                       ))}
                     </tbody>
