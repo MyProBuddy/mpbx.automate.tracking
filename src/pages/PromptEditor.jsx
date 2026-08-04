@@ -289,6 +289,15 @@ function PromptBlock({ promptType, data, onSaved }) {
   const [generating, setGenerating] = useState(false)
   const [output, setOutput]         = useState(null)
   const [genError, setGenError]     = useState(null)
+  const [model, setModel]           = useState('gemini-2.5-flash')
+  const [models, setModels]         = useState([{ value: 'gemini-2.5-flash', label: 'Gemini 2.5 Flash' }])
+
+  useEffect(() => {
+    fetch('/api/gemini-models')
+      .then(r => r.json())
+      .then(d => { if (d.models?.length) setModels(d.models) })
+      .catch(() => {})
+  }, [])
 
   useEffect(() => { setText(data.text) }, [data.text])
 
@@ -314,7 +323,7 @@ function PromptBlock({ promptType, data, onSaved }) {
       const res = await fetch('/api/generate-email', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ investor_data: SAMPLE_INVESTOR, client_prompt: text }),
+        body: JSON.stringify({ investor_data: SAMPLE_INVESTOR, client_prompt: text, model }),
       })
       const json = await res.json()
       if (!res.ok) { setGenError(json.error || 'Generation failed'); return }
@@ -365,6 +374,13 @@ function PromptBlock({ promptType, data, onSaved }) {
                 >
                   Save
                 </button>
+                <select
+                  value={model}
+                  onChange={e => setModel(e.target.value)}
+                  style={{ fontSize: 11, fontWeight: 600, padding: '5px 8px', borderRadius: 6, border: `1px solid ${T.border}`, background: '#fff', color: T.text, cursor: 'pointer', fontFamily: 'inherit', outline: 'none' }}
+                >
+                  {models.map(m => <option key={m.value} value={m.value}>{m.label}</option>)}
+                </select>
                 <button
                   onClick={runTest}
                   disabled={generating}
