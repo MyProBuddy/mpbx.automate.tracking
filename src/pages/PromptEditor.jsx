@@ -374,22 +374,6 @@ function PromptBlock({ promptType, data, onSaved }) {
                 >
                   Save
                 </button>
-                <select
-                  value={model}
-                  onChange={e => setModel(e.target.value)}
-                  style={{ fontSize: 11, fontWeight: 600, padding: '5px 8px', borderRadius: 6, border: `1px solid ${T.border}`, background: '#fff', color: T.text, cursor: 'pointer', fontFamily: 'inherit', outline: 'none' }}
-                >
-                  {models.map(m => <option key={m.value} value={m.value}>{m.label}</option>)}
-                </select>
-                <button
-                  onClick={runTest}
-                  disabled={generating}
-                  style={{ fontSize: 11, fontWeight: 700, padding: '5px 18px', borderRadius: 6, border: 'none', background: generating ? T.faint : T.accent, color: '#fff', cursor: generating ? 'default' : 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: 6 }}
-                >
-                  {generating
-                    ? <><span style={{ display: 'inline-block', width: 10, height: 10, border: '2px solid rgba(255,255,255,0.5)', borderTopColor: '#fff', borderRadius: '50%', animation: 'spin 0.7s linear infinite' }} /> Generating…</>
-                    : '▶ Run'}
-                </button>
               </div>
             </div>
 
@@ -418,8 +402,26 @@ function PromptBlock({ promptType, data, onSaved }) {
 
           {/* RIGHT — output */}
           <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', minHeight: 0 }}>
-            <div style={{ display: 'flex', alignItems: 'center', padding: '10px 20px', borderBottom: `1px solid ${T.border}`, background: '#FAFAFA', fontSize: 10, fontWeight: 700, color: T.muted, letterSpacing: '0.07em', textTransform: 'uppercase', height: 44, flexShrink: 0 }}>
-              Generated Output
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 16px', borderBottom: `1px solid ${T.border}`, background: '#FAFAFA', height: 44, flexShrink: 0 }}>
+              <span style={{ fontSize: 10, fontWeight: 700, color: T.muted, letterSpacing: '0.07em', textTransform: 'uppercase' }}>Generated Output</span>
+              <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                <select
+                  value={model}
+                  onChange={e => setModel(e.target.value)}
+                  style={{ fontSize: 11, fontWeight: 600, padding: '5px 8px', borderRadius: 6, border: `1px solid ${T.border}`, background: '#fff', color: T.text, cursor: 'pointer', fontFamily: 'inherit', outline: 'none' }}
+                >
+                  {models.map(m => <option key={m.value} value={m.value}>{m.label}</option>)}
+                </select>
+                <button
+                  onClick={runTest}
+                  disabled={generating}
+                  style={{ fontSize: 11, fontWeight: 700, padding: '5px 18px', borderRadius: 6, border: 'none', background: generating ? T.faint : T.accent, color: '#fff', cursor: generating ? 'default' : 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: 6 }}
+                >
+                  {generating
+                    ? <><span style={{ display: 'inline-block', width: 10, height: 10, border: '2px solid rgba(255,255,255,0.5)', borderTopColor: '#fff', borderRadius: '50%', animation: 'spin 0.7s linear infinite' }} /> Generating…</>
+                    : '▶ Run'}
+                </button>
+              </div>
             </div>
             <div style={{ flex: 1, overflow: 'hidden', minHeight: 0, padding: '16px 18px' }}>
               <div className="hide-scroll" style={{ height: '100%', overflowY: 'auto', boxSizing: 'border-box' }}>

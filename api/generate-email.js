@@ -5,7 +5,8 @@ export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end()
   if (req.method !== 'POST') return res.status(405).end()
 
-  const { investor_data, client_prompt } = req.body || {}
+  const { investor_data, client_prompt, model } = req.body || {}
+  const geminiModel = model || 'gemini-2.5-flash'
   const apiKey = process.env.GOOGLE_GEMINI_API_KEY
   if (!apiKey) return res.status(500).json({ error: 'GOOGLE_GEMINI_API_KEY not configured' })
 
@@ -91,14 +92,14 @@ Enlighten Capital
 
   try {
     const geminiRes = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/${geminiModel}:generateContent?key=${apiKey}`,
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           contents: [{ role: 'user', parts: [{ text: userMessage }] }],
           systemInstruction: { role: 'user', parts: [{ text: effectiveSystem }] },
-          generationConfig: { temperature: 0.4 },
+          generationConfig: { temperature: 0 },
         }),
       }
     )
