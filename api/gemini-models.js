@@ -15,8 +15,13 @@ export default async function handler(req, res) {
       return res.status(502).json({ error: err?.error?.message || 'Failed to fetch models' })
     }
     const data = await r.json()
+    const EXCLUDE = ['tts', 'image', 'audio', 'live', 'lyria', 'veo', 'imagen', 'robotics', 'embedding', 'computer-use', 'antigravity', 'deep-research', 'gemma', 'nano-banana', 'translate', 'aqa']
     const models = (data.models || [])
-      .filter(m => m.supportedGenerationMethods?.includes('generateContent'))
+      .filter(m => {
+        const name = m.name.toLowerCase()
+        if (!m.supportedGenerationMethods?.includes('generateContent')) return false
+        return EXCLUDE.every(kw => !name.includes(kw))
+      })
       .map(m => ({
         value: m.name.replace('models/', ''),
         label: m.displayName || m.name.replace('models/', ''),
