@@ -7,7 +7,7 @@ export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end()
   if (req.method !== 'GET') return res.status(405).end()
 
-  const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON)
+  const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY)
 
   const todayStart = new Date()
   todayStart.setHours(0, 0, 0, 0)

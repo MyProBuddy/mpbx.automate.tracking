@@ -7,7 +7,7 @@ export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end()
   if (req.method !== 'GET') return res.status(405).end()
 
-  const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON)
+  const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY)
 
   const { type = 'investors', status = 'all', page = '1', limit = '20' } = req.query
   const table = type === 'firms' ? 'firms' : 'investors'
