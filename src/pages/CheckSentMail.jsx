@@ -22,22 +22,34 @@ export default function CheckSentMail() {
   const [checking,      setChecking]      = useState(false)
   const [checkResult,   setCheckResult]   = useState(null)
   const [checkError,    setCheckError]    = useState('')
+  const [n8nAccounts,   setN8nAccounts]   = useState([])
+  const [n8nClientId,   setN8nClientId]   = useState('')
   const dropRef = useRef(null)
 
-  const WEBHOOK_URL = 'https://n8n-appservice-prod-a7awa4ghbxf6ezfk.centralindia-01.azurewebsites.net/webhook/e5672bfb-6a0e-4bea-9c21-75076cab0046'
+  const ACCOUNTS_WEBHOOK  = 'https://n8n-appservice-prod-a7awa4ghbxf6ezfk.centralindia-01.azurewebsites.net/webhook/e5672bfb-6a0e-4bea-9c21-75076cab0046'
+  const SENT_MAIL_WEBHOOK = 'https://n8n-appservice-prod-a7awa4ghbxf6ezfk.centralindia-01.azurewebsites.net/webhook/909fa62b-bd15-4624-ad1a-496138b157d8'
+
+  useEffect(() => {
+    fetch(ACCOUNTS_WEBHOOK)
+      .then(r => r.json())
+      .then(data => {
+        const accounts = data?.[0]?.accounts || []
+        setN8nAccounts(accounts)
+        if (accounts.length) setN8nClientId(accounts[0].clientId)
+      })
+      .catch(() => {})
+  }, [])
 
   async function handleCheckSentMail() {
-    if (!selectedInv) return
+    if (!selectedInv || !n8nClientId) return
     setChecking(true)
     setCheckResult(null)
     setCheckError('')
-    const payload = {}
-    selectedInv._headers.forEach((h, i) => { if (h) payload[h] = selectedInv._row[i] || '' })
     try {
-      const res = await fetch(WEBHOOK_URL, {
+      const res = await fetch(SENT_MAIL_WEBHOOK, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
+        body: JSON.stringify({ clientId: n8nClientId, emails: [selectedInv.email] }),
       })
       const text = await res.text()
       let data
@@ -258,6 +270,16 @@ export default function CheckSentMail() {
                     )}
                   </div>
                 )}
+              </div>
+            )}
+
+            {/* n8n account selector */}
+            {n8nAccounts.length > 0 && (
+              <div>
+                <div style={{ fontSize: 11, fontWeight: 600, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 8 }}>Sent From Account</div>
+                <select value={n8nClientId} onChange={e => { setN8nClientId(e.target.value); setCheckResult(null); setCheckError('') }} style={selectStyle}>
+                  {n8nAccounts.map(a => <option key={a.clientId} value={a.clientId}>{a.credentialName}</option>)}
+                </select>
               </div>
             )}
 
