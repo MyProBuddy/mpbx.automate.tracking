@@ -81,6 +81,8 @@ export default function CheckSentMail() {
           last:  row[lastI]  || '',
           firm:  row[firmI]  || '',
           email: row[emailI] || '',
+          _headers: headers,
+          _row: row,
         })).filter(r => r.first || r.last || r.email)
         setInvestors(parsed)
       } catch (e) {
@@ -234,19 +236,34 @@ export default function CheckSentMail() {
 
         {/* Selected investor info */}
         {selectedInv && (
-          <div style={{ background: T.surface, border: `1.5px solid ${T.border}`, borderRadius: 12, padding: '24px 28px' }}>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 20 }}>
-              {[
-                { label: 'First Name', value: selectedInv.first || '—' },
-                { label: 'Last Name',  value: selectedInv.last  || '—' },
-                { label: 'Firm',       value: selectedInv.firm  || '—' },
-                { label: 'Email',      value: selectedInv.email || '—' },
-              ].map(({ label, value }) => (
-                <div key={label}>
-                  <div style={{ fontSize: 10, fontWeight: 700, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 6 }}>{label}</div>
-                  <div style={{ fontSize: 13, color: T.text, fontWeight: 600, wordBreak: 'break-all' }}>{value}</div>
-                </div>
-              ))}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+            <div style={{ background: T.surface, border: `1.5px solid ${T.border}`, borderRadius: 12, padding: '24px 28px' }}>
+              <div style={{ fontSize: 11, fontWeight: 700, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 18 }}>Investor Details</div>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr)', gap: 20 }}>
+                {selectedInv._headers.map((header, i) => {
+                  const value = selectedInv._row[i]
+                  if (!header) return null
+                  return (
+                    <div key={i}>
+                      <div style={{ fontSize: 10, fontWeight: 700, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 6 }}>{header}</div>
+                      <div style={{ fontSize: 13, color: value ? T.text : T.faint, fontWeight: value ? 600 : 400, wordBreak: 'break-all' }}>{value || '—'}</div>
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+
+            <div>
+              <button
+                style={{
+                  padding: '11px 28px', borderRadius: 8, border: 'none',
+                  background: 'linear-gradient(90deg,#7C3AED,#C026D3)',
+                  color: '#fff', fontSize: 13, fontWeight: 700,
+                  cursor: 'pointer', fontFamily: 'inherit',
+                }}
+              >
+                Check Sent Mail
+              </button>
             </div>
           </div>
         )}
