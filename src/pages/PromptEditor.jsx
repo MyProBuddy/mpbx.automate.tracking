@@ -232,23 +232,23 @@ function groupByClient(rows) {
 
 function AddClientModal({ onClose, onAdded }) {
   const [name, setName]     = useState('')
-  const [email, setEmail]   = useState('')
   const [error, setError]   = useState('')
   const [saving, setSaving] = useState(false)
 
   const submit = async e => {
     e.preventDefault()
-    if (!email) { setError('Email is required'); return }
+    if (!name.trim()) { setError('Client name is required'); return }
     setSaving(true)
+    const clientId = `client_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`
     const res = await fetch('/api/prompts', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ client_name: name, client_email: email }),
+      body: JSON.stringify({ client_name: name.trim(), client_email: clientId }),
     })
     const data = await res.json()
     setSaving(false)
     if (!res.ok) { setError(data.error || 'Failed to add'); return }
-    onAdded(email); onClose()
+    onAdded(clientId); onClose()
   }
 
   return (
@@ -257,13 +257,8 @@ function AddClientModal({ onClose, onAdded }) {
         <div style={{ fontSize: 18, fontWeight: 800, color: T.text, letterSpacing: '-0.02em', marginBottom: 24 }}>Add New Client</div>
         <form onSubmit={submit} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
           <div>
-            <div style={{ fontSize: 11, fontWeight: 600, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 6 }}>Client Name</div>
-            <input value={name} onChange={e => setName(e.target.value)} placeholder="e.g. Acme Corp"
-              style={{ width: '100%', padding: '10px 12px', border: `1.5px solid ${T.border}`, borderRadius: 8, fontSize: 13, fontFamily: 'inherit', color: T.text, outline: 'none', boxSizing: 'border-box' }} />
-          </div>
-          <div>
-            <div style={{ fontSize: 11, fontWeight: 600, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 6 }}>Client Email <span style={{ color: T.accent }}>*</span></div>
-            <input value={email} onChange={e => { setEmail(e.target.value); setError('') }} placeholder="client@example.com" required type="email"
+            <div style={{ fontSize: 11, fontWeight: 600, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 6 }}>Client Name <span style={{ color: T.accent }}>*</span></div>
+            <input value={name} onChange={e => { setName(e.target.value); setError('') }} placeholder="e.g. Acme Corp" autoFocus
               style={{ width: '100%', padding: '10px 12px', border: `1.5px solid ${error ? T.red : T.border}`, borderRadius: 8, fontSize: 13, fontFamily: 'inherit', color: T.text, outline: 'none', boxSizing: 'border-box' }} />
             {error && <div style={{ fontSize: 12, color: T.red, marginTop: 4 }}>{error}</div>}
           </div>
