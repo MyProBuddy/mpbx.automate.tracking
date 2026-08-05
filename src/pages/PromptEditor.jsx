@@ -224,16 +224,17 @@ function groupByClient(rows) {
   const map = {}
   for (const row of rows) {
     const key = row.client_email
-    if (!map[key]) map[key] = { client_name: row.client_name, client_email: row.client_email, prompts: {} }
+    if (!map[key]) map[key] = { client_name: row.client_name, client_email: row.client_email, client_description: row.client_description || '', prompts: {} }
     map[key].prompts[row.prompt_type] = { id: row.id, text: row.prompt || '' }
   }
   return Object.values(map)
 }
 
 function AddClientModal({ onClose, onAdded }) {
-  const [name, setName]     = useState('')
-  const [error, setError]   = useState('')
-  const [saving, setSaving] = useState(false)
+  const [name, setName]           = useState('')
+  const [description, setDesc]    = useState('')
+  const [error, setError]         = useState('')
+  const [saving, setSaving]       = useState(false)
 
   const submit = async e => {
     e.preventDefault()
@@ -243,7 +244,7 @@ function AddClientModal({ onClose, onAdded }) {
     const res = await fetch('/api/prompts', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ client_name: name.trim(), client_email: clientId }),
+      body: JSON.stringify({ client_name: name.trim(), client_email: clientId, client_description: description.trim() }),
     })
     const data = await res.json()
     setSaving(false)
@@ -262,6 +263,11 @@ function AddClientModal({ onClose, onAdded }) {
               style={{ width: '100%', padding: '10px 12px', border: `1.5px solid ${error ? T.red : T.border}`, borderRadius: 8, fontSize: 13, fontFamily: 'inherit', color: T.text, outline: 'none', boxSizing: 'border-box' }} />
             {error && <div style={{ fontSize: 12, color: T.red, marginTop: 4 }}>{error}</div>}
           </div>
+          <div>
+            <div style={{ fontSize: 11, fontWeight: 600, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 6 }}>Description</div>
+            <textarea value={description} onChange={e => setDesc(e.target.value)} placeholder="Optional notes about this client…" rows={3}
+              style={{ width: '100%', padding: '10px 12px', border: `1.5px solid ${T.border}`, borderRadius: 8, fontSize: 13, fontFamily: 'inherit', color: T.text, outline: 'none', resize: 'vertical', boxSizing: 'border-box' }} />
+          </div>
           <div style={{ fontSize: 12, color: T.muted, background: T.bg, borderRadius: 8, padding: '10px 12px' }}>
             4 prompt templates will be created: Outreach, Outreach Followup, Reply, Reply Followup.
           </div>
@@ -269,6 +275,42 @@ function AddClientModal({ onClose, onAdded }) {
             <button type="button" onClick={onClose} style={{ flex: 1, padding: '10px', borderRadius: 8, border: `1.5px solid ${T.border}`, background: T.surface, fontSize: 13, fontWeight: 600, color: T.muted, cursor: 'pointer', fontFamily: 'inherit' }}>Cancel</button>
             <button type="submit" disabled={saving} style={{ flex: 1, padding: '10px', borderRadius: 8, border: 'none', background: T.accent, fontSize: 13, fontWeight: 700, color: '#fff', cursor: saving ? 'default' : 'pointer', fontFamily: 'inherit' }}>
               {saving ? 'Adding…' : 'Add Client'}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  )
+}
+
+function EditDescriptionModal({ client, onClose, onSaved }) {
+  const [description, setDesc] = useState(client.client_description || '')
+  const [saving, setSaving]    = useState(false)
+
+  const submit = async e => {
+    e.preventDefault()
+    setSaving(true)
+    await fetch('/api/prompts', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ client_email: client.client_email, client_description: description.trim() }),
+    })
+    setSaving(false)
+    onSaved(); onClose()
+  }
+
+  return (
+    <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100 }}>
+      <div style={{ background: '#fff', borderRadius: 14, padding: 36, width: 440, boxShadow: '0 8px 40px rgba(0,0,0,0.12)' }}>
+        <div style={{ fontSize: 18, fontWeight: 800, color: T.text, letterSpacing: '-0.02em', marginBottom: 6 }}>Edit Description</div>
+        <div style={{ fontSize: 13, color: T.muted, marginBottom: 24 }}>{client.client_name}</div>
+        <form onSubmit={submit} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+          <textarea value={description} onChange={e => setDesc(e.target.value)} placeholder="Optional notes about this client…" rows={4} autoFocus
+            style={{ width: '100%', padding: '10px 12px', border: `1.5px solid ${T.border}`, borderRadius: 8, fontSize: 13, fontFamily: 'inherit', color: T.text, outline: 'none', resize: 'vertical', boxSizing: 'border-box' }} />
+          <div style={{ display: 'flex', gap: 10 }}>
+            <button type="button" onClick={onClose} style={{ flex: 1, padding: '10px', borderRadius: 8, border: `1.5px solid ${T.border}`, background: T.surface, fontSize: 13, fontWeight: 600, color: T.muted, cursor: 'pointer', fontFamily: 'inherit' }}>Cancel</button>
+            <button type="submit" disabled={saving} style={{ flex: 1, padding: '10px', borderRadius: 8, border: 'none', background: T.accent, fontSize: 13, fontWeight: 700, color: '#fff', cursor: saving ? 'default' : 'pointer', fontFamily: 'inherit' }}>
+              {saving ? 'Saving…' : 'Save'}
             </button>
           </div>
         </form>
@@ -502,10 +544,12 @@ function PromptBlock({ promptType, data, onSaved }) {
 }
 
 export default function PromptEditor() {
-  const [clients, setClients]     = useState([])
-  const [loading, setLoading]     = useState(true)
-  const [selected, setSelected]   = useState('')
-  const [showModal, setShowModal] = useState(false)
+  const [clients, setClients]         = useState([])
+  const [loading, setLoading]         = useState(true)
+  const [selected, setSelected]       = useState('')
+  const [showModal, setShowModal]     = useState(false)
+  const [openMenu, setOpenMenu]       = useState(null)
+  const [editClient, setEditClient]   = useState(null)
 
   const load = async (selectEmail) => {
     setLoading(true)
@@ -519,6 +563,14 @@ export default function PromptEditor() {
   }
 
   useEffect(() => { load() }, [])
+
+  // close menu on outside click
+  useEffect(() => {
+    if (!openMenu) return
+    const handler = () => setOpenMenu(null)
+    document.addEventListener('click', handler)
+    return () => document.removeEventListener('click', handler)
+  }, [openMenu])
 
   const activeClient = clients.find(c => c.client_email === selected)
 
@@ -544,15 +596,49 @@ export default function PromptEditor() {
             ? <div style={{ fontSize: 13, color: T.muted }}>No clients yet. Add one to get started.</div>
             : <>
                 <div style={{ marginBottom: 32 }}>
-                  <div style={{ fontSize: 11, fontWeight: 600, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 8 }}>Client</div>
-                  <select value={selected} onChange={e => setSelected(e.target.value)}
-                    style={{ padding: '10px 14px', border: `1.5px solid ${T.border}`, borderRadius: 8, fontSize: 13, fontFamily: 'inherit', color: T.text, background: '#fff', outline: 'none', cursor: 'pointer', minWidth: 320 }}>
-                    {clients.map(c => (
-                      <option key={c.client_email} value={c.client_email}>
-                        {c.client_name || c.client_email}
-                      </option>
-                    ))}
-                  </select>
+                  <div style={{ fontSize: 11, fontWeight: 600, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 10 }}>Client</div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 6, maxWidth: 480 }}>
+                    {clients.map(c => {
+                      const isActive = c.client_email === selected
+                      const isMenuOpen = openMenu === c.client_email
+                      return (
+                        <div key={c.client_email} onClick={() => setSelected(c.client_email)} style={{
+                          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                          padding: '10px 14px', borderRadius: 8, cursor: 'pointer',
+                          border: `1.5px solid ${isActive ? T.accent : T.border}`,
+                          background: isActive ? T.accentLight : '#fff',
+                          transition: 'all 0.12s',
+                        }}>
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            <div style={{ fontSize: 13, fontWeight: 700, color: isActive ? T.accent : T.text }}>{c.client_name || c.client_email}</div>
+                            {c.client_description && <div style={{ fontSize: 11, color: T.muted, marginTop: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{c.client_description}</div>}
+                          </div>
+
+                          {/* 3-dot menu */}
+                          <div style={{ position: 'relative', flexShrink: 0 }} onClick={e => e.stopPropagation()}>
+                            <button
+                              onClick={e => { e.stopPropagation(); setOpenMenu(isMenuOpen ? null : c.client_email) }}
+                              style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px 6px', borderRadius: 6, color: T.muted, fontSize: 16, lineHeight: 1, display: 'flex', alignItems: 'center' }}
+                            >⋯</button>
+                            {isMenuOpen && (
+                              <div style={{ position: 'absolute', right: 0, top: '100%', marginTop: 4, background: '#fff', border: `1.5px solid ${T.border}`, borderRadius: 8, boxShadow: '0 4px 20px rgba(0,0,0,0.1)', minWidth: 140, zIndex: 50, overflow: 'hidden' }}>
+                                <button
+                                  onClick={() => { setEditClient(c); setOpenMenu(null) }}
+                                  style={{ width: '100%', padding: '10px 14px', background: 'none', border: 'none', textAlign: 'left', fontSize: 13, color: T.text, cursor: 'pointer', fontFamily: 'inherit', display: 'block' }}
+                                  onMouseEnter={e => e.currentTarget.style.background = T.bg}
+                                  onMouseLeave={e => e.currentTarget.style.background = 'none'}
+                                >Edit</button>
+                                <button
+                                  disabled
+                                  style={{ width: '100%', padding: '10px 14px', background: 'none', border: 'none', textAlign: 'left', fontSize: 13, color: T.faint, cursor: 'default', fontFamily: 'inherit', display: 'block' }}
+                                >Settings</button>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      )
+                    })}
+                  </div>
                 </div>
 
                 {activeClient && (
@@ -569,6 +655,7 @@ export default function PromptEditor() {
       </div>
 
       {showModal && <AddClientModal onClose={() => setShowModal(false)} onAdded={email => load(email)} />}
+      {editClient && <EditDescriptionModal client={editClient} onClose={() => setEditClient(null)} onSaved={() => load(selected)} />}
     </div>
   )
 }
