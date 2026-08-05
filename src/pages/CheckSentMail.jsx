@@ -323,11 +323,41 @@ export default function CheckSentMail() {
             </div>
 
             {checkResult && (
-              <div style={{ background: T.surface, border: `1.5px solid ${T.border}`, borderRadius: 12, padding: '20px 24px' }}>
-                <div style={{ fontSize: 11, fontWeight: 700, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 14 }}>Webhook Response</div>
-                <pre style={{ margin: 0, fontSize: 12, color: T.text, fontFamily: T.mono, whiteSpace: 'pre-wrap', wordBreak: 'break-all' }}>
-                  {typeof checkResult === 'string' ? checkResult : JSON.stringify(checkResult, null, 2)}
-                </pre>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                  <div style={{ fontSize: 11, fontWeight: 700, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.07em' }}>Sent Mails</div>
+                  <span style={{ fontSize: 11, fontWeight: 700, background: checkResult.totalMatches > 0 ? '#EDE9FE' : T.bg, color: checkResult.totalMatches > 0 ? '#7C3AED' : T.muted, borderRadius: 99, padding: '2px 10px' }}>
+                    {checkResult.totalMatches} found
+                  </span>
+                </div>
+
+                {checkResult.totalMatches === 0 && (
+                  <div style={{ background: T.surface, border: `1.5px solid ${T.border}`, borderRadius: 12, padding: '24px', textAlign: 'center', fontSize: 13, color: T.muted }}>
+                    No sent mails found for this investor.
+                  </div>
+                )}
+
+                {(checkResult.messages || []).map((msg, i) => (
+                  <div key={msg.id || i} style={{ background: '#fff', border: `1.5px solid ${T.border}`, borderRadius: 12, padding: '20px 24px', display: 'flex', flexDirection: 'column', gap: 10 }}>
+                    <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16 }}>
+                      <div style={{ fontSize: 14, fontWeight: 700, color: T.text, lineHeight: 1.4 }}>{msg.subject || '(no subject)'}</div>
+                      <div style={{ fontSize: 11, color: T.muted, flexShrink: 0, marginTop: 2 }}>
+                        {msg.sentDateTime ? new Date(msg.sentDateTime).toLocaleString('en-IN', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : ''}
+                      </div>
+                    </div>
+
+                    <div style={{ display: 'flex', gap: 24, fontSize: 11, color: T.muted }}>
+                      <div><span style={{ fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>To</span>&nbsp;&nbsp;{(msg.to || []).join(', ')}</div>
+                      {msg.cc?.length > 0 && <div><span style={{ fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>CC</span>&nbsp;&nbsp;{msg.cc.join(', ')}</div>}
+                    </div>
+
+                    {msg.bodyPreview && (
+                      <div style={{ fontSize: 13, color: T.text, lineHeight: 1.6, borderTop: `1px solid ${T.border}`, paddingTop: 10, whiteSpace: 'pre-wrap' }}>
+                        {msg.bodyPreview}
+                      </div>
+                    )}
+                  </div>
+                ))}
               </div>
             )}
           </div>
