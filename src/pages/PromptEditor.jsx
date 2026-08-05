@@ -390,23 +390,23 @@ function PromptBlock({ promptType, data, onSaved }) {
               )}
               {leftTab === 'investor' && (
                 <div className="hide-scroll" style={{ display: 'flex', flexDirection: 'column', gap: 8, height: '100%', overflowY: 'auto', boxSizing: 'border-box', paddingBottom: 12 }}>
-                  {Object.keys(SAMPLE_INVESTOR).map(k => {
-                    const parsed = (() => { try { return JSON.parse(investorText) } catch { return SAMPLE_INVESTOR } })()
-                    return (
-                      <div key={k} style={{ display: 'grid', gridTemplateColumns: '120px 1fr', gap: 8, fontSize: 12 }}>
-                        <span style={{ color: T.faint, fontFamily: T.mono, fontSize: 11, paddingTop: 6 }}>{k}</span>
-                        <input
-                          value={parsed[k] ?? ''}
-                          onChange={e => {
-                            const current = (() => { try { return JSON.parse(investorText) } catch { return { ...SAMPLE_INVESTOR } } })()
-                            current[k] = e.target.value
-                            setInvestorText(JSON.stringify(current, null, 2))
-                          }}
-                          style={{ fontSize: 12, color: T.text, fontFamily: 'inherit', background: 'transparent', border: 'none', borderBottom: `1px solid ${T.border}`, outline: 'none', padding: '4px 2px', width: '100%', lineHeight: 1.5 }}
-                        />
-                      </div>
-                    )
-                  })}
+                  {Object.entries(JSON.parse(investorText)).map(([k, v]) => (
+                    <div key={k} style={{ display: 'grid', gridTemplateColumns: '120px 1fr', gap: 8, fontSize: 12 }}>
+                      <span style={{ color: T.faint, fontFamily: T.mono, fontSize: 11, paddingTop: 1 }}>{k}</span>
+                      <span
+                        contentEditable
+                        suppressContentEditableWarning
+                        onBlur={e => {
+                          const current = JSON.parse(investorText)
+                          current[k] = e.currentTarget.textContent
+                          setInvestorText(JSON.stringify(current, null, 2))
+                        }}
+                        style={{ color: T.text, lineHeight: 1.5, wordBreak: 'break-word', outline: 'none', borderBottom: `1px solid transparent`, cursor: 'text' }}
+                        onFocus={e => e.currentTarget.style.borderBottomColor = T.border}
+                        onBlurCapture={e => e.currentTarget.style.borderBottomColor = 'transparent'}
+                      >{v}</span>
+                    </div>
+                  ))}
                 </div>
               )}
             </div>
