@@ -5,12 +5,12 @@ import Nav from '../components/Nav.jsx'
 
 const TOOLS = [
   {
-    path: null,
+    path: '/tools/check-sent-mail',
     color: '#7C3AED', colorLight: '#F5F3FF',
     title: 'Check Sent Mail',
     desc: 'Review sent emails across your outreach campaigns — inspect delivery status, open rates, and bounce flags.',
     items: ['View sent email log', 'Check delivery status', 'Flag bounced addresses'],
-    disabled: true,
+    disabled: false,
   },
   {
     path: '/tools/prompt-editor',
