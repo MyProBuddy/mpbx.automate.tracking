@@ -594,13 +594,13 @@ export default function Analytics() {
     })
 
     const filtered      = rows.filter(row => !since || [...row.sentDates, row.replyDate, ...row.ourReplyDates].filter(Boolean).some(d => d >= since))
-    const contactedRows = rows.filter(r => r.count > 0)
-    const repliedRows   = rows.filter(r => r.replyDate)
-    const activeRows    = rows.filter(r => r.ourReplyDates.length && !r.stopped)
+    const contactedRows = filtered.filter(r => r.sentDates.some(d => !since || d >= since))
+    const repliedRows   = rows.filter(r => r.replyDate && (!since || r.replyDate >= since))
+    const activeRows    = filtered.filter(r => r.ourReplyDates.some(d => !since || d >= since) && !r.stopped)
     const escalatedRows = rows.filter(r => r.escalated)
-    const stoppedRows   = rows.filter(r => r.stopped)
+    const stoppedRows   = filtered.filter(r => r.stopped)
     const emails        = filtered.reduce((sum, row) => sum + row.sentDates.filter(d => !since || d >= since).length, 0)
-    const replies       = filtered.filter(r => r.replyDate && (!since || r.replyDate >= since)).length
+    const replies       = repliedRows.length
     const todayEmails   = rows.reduce((sum, row) => sum + row.sentDates.filter(d => sameDay(d, now)).length, 0)
     const weekEmails    = rows.reduce((sum, row) => sum + row.sentDates.filter(d => d >= new Date(now.getTime() - 7 * 86400000)).length, 0)
     const responseRate  = contactedRows.length ? repliedRows.length / contactedRows.length * 100 : 0
