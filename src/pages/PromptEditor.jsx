@@ -286,6 +286,8 @@ function PromptBlock({ promptType, data, onSaved }) {
   const [genError, setGenError]     = useState(null)
   const [model, setModel]           = useState('gemini-3.1-flash-lite-preview')
   const [models, setModels]         = useState([{ value: 'gemini-3.1-flash-lite-preview', label: 'Gemini 3.1 Flash Lite Preview' }])
+  const [investorText, setInvestorText] = useState(JSON.stringify(SAMPLE_INVESTOR, null, 2))
+  const [investorError, setInvestorError] = useState(null)
 
   useEffect(() => {
     fetch('/api/gemini-models')
@@ -311,6 +313,10 @@ function PromptBlock({ promptType, data, onSaved }) {
   }
 
   const runTest = async () => {
+    let investorData
+    try { investorData = JSON.parse(investorText) } catch {
+      setGenError('Investor data is not valid JSON'); return
+    }
     setGenerating(true)
     setOutput(null)
     setGenError(null)
@@ -318,7 +324,7 @@ function PromptBlock({ promptType, data, onSaved }) {
       const res = await fetch('/api/generate-email', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ investor_data: SAMPLE_INVESTOR, client_prompt: text, model }),
+        body: JSON.stringify({ investor_data: investorData, client_prompt: text, model }),
       })
       const json = await res.json()
       if (!res.ok) { setGenError(json.error || 'Generation failed'); return }
@@ -383,14 +389,13 @@ function PromptBlock({ promptType, data, onSaved }) {
                 />
               )}
               {leftTab === 'investor' && (
-                <div className="hide-scroll" style={{ display: 'flex', flexDirection: 'column', gap: 8, height: '100%', overflowY: 'auto', boxSizing: 'border-box', paddingBottom: 12 }}>
-                  {Object.entries(SAMPLE_INVESTOR).map(([k, v]) => (
-                    <div key={k} style={{ display: 'grid', gridTemplateColumns: '120px 1fr', gap: 8, fontSize: 12 }}>
-                      <span style={{ color: T.faint, fontFamily: T.mono, fontSize: 11, paddingTop: 1 }}>{k}</span>
-                      <span style={{ color: T.text, lineHeight: 1.5, wordBreak: 'break-word' }}>{v}</span>
-                    </div>
-                  ))}
-                </div>
+                <textarea
+                  className="hide-scroll"
+                  value={investorText}
+                  onChange={e => { setInvestorText(e.target.value); setInvestorError(null) }}
+                  spellCheck={false}
+                  style={{ width: '100%', height: '100%', fontSize: 11, color: T.text, lineHeight: 1.8, fontFamily: T.mono, margin: 0, background: T.bg, borderRadius: 8, padding: '12px 14px', border: `1px solid ${investorError ? T.red : 'transparent'}`, outline: 'none', resize: 'none', boxSizing: 'border-box', overflowY: 'auto' }}
+                />
               )}
             </div>
           </div>
