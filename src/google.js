@@ -144,6 +144,7 @@ export async function uploadFile(file, folderId, onProgress) {
 }
 
 export async function listClientSheets() {
+  if (!SHEETS_FOLDER) { const c = await getConfig(); SHEETS_FOLDER = c.sheetsFolderId }
   const q = encodeURIComponent(`'${SHEETS_FOLDER}' in parents and mimeType='application/vnd.google-apps.spreadsheet' and trashed=false`)
   const data = await gFetch(
     `https://www.googleapis.com/drive/v3/files?q=${q}&fields=files(id,name,createdTime,webViewLink)&orderBy=createdTime desc&pageSize=100`
@@ -152,6 +153,7 @@ export async function listClientSheets() {
 }
 
 export async function listClientFolders() {
+  if (!CLIENTS_FOLDER) { const c = await getConfig(); CLIENTS_FOLDER = c.clientsFolderId }
   const q = encodeURIComponent(`'${CLIENTS_FOLDER}' in parents and mimeType='application/vnd.google-apps.folder' and trashed=false`)
   const data = await gFetch(
     `https://www.googleapis.com/drive/v3/files?q=${q}&fields=files(id,name,createdTime,webViewLink)&orderBy=createdTime desc&pageSize=100`
