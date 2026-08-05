@@ -389,13 +389,25 @@ function PromptBlock({ promptType, data, onSaved }) {
                 />
               )}
               {leftTab === 'investor' && (
-                <textarea
-                  className="hide-scroll"
-                  value={investorText}
-                  onChange={e => { setInvestorText(e.target.value); setInvestorError(null) }}
-                  spellCheck={false}
-                  style={{ width: '100%', height: '100%', fontSize: 11, color: T.text, lineHeight: 1.8, fontFamily: T.mono, margin: 0, background: T.bg, borderRadius: 8, padding: '12px 14px', border: `1px solid ${investorError ? T.red : 'transparent'}`, outline: 'none', resize: 'none', boxSizing: 'border-box', overflowY: 'auto' }}
-                />
+                <div className="hide-scroll" style={{ display: 'flex', flexDirection: 'column', gap: 8, height: '100%', overflowY: 'auto', boxSizing: 'border-box', paddingBottom: 12 }}>
+                  {Object.keys(SAMPLE_INVESTOR).map(k => {
+                    const parsed = (() => { try { return JSON.parse(investorText) } catch { return SAMPLE_INVESTOR } })()
+                    return (
+                      <div key={k} style={{ display: 'grid', gridTemplateColumns: '120px 1fr', gap: 8, fontSize: 12 }}>
+                        <span style={{ color: T.faint, fontFamily: T.mono, fontSize: 11, paddingTop: 6 }}>{k}</span>
+                        <input
+                          value={parsed[k] ?? ''}
+                          onChange={e => {
+                            const current = (() => { try { return JSON.parse(investorText) } catch { return { ...SAMPLE_INVESTOR } } })()
+                            current[k] = e.target.value
+                            setInvestorText(JSON.stringify(current, null, 2))
+                          }}
+                          style={{ fontSize: 12, color: T.text, fontFamily: 'inherit', background: 'transparent', border: 'none', borderBottom: `1px solid ${T.border}`, outline: 'none', padding: '4px 2px', width: '100%', lineHeight: 1.5 }}
+                        />
+                      </div>
+                    )
+                  })}
+                </div>
               )}
             </div>
           </div>
