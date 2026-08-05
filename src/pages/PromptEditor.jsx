@@ -284,8 +284,8 @@ function PromptBlock({ promptType, data, onSaved }) {
   const [generating, setGenerating] = useState(false)
   const [output, setOutput]         = useState(null)
   const [genError, setGenError]     = useState(null)
-  const [model, setModel]           = useState('gemini-2.5-flash')
-  const [models, setModels]         = useState([{ value: 'gemini-2.5-flash', label: 'Gemini 2.5 Flash' }])
+  const [model, setModel]           = useState('gemini-3.1-flash-lite-preview')
+  const [models, setModels]         = useState([{ value: 'gemini-3.1-flash-lite-preview', label: 'Gemini 3.1 Flash Lite Preview' }])
 
   useEffect(() => {
     fetch('/api/gemini-models')
