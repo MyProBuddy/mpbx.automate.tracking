@@ -1,22 +1,28 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { T } from '../constants.js'
 import Nav from '../components/Nav.jsx'
-import { listClientSheets, getSheetTabs, getSheetValues, initTokenClient, requestToken } from '../google.js'
+import { listClientSheets, getSheetTabs, getSheetValues, initTokenClient, requestToken, syncTokenFromServer } from '../google.js'
 import { useAuth } from '../AuthContext.jsx'
 
-const idx = (headers, name) => headers.findIndex(h => h.trim().toLowerCase() === name.toLowerCase())
+const hIdx = (headers, name) => headers.findIndex(h => h.trim().toLowerCase() === name.toLowerCase())
 
 export default function CheckSentMail() {
   const { role, googleConnected: connected, googleSyncing, setConnected } = useAuth()
-  const [googleReady,    setGoogleReady]    = useState(false)
-  const [sheets,         setSheets]         = useState([])
-  const [sheetsLoading,  setSheetsLoading]  = useState(false)
-  const [clientId,       setClientId]       = useState('')
-  const [investors,      setInvestors]      = useState([])
-  const [invLoading,     setInvLoading]     = useState(false)
-  const [invError,       setInvError]       = useState('')
-  const [selectedInv,   setSelectedInv]    = useState('')
+  const [googleReady,   setGoogleReady]   = useState(false)
+  const [sheets,        setSheets]        = useState([])
+  const [sheetsLoading, setSheetsLoading] = useState(false)
+  const [sheetsError,   setSheetsError]   = useState('')
+  const [clientId,      setClientId]      = useState('')
+  const [investors,     setInvestors]     = useState([])
+  const [invLoading,    setInvLoading]    = useState(false)
+  const [invError,      setInvError]      = useState('')
+  const [selectedInv,   setSelectedInv]   = useState(null)
+  const [dropOpen,      setDropOpen]      = useState(false)
+  const [query,         setQuery]         = useState('')
+  const [tick,          setTick]          = useState(0)
+  const dropRef = useRef(null)
 
+  // init google
   useEffect(() => {
     window.scrollTo(0, 0)
     const timer = setInterval(() => {
@@ -29,45 +35,52 @@ export default function CheckSentMail() {
     return () => clearInterval(timer)
   }, [])
 
+  // load sheets — fires on mount (connected already true on refresh) AND on tick
   useEffect(() => {
     if (!connected) return
     setSheetsLoading(true)
+    setSheetsError('')
+    // ensure token is fresh before fetching
+    syncTokenFromServer().catch(() => {})
     listClientSheets()
-      .then(list => { setSheets(list); if (list.length) setClientId(list[0].id) })
-      .catch(() => {})
+      .then(list => {
+        setSheets(list)
+        if (list.length && !clientId) setClientId(list[0].id)
+      })
+      .catch(e => setSheetsError(e?.message || 'Failed to load client sheets.'))
       .finally(() => setSheetsLoading(false))
-  }, [connected])
+  }, [connected, tick])
 
-  // Load investors from tracking tab whenever client changes
+  // load investors from Investors tab when client changes
   useEffect(() => {
     if (!clientId) return
     setInvestors([])
-    setSelectedInv('')
+    setSelectedInv(null)
+    setQuery('')
     setInvError('')
     setInvLoading(true)
     ;(async () => {
       try {
-        const tabs = await getSheetTabs(clientId)
-        const trackTab = tabs.find(t => /^tracking$/i.test(t.title))
-        if (!trackTab) { setInvError('No Tracking tab found in this sheet.'); return }
-        const values = await getSheetValues(clientId, `${trackTab.title}!A1:AF5000`)
-        if (!values.length) { setInvError('Tracking tab is empty.'); return }
+        const tabs    = await getSheetTabs(clientId)
+        const invTab  = tabs.find(t => /^investors?$/i.test(t.title))
+        if (!invTab) { setInvError('No Investors tab found in this sheet.'); return }
+        const values  = await getSheetValues(clientId, `${invTab.title}!A1:Z5000`)
+        if (!values.length) { setInvError('Investors tab is empty.'); return }
         const headers = values[0].map(v => String(v).trim().toLowerCase())
         const rows    = values.slice(1).filter(r => r.some(Boolean))
-        const firstI  = idx(headers, 'first name')
-        const lastI   = idx(headers, 'last name')
-        const firmI   = idx(headers, 'company')
-        const emailI  = idx(headers, 'email')
-        const invIdI  = idx(headers, 'investor_id')
+        const firstI  = hIdx(headers, 'first name')
+        const lastI   = hIdx(headers, 'last name')
+        const firmI   = hIdx(headers, 'company')
+        const emailI  = hIdx(headers, 'email')
+        const idI     = hIdx(headers, 'investor_id')
         const parsed  = rows.map((row, i) => ({
-          key:   row[invIdI] || String(i),
+          key:   row[idI] || String(i),
           first: row[firstI] || '',
           last:  row[lastI]  || '',
           firm:  row[firmI]  || '',
           email: row[emailI] || '',
         })).filter(r => r.first || r.last || r.email)
         setInvestors(parsed)
-        if (parsed.length) setSelectedInv(parsed[0].key)
       } catch (e) {
         setInvError(e.message || 'Failed to load investors.')
       } finally {
@@ -76,8 +89,19 @@ export default function CheckSentMail() {
     })()
   }, [clientId])
 
-  const selectedSheet = sheets.find(s => s.id === clientId)
-  const selectedInvestor = investors.find(i => i.key === selectedInv)
+  // close dropdown on outside click
+  useEffect(() => {
+    if (!dropOpen) return
+    const handler = e => { if (dropRef.current && !dropRef.current.contains(e.target)) setDropOpen(false) }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [dropOpen])
+
+  const filtered = investors.filter(inv => {
+    if (!query) return true
+    const q = query.toLowerCase()
+    return [inv.first, inv.last, inv.firm, inv.email].some(v => v.toLowerCase().includes(q))
+  })
 
   const selectStyle = { padding: '10px 14px', border: `1.5px solid ${T.border}`, borderRadius: 8, fontSize: 13, fontFamily: 'inherit', color: T.text, background: '#fff', outline: 'none', cursor: 'pointer', minWidth: 320 }
 
@@ -98,11 +122,8 @@ export default function CheckSentMail() {
             <div style={{ fontSize: 14, fontWeight: 700, color: T.text, marginBottom: 8 }}>Google not connected</div>
             <div style={{ fontSize: 13, color: T.muted, marginBottom: 20 }}>Connect Google to load your client sheets.</div>
             {role === 'superadmin' && (
-              <button
-                disabled={!googleReady}
-                onClick={() => { initTokenClient(() => setConnected(true)); requestToken() }}
-                style={{ padding: '10px 24px', borderRadius: 8, border: 'none', background: 'linear-gradient(90deg,#C026D3,#F43F5E)', color: '#fff', fontSize: 13, fontWeight: 700, cursor: googleReady ? 'pointer' : 'default', fontFamily: 'inherit' }}
-              >
+              <button disabled={!googleReady} onClick={() => { initTokenClient(() => setConnected(true)); requestToken() }}
+                style={{ padding: '10px 24px', borderRadius: 8, border: 'none', background: 'linear-gradient(90deg,#C026D3,#F43F5E)', color: '#fff', fontSize: 13, fontWeight: 700, cursor: googleReady ? 'pointer' : 'default', fontFamily: 'inherit' }}>
                 Connect Google
               </button>
             )}
@@ -110,45 +131,102 @@ export default function CheckSentMail() {
         )}
 
         {connected && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 24, marginBottom: 36 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 28, marginBottom: 36 }}>
 
             {/* Client selector */}
             <div>
-              <div style={{ fontSize: 11, fontWeight: 600, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 8 }}>Client</div>
-              {sheetsLoading
-                ? <div style={{ fontSize: 13, color: T.muted }}>Loading clients…</div>
-                : sheets.length === 0
-                  ? <div style={{ fontSize: 13, color: T.muted }}>No client sheets found.</div>
-                  : (
-                    <select value={clientId} onChange={e => setClientId(e.target.value)} style={selectStyle}>
-                      {sheets.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
-                    </select>
-                  )
-              }
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 }}>
+                <div style={{ fontSize: 11, fontWeight: 600, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Client</div>
+                <button onClick={() => setTick(t => t + 1)} disabled={sheetsLoading}
+                  style={{ fontSize: 11, fontWeight: 600, padding: '3px 10px', borderRadius: 6, border: `1px solid ${T.border}`, background: T.surface, color: sheetsLoading ? T.faint : T.muted, cursor: sheetsLoading ? 'default' : 'pointer', fontFamily: 'inherit' }}>
+                  {sheetsLoading ? 'Loading…' : '↻ Reload'}
+                </button>
+              </div>
+              {sheetsError && <div style={{ fontSize: 12, color: '#DC2626', marginBottom: 8 }}>{sheetsError}</div>}
+              {!sheetsLoading && sheets.length === 0 && !sheetsError && (
+                <div style={{ fontSize: 13, color: T.muted }}>No client sheets found.</div>
+              )}
+              {sheets.length > 0 && (
+                <select value={clientId} onChange={e => setClientId(e.target.value)} style={selectStyle}>
+                  {sheets.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
+                </select>
+              )}
             </div>
 
-            {/* Investor selector */}
+            {/* Investor dropdown */}
             {clientId && (
               <div>
                 <div style={{ fontSize: 11, fontWeight: 600, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 8 }}>
                   Investor
-                  {investors.length > 0 && <span style={{ fontWeight: 400, textTransform: 'none', letterSpacing: 0, marginLeft: 8 }}>({investors.length})</span>}
+                  {investors.length > 0 && <span style={{ fontWeight: 400, textTransform: 'none', letterSpacing: 0, marginLeft: 8, fontSize: 11, color: T.faint }}>({investors.length} total)</span>}
                 </div>
                 {invLoading && <div style={{ fontSize: 13, color: T.muted }}>Loading investors…</div>}
                 {invError  && <div style={{ fontSize: 13, color: '#DC2626' }}>{invError}</div>}
                 {!invLoading && !invError && investors.length === 0 && (
-                  <div style={{ fontSize: 13, color: T.muted }}>No investors found in the Tracking tab.</div>
+                  <div style={{ fontSize: 13, color: T.muted }}>No investors found in the Investors tab.</div>
                 )}
+
                 {!invLoading && investors.length > 0 && (
-                  <select value={selectedInv} onChange={e => setSelectedInv(e.target.value)} style={{ ...selectStyle, minWidth: 480 }}>
-                    {investors.map(inv => (
-                      <option key={inv.key} value={inv.key}>
-                        {[inv.first, inv.last].filter(Boolean).join(' ')}
-                        {inv.firm  ? `  —  ${inv.firm}`  : ''}
-                        {inv.email ? `  —  ${inv.email}` : ''}
-                      </option>
-                    ))}
-                  </select>
+                  <div ref={dropRef} style={{ position: 'relative', maxWidth: 560 }}>
+                    {/* Trigger */}
+                    <div onClick={() => setDropOpen(o => !o)} style={{
+                      padding: '10px 14px', border: `1.5px solid ${dropOpen ? '#7C3AED' : T.border}`,
+                      borderRadius: 8, background: '#fff', cursor: 'pointer',
+                      display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12,
+                      transition: 'border-color 0.15s',
+                    }}>
+                      {selectedInv ? (
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <div style={{ fontSize: 13, fontWeight: 700, color: T.text }}>{[selectedInv.first, selectedInv.last].filter(Boolean).join(' ') || '—'}</div>
+                          <div style={{ fontSize: 11, color: T.muted, marginTop: 2 }}>{[selectedInv.firm, selectedInv.email].filter(Boolean).join('  ·  ')}</div>
+                        </div>
+                      ) : (
+                        <span style={{ fontSize: 13, color: T.faint }}>Select an investor…</span>
+                      )}
+                      <span style={{ fontSize: 12, color: T.faint, flexShrink: 0 }}>{dropOpen ? '▲' : '▼'}</span>
+                    </div>
+
+                    {/* Dropdown panel */}
+                    {dropOpen && (
+                      <div style={{
+                        position: 'absolute', top: '100%', left: 0, right: 0, marginTop: 4,
+                        background: '#fff', border: `1.5px solid ${T.border}`, borderRadius: 10,
+                        boxShadow: '0 8px 32px rgba(0,0,0,0.10)', zIndex: 50, overflow: 'hidden',
+                      }}>
+                        {/* Search */}
+                        <div style={{ padding: '10px 12px', borderBottom: `1px solid ${T.border}` }}>
+                          <input
+                            autoFocus
+                            value={query}
+                            onChange={e => setQuery(e.target.value)}
+                            placeholder="Search by name, firm or email…"
+                            style={{ width: '100%', border: `1px solid ${T.border}`, borderRadius: 6, padding: '6px 10px', fontSize: 12, fontFamily: 'inherit', color: T.text, outline: 'none', boxSizing: 'border-box' }}
+                          />
+                        </div>
+                        {/* List */}
+                        <div style={{ maxHeight: 320, overflowY: 'auto' }}>
+                          {filtered.length === 0 && (
+                            <div style={{ padding: '16px', fontSize: 12, color: T.muted, textAlign: 'center' }}>No results</div>
+                          )}
+                          {filtered.map(inv => (
+                            <div key={inv.key} onClick={() => { setSelectedInv(inv); setDropOpen(false); setQuery('') }}
+                              style={{ padding: '10px 14px', cursor: 'pointer', borderBottom: `1px solid ${T.border}`, transition: 'background 0.1s' }}
+                              onMouseEnter={e => e.currentTarget.style.background = T.bg}
+                              onMouseLeave={e => e.currentTarget.style.background = '#fff'}
+                            >
+                              <div style={{ fontSize: 13, fontWeight: 700, color: T.text, marginBottom: 3 }}>
+                                {[inv.first, inv.last].filter(Boolean).join(' ') || '—'}
+                              </div>
+                              <div style={{ display: 'flex', gap: 16, fontSize: 11, color: T.muted }}>
+                                {inv.firm  && <span>{inv.firm}</span>}
+                                {inv.email && <span style={{ fontFamily: T.mono }}>{inv.email}</span>}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 )}
               </div>
             )}
@@ -156,15 +234,15 @@ export default function CheckSentMail() {
           </div>
         )}
 
-        {/* Selected investor info card */}
-        {selectedInvestor && (
+        {/* Selected investor info */}
+        {selectedInv && (
           <div style={{ background: T.surface, border: `1.5px solid ${T.border}`, borderRadius: 12, padding: '24px 28px' }}>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 20 }}>
               {[
-                { label: 'First Name', value: selectedInvestor.first || '—' },
-                { label: 'Last Name',  value: selectedInvestor.last  || '—' },
-                { label: 'Firm',       value: selectedInvestor.firm  || '—' },
-                { label: 'Email',      value: selectedInvestor.email || '—' },
+                { label: 'First Name', value: selectedInv.first || '—' },
+                { label: 'Last Name',  value: selectedInv.last  || '—' },
+                { label: 'Firm',       value: selectedInv.firm  || '—' },
+                { label: 'Email',      value: selectedInv.email || '—' },
               ].map(({ label, value }) => (
                 <div key={label}>
                   <div style={{ fontSize: 10, fontWeight: 700, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 6 }}>{label}</div>
