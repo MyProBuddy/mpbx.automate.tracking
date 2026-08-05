@@ -596,48 +596,38 @@ export default function PromptEditor() {
             ? <div style={{ fontSize: 13, color: T.muted }}>No clients yet. Add one to get started.</div>
             : <>
                 <div style={{ marginBottom: 32 }}>
-                  <div style={{ fontSize: 11, fontWeight: 600, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 10 }}>Client</div>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 6, maxWidth: 480 }}>
-                    {clients.map(c => {
-                      const isActive = c.client_email === selected
-                      const isMenuOpen = openMenu === c.client_email
-                      return (
-                        <div key={c.client_email} onClick={() => setSelected(c.client_email)} style={{
-                          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                          padding: '10px 14px', borderRadius: 8, cursor: 'pointer',
-                          border: `1.5px solid ${isActive ? T.accent : T.border}`,
-                          background: isActive ? T.accentLight : '#fff',
-                          transition: 'all 0.12s',
-                        }}>
-                          <div style={{ flex: 1, minWidth: 0 }}>
-                            <div style={{ fontSize: 13, fontWeight: 700, color: isActive ? T.accent : T.text }}>{c.client_name || c.client_email}</div>
-                            {c.client_description && <div style={{ fontSize: 11, color: T.muted, marginTop: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{c.client_description}</div>}
-                          </div>
+                  <div style={{ fontSize: 11, fontWeight: 600, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 8 }}>Client</div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <select value={selected} onChange={e => setSelected(e.target.value)}
+                      style={{ padding: '10px 14px', border: `1.5px solid ${T.border}`, borderRadius: 8, fontSize: 13, fontFamily: 'inherit', color: T.text, background: '#fff', outline: 'none', cursor: 'pointer', minWidth: 320 }}>
+                      {clients.map(c => (
+                        <option key={c.client_email} value={c.client_email}>
+                          {c.client_name || c.client_email}
+                        </option>
+                      ))}
+                    </select>
 
-                          {/* 3-dot menu */}
-                          <div style={{ position: 'relative', flexShrink: 0 }} onClick={e => e.stopPropagation()}>
-                            <button
-                              onClick={e => { e.stopPropagation(); setOpenMenu(isMenuOpen ? null : c.client_email) }}
-                              style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px 6px', borderRadius: 6, color: T.muted, fontSize: 16, lineHeight: 1, display: 'flex', alignItems: 'center' }}
-                            >⋯</button>
-                            {isMenuOpen && (
-                              <div style={{ position: 'absolute', right: 0, top: '100%', marginTop: 4, background: '#fff', border: `1.5px solid ${T.border}`, borderRadius: 8, boxShadow: '0 4px 20px rgba(0,0,0,0.1)', minWidth: 140, zIndex: 50, overflow: 'hidden' }}>
-                                <button
-                                  onClick={() => { setEditClient(c); setOpenMenu(null) }}
-                                  style={{ width: '100%', padding: '10px 14px', background: 'none', border: 'none', textAlign: 'left', fontSize: 13, color: T.text, cursor: 'pointer', fontFamily: 'inherit', display: 'block' }}
-                                  onMouseEnter={e => e.currentTarget.style.background = T.bg}
-                                  onMouseLeave={e => e.currentTarget.style.background = 'none'}
-                                >Edit</button>
-                                <button
-                                  disabled
-                                  style={{ width: '100%', padding: '10px 14px', background: 'none', border: 'none', textAlign: 'left', fontSize: 13, color: T.faint, cursor: 'default', fontFamily: 'inherit', display: 'block' }}
-                                >Settings</button>
-                              </div>
-                            )}
-                          </div>
+                    {/* 3-dot menu for selected client */}
+                    <div style={{ position: 'relative' }}>
+                      <button
+                        onClick={e => { e.stopPropagation(); setOpenMenu(openMenu ? null : 'main') }}
+                        style={{ background: '#fff', border: `1.5px solid ${T.border}`, cursor: 'pointer', padding: '9px 12px', borderRadius: 8, color: T.muted, fontSize: 18, lineHeight: 1, display: 'flex', alignItems: 'center' }}
+                      >⋯</button>
+                      {openMenu === 'main' && (
+                        <div style={{ position: 'absolute', left: 0, top: '100%', marginTop: 4, background: '#fff', border: `1.5px solid ${T.border}`, borderRadius: 8, boxShadow: '0 4px 20px rgba(0,0,0,0.1)', minWidth: 140, zIndex: 50, overflow: 'hidden' }}>
+                          <button
+                            onClick={() => { setEditClient(activeClient); setOpenMenu(null) }}
+                            style={{ width: '100%', padding: '10px 14px', background: 'none', border: 'none', textAlign: 'left', fontSize: 13, color: T.text, cursor: 'pointer', fontFamily: 'inherit', display: 'block' }}
+                            onMouseEnter={e => e.currentTarget.style.background = T.bg}
+                            onMouseLeave={e => e.currentTarget.style.background = 'none'}
+                          >Edit</button>
+                          <button
+                            disabled
+                            style={{ width: '100%', padding: '10px 14px', background: 'none', border: 'none', textAlign: 'left', fontSize: 13, color: T.faint, cursor: 'default', fontFamily: 'inherit', display: 'block' }}
+                          >Settings</button>
                         </div>
-                      )
-                    })}
+                      )}
+                    </div>
                   </div>
                 </div>
 
