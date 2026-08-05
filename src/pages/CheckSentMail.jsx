@@ -19,7 +19,37 @@ export default function CheckSentMail() {
   const [selectedInv,   setSelectedInv]   = useState(null)
   const [dropOpen,      setDropOpen]      = useState(false)
   const [query,         setQuery]         = useState('')
+  const [checking,      setChecking]      = useState(false)
+  const [checkResult,   setCheckResult]   = useState(null)
+  const [checkError,    setCheckError]    = useState('')
   const dropRef = useRef(null)
+
+  const WEBHOOK_URL = 'https://n8n-appservice-prod-a7awa4ghbxf6ezfk.centralindia-01.azurewebsites.net/webhook/e5672bfb-6a0e-4bea-9c21-75076cab0046'
+
+  async function handleCheckSentMail() {
+    if (!selectedInv) return
+    setChecking(true)
+    setCheckResult(null)
+    setCheckError('')
+    const payload = {}
+    selectedInv._headers.forEach((h, i) => { if (h) payload[h] = selectedInv._row[i] || '' })
+    try {
+      const res = await fetch(WEBHOOK_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      })
+      const text = await res.text()
+      let data
+      try { data = JSON.parse(text) } catch { data = text }
+      if (!res.ok) throw new Error(typeof data === 'string' ? data : JSON.stringify(data))
+      setCheckResult(data)
+    } catch (e) {
+      setCheckError(e.message || 'Webhook call failed.')
+    } finally {
+      setChecking(false)
+    }
+  }
 
   // init google
   useEffect(() => {
@@ -209,7 +239,7 @@ export default function CheckSentMail() {
                             <div style={{ padding: '16px', fontSize: 12, color: T.muted, textAlign: 'center' }}>No results</div>
                           )}
                           {filtered.map(inv => (
-                            <div key={inv.key} onClick={() => { setSelectedInv(inv); setDropOpen(false); setQuery('') }}
+                            <div key={inv.key} onClick={() => { setSelectedInv(inv); setDropOpen(false); setQuery(''); setCheckResult(null); setCheckError('') }}
                               style={{ padding: '10px 14px', cursor: 'pointer', borderBottom: `1px solid ${T.border}`, transition: 'background 0.1s' }}
                               onMouseEnter={e => e.currentTarget.style.background = T.bg}
                               onMouseLeave={e => e.currentTarget.style.background = '#fff'}
@@ -253,18 +283,31 @@ export default function CheckSentMail() {
               </div>
             </div>
 
-            <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
               <button
+                onClick={handleCheckSentMail}
+                disabled={checking}
                 style={{
                   padding: '11px 28px', borderRadius: 8, border: 'none',
-                  background: 'linear-gradient(90deg,#7C3AED,#C026D3)',
-                  color: '#fff', fontSize: 13, fontWeight: 700,
-                  cursor: 'pointer', fontFamily: 'inherit',
+                  background: checking ? T.border : 'linear-gradient(90deg,#7C3AED,#C026D3)',
+                  color: checking ? T.muted : '#fff', fontSize: 13, fontWeight: 700,
+                  cursor: checking ? 'default' : 'pointer', fontFamily: 'inherit',
+                  transition: 'background 0.15s',
                 }}
               >
-                Check Sent Mail
+                {checking ? 'Checking…' : 'Check Sent Mail'}
               </button>
+              {checkError && <div style={{ fontSize: 12, color: '#DC2626' }}>{checkError}</div>}
             </div>
+
+            {checkResult && (
+              <div style={{ background: T.surface, border: `1.5px solid ${T.border}`, borderRadius: 12, padding: '20px 24px' }}>
+                <div style={{ fontSize: 11, fontWeight: 700, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 14 }}>Webhook Response</div>
+                <pre style={{ margin: 0, fontSize: 12, color: T.text, fontFamily: T.mono, whiteSpace: 'pre-wrap', wordBreak: 'break-all' }}>
+                  {typeof checkResult === 'string' ? checkResult : JSON.stringify(checkResult, null, 2)}
+                </pre>
+              </div>
+            )}
           </div>
         )}
 
