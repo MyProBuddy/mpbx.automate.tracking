@@ -172,6 +172,7 @@ export default function DataWorkflows() {
   const [stats, setStats] = useState(null)
 
   useEffect(() => {
+    window.scrollTo(0, 0)
     fetchDbStats().then(setStats)
   }, [])
 
