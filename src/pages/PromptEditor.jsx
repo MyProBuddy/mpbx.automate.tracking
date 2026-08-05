@@ -629,6 +629,9 @@ export default function PromptEditor() {
                       )}
                     </div>
                   </div>
+                  {activeClient?.client_description && (
+                    <div style={{ fontSize: 12, color: T.muted, marginTop: 8, maxWidth: 400 }}>{activeClient.client_description}</div>
+                  )}
                 </div>
 
                 {activeClient && (
