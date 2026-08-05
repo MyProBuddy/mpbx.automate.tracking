@@ -19,7 +19,6 @@ export default function CheckSentMail() {
   const [selectedInv,   setSelectedInv]   = useState(null)
   const [dropOpen,      setDropOpen]      = useState(false)
   const [query,         setQuery]         = useState('')
-  const [tick,          setTick]          = useState(0)
   const dropRef = useRef(null)
 
   // init google
@@ -35,21 +34,24 @@ export default function CheckSentMail() {
     return () => clearInterval(timer)
   }, [])
 
-  // load sheets — fires on mount (connected already true on refresh) AND on tick
+  // load sheets — retries when google script loads (googleReady) covers the refresh case
   useEffect(() => {
     if (!connected) return
     setSheetsLoading(true)
     setSheetsError('')
-    // ensure token is fresh before fetching
-    syncTokenFromServer().catch(() => {})
-    listClientSheets()
-      .then(list => {
+    ;(async () => {
+      try {
+        await syncTokenFromServer().catch(() => {})
+        const list = await listClientSheets()
         setSheets(list)
         if (list.length && !clientId) setClientId(list[0].id)
-      })
-      .catch(e => setSheetsError(e?.message || 'Failed to load client sheets.'))
-      .finally(() => setSheetsLoading(false))
-  }, [connected, tick])
+      } catch (e) {
+        setSheetsError(e?.message || 'Failed to load client sheets.')
+      } finally {
+        setSheetsLoading(false)
+      }
+    })()
+  }, [connected, googleReady])
 
   // load investors from Investors tab when client changes
   useEffect(() => {
@@ -135,12 +137,8 @@ export default function CheckSentMail() {
 
             {/* Client selector */}
             <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 }}>
+              <div style={{ marginBottom: 8 }}>
                 <div style={{ fontSize: 11, fontWeight: 600, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Client</div>
-                <button onClick={() => setTick(t => t + 1)} disabled={sheetsLoading}
-                  style={{ fontSize: 11, fontWeight: 600, padding: '3px 10px', borderRadius: 6, border: `1px solid ${T.border}`, background: T.surface, color: sheetsLoading ? T.faint : T.muted, cursor: sheetsLoading ? 'default' : 'pointer', fontFamily: 'inherit' }}>
-                  {sheetsLoading ? 'Loading…' : '↻ Reload'}
-                </button>
               </div>
               {sheetsError && <div style={{ fontSize: 12, color: '#DC2626', marginBottom: 8 }}>{sheetsError}</div>}
               {!sheetsLoading && sheets.length === 0 && !sheetsError && (
