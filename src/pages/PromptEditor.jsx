@@ -657,18 +657,6 @@ function PromptBlock({ promptType, data, onSaved, clientEmail }) {
                     </div>
                   )}
 
-                  {/* Company updates (outreach_followup only) */}
-                  {promptType === 'outreach_followup' && updates.length > 0 && (
-                    <div>
-                      <div style={{ fontSize: 10, fontWeight: 700, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 6 }}>Company Updates (from sheet)</div>
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-                        {updates.map((row, i) => (
-                          <div key={i} style={{ fontSize: 11, color: T.text, background: T.bg, borderRadius: 6, padding: '6px 10px', fontFamily: T.mono }}>{row.filter(Boolean).join(' · ')}</div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
                   {/* Save button */}
                   {selectedFolder && mdFileId && (
                     <button onClick={saveFilesState}
