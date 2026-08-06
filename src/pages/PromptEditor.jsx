@@ -348,7 +348,7 @@ function PromptBlock({ promptType, data, onSaved, clientEmail }) {
 
   const stateKey = `prompt_editor.${clientEmail}.${promptType}.files`
 
-  // load previous outreach mail for outreach_followup
+  // load previous outreach mail for outreach_followup + listen for live updates
   useEffect(() => {
     if (promptType !== 'outreach_followup') return
     const key = `prompt_editor.${clientEmail}.outreach.output`
@@ -356,6 +356,9 @@ function PromptBlock({ promptType, data, onSaved, clientEmail }) {
       .then(r => r.ok ? r.json() : null)
       .then(d => { if (d?.subject || d?.body) setPrevMail(d) })
       .catch(() => {})
+    const handler = e => { if (e.detail.clientEmail === clientEmail) setPrevMail(e.detail.data) }
+    window.addEventListener('outreach-output-saved', handler)
+    return () => window.removeEventListener('outreach-output-saved', handler)
   }, [promptType, clientEmail])
 
   // load saved state + folders when files tab is relevant
@@ -455,11 +458,13 @@ function PromptBlock({ promptType, data, onSaved, clientEmail }) {
       // save outreach output so outreach_followup can load it
       if (promptType === 'outreach' && (json.subject || json.body)) {
         const key = `prompt_editor.${clientEmail}.outreach.output`
+        const outreachData = { subject: json.subject, body: json.body, signature: json.signature || '' }
         fetch('/api/states', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ id: key, data: { subject: json.subject, body: json.body, signature: json.signature || '' } }),
+          body: JSON.stringify({ id: key, data: outreachData }),
         }).catch(() => {})
+        window.dispatchEvent(new CustomEvent('outreach-output-saved', { detail: { clientEmail, data: outreachData } }))
       }
     } catch (e) {
       setGenError(e.message)
