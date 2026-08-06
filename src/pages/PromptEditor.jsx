@@ -343,7 +343,20 @@ function PromptBlock({ promptType, data, onSaved, clientEmail }) {
   const [filesLoading,   setFilesLoading]   = useState(false)
   const [filesSaved,     setFilesSaved]     = useState(false)
 
+  // Previous mail (outreach_followup only)
+  const [prevMail,       setPrevMail]       = useState(null)
+
   const stateKey = `prompt_editor.${clientEmail}.${promptType}.files`
+
+  // load previous outreach mail for outreach_followup
+  useEffect(() => {
+    if (promptType !== 'outreach_followup') return
+    const key = `prompt_editor.${clientEmail}.outreach.output`
+    fetch(`/api/states?id=${encodeURIComponent(key)}`)
+      .then(r => r.ok ? r.json() : null)
+      .then(d => { if (d?.subject || d?.body) setPrevMail(d) })
+      .catch(() => {})
+  }, [promptType, clientEmail])
 
   // load saved state + folders when files tab is relevant
   useEffect(() => {
@@ -427,14 +440,27 @@ function PromptBlock({ promptType, data, onSaved, clientEmail }) {
     setOutput(null)
     setGenError(null)
     try {
+      const body = { investor_data: investorData, client_prompt: text, model }
+      if (promptType === 'outreach_followup' && prevMail) {
+        body.previous_mail = prevMail
+      }
       const res = await fetch('/api/generate-email', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ investor_data: investorData, client_prompt: text, model }),
+        body: JSON.stringify(body),
       })
       const json = await res.json()
       if (!res.ok) { setGenError(json.error || 'Generation failed'); return }
       setOutput(json)
+      // save outreach output so outreach_followup can load it
+      if (promptType === 'outreach' && (json.subject || json.body)) {
+        const key = `prompt_editor.${clientEmail}.outreach.output`
+        fetch('/api/states', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id: key, data: { subject: json.subject, body: json.body } }),
+        }).catch(() => {})
+      }
     } catch (e) {
       setGenError(e.message)
     } finally {
@@ -473,6 +499,7 @@ function PromptBlock({ promptType, data, onSaved, clientEmail }) {
                 {tabBtn('prompt', 'Prompt')}
                 {tabBtn('investor', 'Investor Data')}
                 {HAS_FILES_TAB.includes(promptType) && tabBtn('files', 'Files')}
+                {promptType === 'outreach_followup' && tabBtn('prevmail', 'Previous Mail')}
               </div>
               <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
                 <button
@@ -514,6 +541,25 @@ function PromptBlock({ promptType, data, onSaved, clientEmail }) {
                       >{v}</span>
                     </div>
                   ))}
+                </div>
+              )}
+              {leftTab === 'prevmail' && (
+                <div className="hide-scroll" style={{ height: '100%', overflowY: 'auto', paddingBottom: 12 }}>
+                  {prevMail ? (
+                    <div style={{ background: '#fff', borderRadius: 10, border: `1px solid ${T.border}`, overflow: 'hidden' }}>
+                      <div style={{ padding: '12px 16px', borderBottom: `1px solid ${T.border}`, background: '#F8F8FC' }}>
+                        <div style={{ fontSize: 10, fontWeight: 700, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 4 }}>Subject</div>
+                        <div style={{ fontSize: 13, fontWeight: 600, color: T.text, lineHeight: 1.5 }}>{prevMail.subject}</div>
+                      </div>
+                      <div style={{ padding: '16px' }}>
+                        <div style={{ fontSize: 12, color: T.text, lineHeight: 2, whiteSpace: 'pre-wrap', fontFamily: 'Georgia, serif' }}>{prevMail.body}</div>
+                      </div>
+                    </div>
+                  ) : (
+                    <div style={{ fontSize: 12, color: T.muted, background: T.bg, borderRadius: 8, padding: '12px 14px' }}>
+                      No previous outreach mail found. Run the <strong>Outreach</strong> prompt first to generate and save it.
+                    </div>
+                  )}
                 </div>
               )}
               {leftTab === 'files' && (
@@ -583,8 +629,9 @@ function PromptBlock({ promptType, data, onSaved, clientEmail }) {
                 </select>
                 <button
                   onClick={runTest}
-                  disabled={generating}
-                  style={{ fontSize: 11, fontWeight: 700, padding: '5px 18px', borderRadius: 6, border: 'none', background: generating ? T.faint : T.accent, color: '#fff', cursor: generating ? 'default' : 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: 6 }}
+                  disabled={generating || (promptType === 'outreach_followup' && !prevMail)}
+                  title={promptType === 'outreach_followup' && !prevMail ? 'Run the Outreach prompt first' : ''}
+                  style={{ fontSize: 11, fontWeight: 700, padding: '5px 18px', borderRadius: 6, border: 'none', background: (generating || (promptType === 'outreach_followup' && !prevMail)) ? T.faint : T.accent, color: '#fff', cursor: (generating || (promptType === 'outreach_followup' && !prevMail)) ? 'default' : 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: 6 }}
                 >
                   {generating
                     ? <><span style={{ display: 'inline-block', width: 10, height: 10, border: '2px solid rgba(255,255,255,0.5)', borderTopColor: '#fff', borderRadius: '50%', animation: 'spin 0.7s linear infinite' }} /> Generating…</>
