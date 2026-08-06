@@ -343,6 +343,7 @@ export default function CheckSentMail() {
                     const toList = (msg.toRecipients || msg.to || [])
                     const ccList = (msg.ccRecipients || msg.cc || [])
                     const hasHtml = msg.bodyContentType === 'html' || (msg.body && msg.body.trim().startsWith('<'))
+                    const cleanBody = msg.body ? msg.body.replace(/<hr[^>]*>[\s\S]*/i, '</body></html>') : ''
                     return (
                       <div key={msg.id || i} style={{ background: '#fff', border: `1.5px solid ${T.border}`, borderRadius: 12, padding: '20px 24px', display: 'flex', flexDirection: 'column', gap: 10 }}>
                         <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16 }}>
@@ -360,9 +361,9 @@ export default function CheckSentMail() {
                         {msg.body && (
                           <div style={{ borderTop: `1px solid ${T.border}`, paddingTop: 10 }}>
                             {hasHtml
-                              ? <iframe srcDoc={msg.body} style={{ width: '100%', border: 'none', minHeight: 300 }} scrolling="no"
+                              ? <iframe srcDoc={cleanBody} style={{ width: '100%', border: 'none', minHeight: 200 }} scrolling="no"
                                   onLoad={e => { e.target.style.height = e.target.contentDocument.body.scrollHeight + 'px' }} />
-                              : <div style={{ fontSize: 13, color: T.text, lineHeight: 1.6, whiteSpace: 'pre-wrap' }}>{msg.body}</div>
+                              : <div style={{ fontSize: 13, color: T.text, lineHeight: 1.6, whiteSpace: 'pre-wrap' }}>{cleanBody}</div>
                             }
                           </div>
                         )}
