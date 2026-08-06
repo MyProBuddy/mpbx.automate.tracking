@@ -323,7 +323,7 @@ export default function CheckSentMail() {
             </div>
 
             {checkResult && (() => {
-              const messages = Array.isArray(checkResult) ? checkResult : (checkResult.messages || [])
+              const messages = Array.isArray(checkResult) ? checkResult : checkResult.messages ? checkResult.messages : checkResult.id ? [checkResult] : []
               return (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
