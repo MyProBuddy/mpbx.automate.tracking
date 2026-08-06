@@ -26,8 +26,8 @@ export default function CheckSentMail() {
   const [n8nClientId,   setN8nClientId]   = useState('')
   const dropRef = useRef(null)
 
-  const ACCOUNTS_WEBHOOK  = 'https://n8n-appservice-prod-a7awa4ghbxf6ezfk.centralindia-01.azurewebsites.net/webhook/e5672bfb-6a0e-4bea-9c21-75076cab0046'
-  const SENT_MAIL_WEBHOOK = 'https://n8n-appservice-prod-a7awa4ghbxf6ezfk.centralindia-01.azurewebsites.net/webhook/909fa62b-bd15-4624-ad1a-496138b157d8'
+  const ACCOUNTS_WEBHOOK  = '/api/n8n-accounts'
+  const SENT_MAIL_WEBHOOK = '/api/n8n-sent-mail'
 
   useEffect(() => {
     fetch(ACCOUNTS_WEBHOOK)
