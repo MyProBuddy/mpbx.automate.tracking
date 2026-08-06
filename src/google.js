@@ -206,6 +206,14 @@ export async function clearSheetRange(spreadsheetId, range) {
   )
 }
 
+export async function listFolderFiles(folderId) {
+  const q = encodeURIComponent(`'${folderId}' in parents and trashed=false`)
+  const data = await gFetch(
+    `https://www.googleapis.com/drive/v3/files?q=${q}&fields=files(id,name,mimeType)&orderBy=name&pageSize=100`
+  )
+  return data.files || []
+}
+
 export async function appendSheetValues(spreadsheetId, range, values) {
   return gFetch(
     `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${encodeURIComponent(range)}:append?valueInputOption=USER_ENTERED&insertDataOption=INSERT_ROWS`,

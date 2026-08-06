@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from 'react'
 import { T } from '../constants.js'
 import Nav from '../components/Nav.jsx'
+import { listClientFolders, listFolderFiles, getSheetTabs, getSheetValues, listClientSheets } from '../google.js'
 
 // Simple LCS-based line diff — returns array of {type:'eq'|'del'|'ins', line, oldNo, newNo}
 function computeDiff(oldText, newText) {
@@ -319,7 +320,9 @@ function EditDescriptionModal({ client, onClose, onSaved }) {
   )
 }
 
-function PromptBlock({ promptType, data, onSaved }) {
+const HAS_FILES_TAB = ['outreach_followup', 'reply_followup']
+
+function PromptBlock({ promptType, data, onSaved, clientEmail }) {
   const [text, setText]             = useState(data.text)
   const [saving, setSaving]         = useState(false)
   const [showDiff, setShowDiff]     = useState(false)
@@ -330,6 +333,67 @@ function PromptBlock({ promptType, data, onSaved }) {
   const [models, setModels]         = useState([{ value: 'gemini-3.1-flash-lite-preview', label: 'Gemini 3.1 Flash Lite Preview' }])
   const [investorText, setInvestorText] = useState(JSON.stringify(SAMPLE_INVESTOR, null, 2))
   const [investorError, setInvestorError] = useState(null)
+
+  // Files tab state
+  const [folders,        setFolders]        = useState([])
+  const [selectedFolder, setSelectedFolder] = useState('')
+  const [folderFiles,    setFolderFiles]    = useState([])
+  const [mdFileId,       setMdFileId]       = useState('')
+  const [updates,        setUpdates]        = useState([])
+  const [filesLoading,   setFilesLoading]   = useState(false)
+  const [filesSaved,     setFilesSaved]     = useState(false)
+
+  const stateKey = `prompt_editor.${clientEmail}.${promptType}.files`
+
+  // load saved state + folders when files tab is relevant
+  useEffect(() => {
+    if (!HAS_FILES_TAB.includes(promptType)) return
+    // load saved state
+    fetch(`/api/states?id=${encodeURIComponent(stateKey)}`)
+      .then(r => r.ok ? r.json() : null)
+      .then(d => {
+        if (d?.mdFileId) setMdFileId(d.mdFileId)
+        if (d?.folderId) setSelectedFolder(d.folderId)
+      }).catch(() => {})
+    // load drive folders
+    listClientFolders().then(setFolders).catch(() => {})
+  }, [promptType, clientEmail])
+
+  // load files when folder changes
+  useEffect(() => {
+    if (!selectedFolder) return
+    setFilesLoading(true)
+    listFolderFiles(selectedFolder).then(setFolderFiles).catch(() => []).finally(() => setFilesLoading(false))
+  }, [selectedFolder])
+
+  // load company updates from sheet (outreach_followup only)
+  useEffect(() => {
+    if (promptType !== 'outreach_followup' || !selectedFolder) return
+    // find matching sheet by folder name
+    listClientSheets().then(async sheets => {
+      const folder = folders.find(f => f.id === selectedFolder)
+      if (!folder) return
+      const sheet = sheets.find(s => s.name.toLowerCase().includes(folder.name.toLowerCase()) || folder.name.toLowerCase().includes(s.name.toLowerCase()))
+      if (!sheet) return
+      try {
+        const tabs = await getSheetTabs(sheet.id)
+        const updTab = tabs.find(t => /updates?/i.test(t.title))
+        if (!updTab) return
+        const values = await getSheetValues(sheet.id, `${updTab.title}!A1:Z100`)
+        if (values.length) setUpdates(values.slice(1).filter(r => r.some(Boolean)))
+      } catch {}
+    }).catch(() => {})
+  }, [selectedFolder, folders, promptType])
+
+  async function saveFilesState() {
+    await fetch('/api/states', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: stateKey, data: { folderId: selectedFolder, mdFileId } }),
+    })
+    setFilesSaved(true)
+    setTimeout(() => setFilesSaved(false), 2000)
+  }
 
   useEffect(() => {
     fetch('/api/gemini-models')
@@ -408,6 +472,7 @@ function PromptBlock({ promptType, data, onSaved }) {
               <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
                 {tabBtn('prompt', 'Prompt')}
                 {tabBtn('investor', 'Investor Data')}
+                {HAS_FILES_TAB.includes(promptType) && tabBtn('files', 'Files')}
               </div>
               <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
                 <button
@@ -449,6 +514,56 @@ function PromptBlock({ promptType, data, onSaved }) {
                       >{v}</span>
                     </div>
                   ))}
+                </div>
+              )}
+              {leftTab === 'files' && (
+                <div className="hide-scroll" style={{ display: 'flex', flexDirection: 'column', gap: 16, height: '100%', overflowY: 'auto', paddingBottom: 12 }}>
+
+                  {/* Folder picker */}
+                  <div>
+                    <div style={{ fontSize: 10, fontWeight: 700, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 6 }}>Client Drive Folder</div>
+                    <select value={selectedFolder} onChange={e => setSelectedFolder(e.target.value)}
+                      style={{ width: '100%', padding: '8px 10px', border: `1px solid ${T.border}`, borderRadius: 6, fontSize: 12, fontFamily: 'inherit', color: T.text, background: '#fff', outline: 'none' }}>
+                      <option value=''>Select folder…</option>
+                      {folders.map(f => <option key={f.id} value={f.id}>{f.name}</option>)}
+                    </select>
+                  </div>
+
+                  {/* MD file picker */}
+                  {selectedFolder && (
+                    <div>
+                      <div style={{ fontSize: 10, fontWeight: 700, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 6 }}>Guidelines / MD File</div>
+                      {filesLoading
+                        ? <div style={{ fontSize: 12, color: T.muted }}>Loading files…</div>
+                        : <select value={mdFileId} onChange={e => setMdFileId(e.target.value)}
+                            style={{ width: '100%', padding: '8px 10px', border: `1px solid ${T.border}`, borderRadius: 6, fontSize: 12, fontFamily: 'inherit', color: T.text, background: '#fff', outline: 'none' }}>
+                            <option value=''>Select file…</option>
+                            {folderFiles.map(f => <option key={f.id} value={f.id}>{f.name}</option>)}
+                          </select>
+                      }
+                      {mdFileId && <div style={{ fontSize: 10, color: T.muted, marginTop: 4, fontFamily: T.mono }}>{mdFileId}</div>}
+                    </div>
+                  )}
+
+                  {/* Company updates (outreach_followup only) */}
+                  {promptType === 'outreach_followup' && updates.length > 0 && (
+                    <div>
+                      <div style={{ fontSize: 10, fontWeight: 700, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 6 }}>Company Updates (from sheet)</div>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                        {updates.map((row, i) => (
+                          <div key={i} style={{ fontSize: 11, color: T.text, background: T.bg, borderRadius: 6, padding: '6px 10px', fontFamily: T.mono }}>{row.filter(Boolean).join(' · ')}</div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Save button */}
+                  {selectedFolder && mdFileId && (
+                    <button onClick={saveFilesState}
+                      style={{ alignSelf: 'flex-start', padding: '7px 18px', borderRadius: 6, border: 'none', background: filesSaved ? T.green : T.accent, color: '#fff', fontSize: 11, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}>
+                      {filesSaved ? '✓ Saved' : 'Save Selection'}
+                    </button>
+                  )}
                 </div>
               )}
             </div>
@@ -638,7 +753,7 @@ export default function PromptEditor() {
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
                     {PROMPT_TYPES.map(pt => (
                       activeClient.prompts[pt]
-                        ? <PromptBlock key={pt} promptType={pt} data={activeClient.prompts[pt]} onSaved={() => load(selected)} />
+                        ? <PromptBlock key={pt} promptType={pt} data={activeClient.prompts[pt]} onSaved={() => load(selected)} clientEmail={activeClient.client_email} />
                         : null
                     ))}
                   </div>
