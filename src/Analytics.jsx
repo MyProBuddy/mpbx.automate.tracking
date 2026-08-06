@@ -645,7 +645,7 @@ export default function Analytics() {
     const heatData = heat.flatMap((items, y) => items.map((value, x) => [x, y, value]))
 
     const touchpoints = [0, 0, 0, 0]
-    rows.forEach(row => { if (row.count >= 1) touchpoints[Math.min(3, row.count - 1)]++ })
+    filtered.forEach(row => { if (row.count >= 1) touchpoints[Math.min(3, row.count - 1)]++ })
 
     const followups = {
       today:    rows.filter(r => r.dueState === 'today').length,
