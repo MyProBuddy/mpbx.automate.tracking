@@ -458,7 +458,7 @@ function PromptBlock({ promptType, data, onSaved, clientEmail }) {
         fetch('/api/states', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ id: key, data: { subject: json.subject, body: json.body } }),
+          body: JSON.stringify({ id: key, data: { subject: json.subject, body: json.body, signature: json.signature || '' } }),
         }).catch(() => {})
       }
     } catch (e) {
@@ -500,6 +500,7 @@ function PromptBlock({ promptType, data, onSaved, clientEmail }) {
                 {tabBtn('investor', 'Investor Data')}
                 {HAS_FILES_TAB.includes(promptType) && tabBtn('files', 'Files')}
                 {promptType === 'outreach_followup' && tabBtn('prevmail', 'Previous Mail')}
+                {promptType === 'outreach_followup' && tabBtn('companyupdates', 'Company Updates')}
               </div>
               <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
                 <button
@@ -554,10 +555,31 @@ function PromptBlock({ promptType, data, onSaved, clientEmail }) {
                       <div style={{ padding: '16px' }}>
                         <div style={{ fontSize: 12, color: T.text, lineHeight: 2, whiteSpace: 'pre-wrap', fontFamily: 'Georgia, serif' }}>{prevMail.body}</div>
                       </div>
+                      {prevMail.signature && (
+                        <div style={{ padding: '10px 16px', borderTop: `1px solid ${T.border}`, background: '#FAFAFA' }}>
+                          <div style={{ fontSize: 11, color: T.muted, whiteSpace: 'pre-wrap', fontFamily: T.mono }}>{prevMail.signature}</div>
+                        </div>
+                      )}
                     </div>
                   ) : (
                     <div style={{ fontSize: 12, color: T.muted, background: T.bg, borderRadius: 8, padding: '12px 14px' }}>
                       No previous outreach mail found. Run the <strong>Outreach</strong> prompt first to generate and save it.
+                    </div>
+                  )}
+                </div>
+              )}
+              {leftTab === 'companyupdates' && (
+                <div className="hide-scroll" style={{ height: '100%', overflowY: 'auto', paddingBottom: 12 }}>
+                  {updates.length > 0 ? (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                      <div style={{ fontSize: 10, fontWeight: 700, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 4 }}>From Updates Sheet</div>
+                      {updates.map((row, i) => (
+                        <div key={i} style={{ fontSize: 11, color: T.text, background: T.bg, borderRadius: 6, padding: '8px 12px', fontFamily: T.mono, lineHeight: 1.6 }}>{row.filter(Boolean).join(' · ')}</div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div style={{ fontSize: 12, color: T.muted, background: T.bg, borderRadius: 8, padding: '12px 14px' }}>
+                      No company updates found. Select the client folder in the <strong>Files</strong> tab first to load updates from the sheet.
                     </div>
                   )}
                 </div>
