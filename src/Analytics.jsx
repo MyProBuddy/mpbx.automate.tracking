@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import ReactECharts from 'echarts-for-react'
-import { listClientSheets, getSheetTabs, getSheetValues, isConnected, initTokenClient, requestToken } from './google.js'
+import { listClientSheets, getSheetTabs, getSheetValues, isConnected, initTokenClient, requestToken, syncTokenFromServer } from './google.js'
 import { useAuth } from './AuthContext.jsx'
 import Nav from './components/Nav.jsx'
 
@@ -439,7 +439,6 @@ export default function Analytics() {
   const [query,           setQuery]           = useState('')
   const [overview,        setOverview]        = useState([])
   const [overviewLoading, setOverviewLoading] = useState(false)
-  const [overviewTick,    setOverviewTick]    = useState(0)
   const [outlookAccounts, setOutlookAccounts] = useState([])
   const [outlookTotal,    setOutlookTotal]    = useState(0)
   const [outlookLoading,  setOutlookLoading]  = useState(true)
@@ -457,7 +456,7 @@ export default function Analytics() {
   }, [])
 
   useEffect(() => {
-    fetch('https://n8n-appservice-prod-a7awa4ghbxf6ezfk.centralindia-01.azurewebsites.net/webhook/e5672bfb-6a0e-4bea-9c21-75076cab0046', { method: 'GET' })
+    fetch('/api/n8n-accounts')
       .then(r => { if (!r.ok) throw new Error(r.status); return r.json() })
       .then(raw => {
         const payload = Array.isArray(raw) ? raw[0] : raw?.value?.[0] ?? raw
@@ -470,8 +469,11 @@ export default function Analytics() {
 
   useEffect(() => {
     if (!connected) return
-    listClientSheets().then(setSheets).catch(() => {})
-  }, [connected, overviewTick])
+    ;(async () => {
+      await syncTokenFromServer().catch(() => {})
+      listClientSheets().then(setSheets).catch(() => {})
+    })()
+  }, [connected, googleReady])
 
   useEffect(() => {
     if (!connected || sheets.length === 0) return
@@ -511,7 +513,7 @@ export default function Analytics() {
       }
     })).then(results => { setOverview(results); setOverviewLoading(false) })
       .catch(() => setOverviewLoading(false))
-  }, [sheets, overviewTick])
+  }, [sheets])
 
   const loadSheet = async id => {
     if (!id) return
@@ -791,14 +793,6 @@ export default function Analytics() {
                 <h2 style={{ fontSize: 28, letterSpacing: '-.03em', margin: '0 0 4px', color: INK }}>Outreach at a glance.</h2>
                 <p style={{ color: MUTED, fontSize: 13, margin: 0 }}>Select a client above to drill into the full command center.</p>
               </div>
-              <button
-                onClick={() => { setOverview([]); setSheets([]); setOverviewTick(t => t + 1) }}
-                disabled={overviewLoading}
-                style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px', borderRadius: 8, border: `1px solid ${LINE}`, background: '#fff', fontSize: 12, fontWeight: 600, color: overviewLoading ? MUTED : INK, cursor: overviewLoading ? 'default' : 'pointer', fontFamily: FONT }}
-              >
-                <span style={{ display: 'inline-block', animation: overviewLoading ? 'spin 0.7s linear infinite' : 'none', fontSize: 14 }}>↻</span>
-                {overviewLoading ? 'Refreshing…' : 'Refresh'}
-              </button>
             </div>
 
             {overviewLoading && (
