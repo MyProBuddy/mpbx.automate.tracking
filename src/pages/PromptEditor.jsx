@@ -339,9 +339,15 @@ function PromptBlock({ promptType, data, onSaved, clientEmail }) {
   const [selectedFolder, setSelectedFolder] = useState('')
   const [folderFiles,    setFolderFiles]    = useState([])
   const [mdFileId,       setMdFileId]       = useState('')
-  const [updates,        setUpdates]        = useState([])
   const [filesLoading,   setFilesLoading]   = useState(false)
   const [filesSaved,     setFilesSaved]     = useState(false)
+
+  // Company updates tab state
+  const [sheets,          setSheets]         = useState([])
+  const [selectedSheet,   setSelectedSheet]  = useState('')
+  const [updates,         setUpdates]        = useState([])
+  const [updatesLoading,  setUpdatesLoading] = useState(false)
+  const [updatesSaved,    setUpdatesSaved]   = useState(false)
 
   // Previous mail (outreach_followup only)
   const [prevMail,       setPrevMail]       = useState(null)
@@ -382,24 +388,39 @@ function PromptBlock({ promptType, data, onSaved, clientEmail }) {
     listFolderFiles(selectedFolder).then(setFolderFiles).catch(() => []).finally(() => setFilesLoading(false))
   }, [selectedFolder])
 
-  // load company updates from sheet (outreach_followup only)
+  // load sheets list + restore saved sheet selection (outreach_followup only)
+  const updatesStateKey = `prompt_editor.${clientEmail}.outreach_followup.updates`
   useEffect(() => {
-    if (promptType !== 'outreach_followup' || !selectedFolder) return
-    // find matching sheet by folder name
-    listClientSheets().then(async sheets => {
-      const folder = folders.find(f => f.id === selectedFolder)
-      if (!folder) return
-      const sheet = sheets.find(s => s.name.toLowerCase().includes(folder.name.toLowerCase()) || folder.name.toLowerCase().includes(s.name.toLowerCase()))
-      if (!sheet) return
-      try {
-        const tabs = await getSheetTabs(sheet.id)
-        const updTab = tabs.find(t => /updates?/i.test(t.title))
-        if (!updTab) return
-        const values = await getSheetValues(sheet.id, `${updTab.title}!A1:Z100`)
-        if (values.length) setUpdates(values.slice(1).filter(r => r.some(Boolean)))
-      } catch {}
-    }).catch(() => {})
-  }, [selectedFolder, folders, promptType])
+    if (promptType !== 'outreach_followup') return
+    listClientSheets().then(setSheets).catch(() => {})
+    fetch(`/api/states?id=${encodeURIComponent(updatesStateKey)}`)
+      .then(r => r.ok ? r.json() : null)
+      .then(d => { if (d?.sheetId) setSelectedSheet(d.sheetId) })
+      .catch(() => {})
+  }, [promptType, clientEmail])
+
+  // load updates when selected sheet changes
+  useEffect(() => {
+    if (!selectedSheet) return
+    setUpdatesLoading(true)
+    setUpdates([])
+    getSheetTabs(selectedSheet).then(async tabs => {
+      const updTab = tabs.find(t => /updates?/i.test(t.title))
+      if (!updTab) { setUpdatesLoading(false); return }
+      const values = await getSheetValues(selectedSheet, `${updTab.title}!A1:Z200`)
+      setUpdates((values || []).slice(1).filter(r => r.some(Boolean)))
+    }).catch(() => {}).finally(() => setUpdatesLoading(false))
+  }, [selectedSheet])
+
+  async function saveUpdatesState() {
+    await fetch('/api/states', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: updatesStateKey, data: { sheetId: selectedSheet } }),
+    })
+    setUpdatesSaved(true)
+    setTimeout(() => setUpdatesSaved(false), 2000)
+  }
 
   async function saveFilesState() {
     await fetch('/api/states', {
@@ -574,18 +595,36 @@ function PromptBlock({ promptType, data, onSaved, clientEmail }) {
                 </div>
               )}
               {leftTab === 'companyupdates' && (
-                <div className="hide-scroll" style={{ height: '100%', overflowY: 'auto', paddingBottom: 12 }}>
-                  {updates.length > 0 ? (
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                      <div style={{ fontSize: 10, fontWeight: 700, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 4 }}>From Updates Sheet</div>
+                <div className="hide-scroll" style={{ display: 'flex', flexDirection: 'column', gap: 14, height: '100%', overflowY: 'auto', paddingBottom: 12 }}>
+                  {/* Sheet picker */}
+                  <div>
+                    <div style={{ fontSize: 10, fontWeight: 700, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 6 }}>Google Sheet</div>
+                    <select value={selectedSheet} onChange={e => setSelectedSheet(e.target.value)}
+                      style={{ width: '100%', padding: '8px 10px', border: `1px solid ${T.border}`, borderRadius: 6, fontSize: 12, fontFamily: 'inherit', color: T.text, background: '#fff', outline: 'none' }}>
+                      <option value=''>Select sheet…</option>
+                      {sheets.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
+                    </select>
+                  </div>
+
+                  {/* Updates list */}
+                  {updatesLoading && <div style={{ fontSize: 12, color: T.muted }}>Loading updates…</div>}
+                  {!updatesLoading && selectedSheet && updates.length === 0 && (
+                    <div style={{ fontSize: 12, color: T.muted, background: T.bg, borderRadius: 8, padding: '10px 12px' }}>No rows found in the Updates tab.</div>
+                  )}
+                  {!updatesLoading && updates.length > 0 && (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
                       {updates.map((row, i) => (
                         <div key={i} style={{ fontSize: 11, color: T.text, background: T.bg, borderRadius: 6, padding: '8px 12px', fontFamily: T.mono, lineHeight: 1.6 }}>{row.filter(Boolean).join(' · ')}</div>
                       ))}
                     </div>
-                  ) : (
-                    <div style={{ fontSize: 12, color: T.muted, background: T.bg, borderRadius: 8, padding: '12px 14px' }}>
-                      No company updates found. Select the client folder in the <strong>Files</strong> tab first to load updates from the sheet.
-                    </div>
+                  )}
+
+                  {/* Save button */}
+                  {selectedSheet && (
+                    <button onClick={saveUpdatesState}
+                      style={{ alignSelf: 'flex-start', padding: '7px 18px', borderRadius: 6, border: 'none', background: updatesSaved ? T.green : T.accent, color: '#fff', fontSize: 11, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}>
+                      {updatesSaved ? '✓ Saved' : 'Save Selection'}
+                    </button>
                   )}
                 </div>
               )}
