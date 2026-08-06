@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'react'
 import { T } from '../constants.js'
 import Nav from '../components/Nav.jsx'
-import { listClientFolders, listFolderFiles, getSheetTabs, getSheetValues, listClientSheets } from '../google.js'
+import { listClientFolders, listFolderFiles, getFileContent, getSheetTabs, getSheetValues, listClientSheets } from '../google.js'
 
 // Simple LCS-based line diff — returns array of {type:'eq'|'del'|'ins', line, oldNo, newNo}
 function computeDiff(oldText, newText) {
@@ -465,8 +465,15 @@ function PromptBlock({ promptType, data, onSaved, clientEmail }) {
     setGenError(null)
     try {
       const body = { investor_data: investorData, client_prompt: text, model }
-      if (promptType === 'outreach_followup' && prevMail) {
-        body.previous_mail = prevMail
+      if (promptType === 'outreach_followup') {
+        if (prevMail) body.previous_mail = prevMail
+        if (mdFileId) {
+          const mdFile = folderFiles.find(f => f.id === mdFileId)
+          try { body.md_file_content = await getFileContent(mdFileId, mdFile?.mimeType) } catch {}
+        }
+        if (updates.length > 0) {
+          body.company_updates = updates.map(r => r.filter(Boolean).join(' | ')).join('\n')
+        }
       }
       const res = await fetch('/api/generate-email', {
         method: 'POST',

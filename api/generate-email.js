@@ -5,7 +5,7 @@ export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end()
   if (req.method !== 'POST') return res.status(405).end()
 
-  const { investor_data, client_prompt, model } = req.body || {}
+  const { investor_data, client_prompt, model, previous_mail, md_file_content, company_updates } = req.body || {}
   const geminiModel = model || 'gemini-2.5-flash'
   const apiKey = process.env.GOOGLE_GEMINI_API_KEY
   if (!apiKey) return res.status(500).json({ error: 'GOOGLE_GEMINI_API_KEY not configured' })
@@ -88,7 +88,27 @@ Enlighten Capital
 
   // If the user has a saved prompt, use it as the system instruction; otherwise fall back to the built-in one
   const effectiveSystem = (client_prompt && client_prompt.trim()) ? client_prompt.trim() : systemPrompt
-  const userMessage = `<Investor_Data>\n${JSON.stringify(investor_data, null, 2)}\n</Investor_Data>`
+
+  const userParts = []
+
+  // Attach guidelines MD file as a document part if provided
+  if (md_file_content) {
+    userParts.push({ text: `<Guidelines_Document>\n${md_file_content}\n</Guidelines_Document>\n\n` })
+  }
+
+  // Investor data
+  userParts.push({ text: `<Investor_Data>\n${JSON.stringify(investor_data, null, 2)}\n</Investor_Data>` })
+
+  // Previous outreach mail (for follow-up prompts)
+  if (previous_mail) {
+    const prevText = `Subject: ${previous_mail.subject || ''}\n\n${previous_mail.body || ''}${previous_mail.signature ? `\n\n---\n${previous_mail.signature}` : ''}`
+    userParts.push({ text: `\n\n<Previous_Email>\n${prevText}\n</Previous_Email>` })
+  }
+
+  // Company updates
+  if (company_updates) {
+    userParts.push({ text: `\n\n<Company_Updates>\n${company_updates}\n</Company_Updates>` })
+  }
 
   try {
     const geminiRes = await fetch(
@@ -97,7 +117,7 @@ Enlighten Capital
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          contents: [{ role: 'user', parts: [{ text: userMessage }] }],
+          contents: [{ role: 'user', parts: userParts }],
           systemInstruction: { role: 'user', parts: [{ text: effectiveSystem }] },
           generationConfig: { temperature: 0 },
         }),

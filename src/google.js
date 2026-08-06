@@ -206,6 +206,16 @@ export async function clearSheetRange(spreadsheetId, range) {
   )
 }
 
+export async function getFileContent(fileId, mimeType) {
+  const isGoogleDoc = mimeType === 'application/vnd.google-apps.document'
+  const url = isGoogleDoc
+    ? `https://www.googleapis.com/drive/v3/files/${fileId}/export?mimeType=text/plain`
+    : `https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`
+  const res = await fetch(url, { headers: { Authorization: `Bearer ${getToken()}` } })
+  if (!res.ok) throw new Error(await res.text())
+  return res.text()
+}
+
 export async function listFolderFiles(folderId) {
   const q = encodeURIComponent(`'${folderId}' in parents and trashed=false`)
   const data = await gFetch(
