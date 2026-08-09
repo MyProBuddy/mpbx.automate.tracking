@@ -1,18 +1,33 @@
 export const T = {
-  bg:          'rgba(245,245,250,0.55)',
-  surface:     'rgba(255,255,255,0.75)',
-  border:      '#E6E6EE',
-  text:        '#0D0D14',
-  muted:       '#7C7C94',
-  faint:       '#B4B4C8',
+  // surfaces
+  bg:          '#f5f1ec',
+  surface:     '#ffffff',
+  border:      '#d3cec6',
+  borderSoft:  '#ebe7e1',
+
+  // text — Intercom ink scale
+  text:        '#111111',
+  muted:       '#626260',
+  subtle:      '#7b7b78',
+  faint:       '#9c9fa5',
+
+  // brand / semantic (keep existing accent, keep green/red)
   accent:      '#5647E0',
   accentLight: '#EEEDFB',
   green:       '#059669',
   greenLight:  '#ECFDF5',
   red:         '#DC2626',
   redLight:    '#FEF2F2',
-  sans:        "'Inter', -apple-system, sans-serif",
-  mono:        "'JetBrains Mono', 'Fira Code', ui-monospace, monospace",
+
+  // typography — Intercom scale (Inter as Saans substitute)
+  sans:        "'Inter', ui-sans-serif, system-ui, sans-serif",
+  mono:        "'JetBrains Mono', ui-monospace, monospace",
+
+  // button shape — Intercom spec: 8px radius, 10px 18px padding, 15px/500
+  btnRadius:   '8px',
+  btnPadding:  '10px 18px',
+  btnFontSize: '15px',
+  btnWeight:   700,
 }
 
 export const OUTLOOK_DEFAULTS = {

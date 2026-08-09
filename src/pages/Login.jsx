@@ -14,12 +14,12 @@ export default function Login() {
   if (role) return <Navigate to="/hub" replace />
 
   const fieldStyle = focused => ({
-    width: '100%', padding: '12px 14px',
-    background: focused ? '#fff' : T.bg,
-    border: `1.5px solid ${focused ? T.accent : T.border}`,
-    borderRadius: 8, fontSize: 14, fontFamily: T.sans,
-    color: T.text, outline: 'none', transition: 'border-color 0.15s, background 0.15s',
-    letterSpacing: '-0.01em',
+    width: '100%', padding: '10px 14px',
+    background: T.surface,
+    border: `1px solid ${focused ? T.accent : T.border}`,
+    borderRadius: T.btnRadius, fontSize: 16, fontFamily: T.sans,
+    color: T.text, outline: 'none', transition: 'border-color 0.15s',
+    letterSpacing: 0,
   })
 
   const submit = async e => {
@@ -55,30 +55,30 @@ export default function Login() {
       <div style={{ flex: 1, background: T.surface, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '48px' }}>
         <div style={{ width: '100%', maxWidth: 360 }}>
           <div style={{ marginBottom: 36 }}>
-            <div style={{ fontSize: 24, fontWeight: 800, color: T.text, letterSpacing: '-0.03em', marginBottom: 6 }}>Sign in</div>
-            <div style={{ fontSize: 14, color: T.muted }}>Access the configurator</div>
+            <div style={{ fontSize: 28, fontWeight: 500, color: T.text, letterSpacing: '-0.5px', lineHeight: 1.20, marginBottom: 8 }}>Sign in</div>
+            <div style={{ fontSize: 16, fontWeight: 400, color: T.muted, lineHeight: 1.5 }}>Access the configurator</div>
           </div>
           <form onSubmit={submit} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
             <div>
-              <div style={{ fontSize: 11, fontWeight: 600, color: T.muted, marginBottom: 7, textTransform: 'uppercase', letterSpacing: '0.04em' }}>Email</div>
+              <div style={{ fontSize: 14, fontWeight: 500, color: T.text, marginBottom: 6 }}>Email</div>
               <input type="email" value={email} onChange={e => { setEmail(e.target.value); setError('') }}
                 placeholder="you@example.com" required
                 onFocus={() => setEFoc(true)} onBlur={() => setEFoc(false)}
                 style={fieldStyle(eFoc)} />
             </div>
             <div>
-              <div style={{ fontSize: 11, fontWeight: 600, color: T.muted, marginBottom: 7, textTransform: 'uppercase', letterSpacing: '0.04em' }}>Password</div>
+              <div style={{ fontSize: 14, fontWeight: 500, color: T.text, marginBottom: 6 }}>Password</div>
               <input type="password" value={password} onChange={e => { setPassword(e.target.value); setError('') }}
                 placeholder="••••••••" required
                 onFocus={() => setPFoc(true)} onBlur={() => setPFoc(false)}
                 style={fieldStyle(pFoc)} />
             </div>
-            {error && <div style={{ fontSize: 13, color: T.red, background: T.redLight, padding: '10px 14px', borderRadius: 8 }}>{error}</div>}
+            {error && <div style={{ fontSize: 14, color: T.red, background: T.redLight, padding: '10px 14px', borderRadius: T.btnRadius, lineHeight: 1.5 }}>{error}</div>}
             <button type="submit" style={{
-              marginTop: 4, padding: '12px', background: T.accent,
-              color: '#fff', border: 'none', borderRadius: 8,
-              fontSize: 14, fontWeight: 700, fontFamily: T.sans,
-              letterSpacing: '-0.01em', cursor: 'pointer',
+              marginTop: 4, padding: T.btnPadding, background: T.accent,
+              color: '#fff', border: 'none', borderRadius: T.btnRadius,
+              fontSize: T.btnFontSize, fontWeight: T.btnWeight, fontFamily: T.sans,
+              cursor: 'pointer', lineHeight: 1.20,
             }}>
               Sign in
             </button>

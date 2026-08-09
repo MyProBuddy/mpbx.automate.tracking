@@ -64,20 +64,20 @@ function HubCard({ o }) {
       onMouseEnter={() => setHov(true)}
       onMouseLeave={() => setHov(false)}
       style={{
-        background: T.surface, borderRadius: 14, padding: 32, textAlign: 'left',
-        border: `1.5px solid ${hov && !o.disabled ? o.color : T.border}`,
+        background: T.surface, borderRadius: 12, padding: 24, textAlign: 'left',
+        border: `1px solid ${hov && !o.disabled ? o.color : T.border}`,
         cursor: o.disabled ? 'default' : 'pointer', transition: 'border-color 0.15s',
         display: 'flex', flexDirection: 'column', opacity: o.disabled ? 0.6 : 1,
       }}
     >
-      <div style={{ fontSize: 10, fontWeight: 700, color: o.color, letterSpacing: '0.1em', marginBottom: 16 }}>{o.label}</div>
-      <div style={{ fontSize: 22, fontWeight: 800, color: T.text, letterSpacing: '-0.03em', marginBottom: 10 }}>{o.title}</div>
-      <div style={{ fontSize: 13, color: T.muted, lineHeight: 1.6, marginBottom: 28 }}>{o.desc}</div>
+      <div style={{ fontSize: 12, fontWeight: 500, color: o.color, letterSpacing: 0, marginBottom: 12 }}>{o.label}</div>
+      <div style={{ fontSize: 22, fontWeight: 500, color: T.text, letterSpacing: '-0.3px', lineHeight: 1.25, marginBottom: 10 }}>{o.title}</div>
+      <div style={{ fontSize: 14, color: T.muted, lineHeight: 1.6, marginBottom: 24 }}>{o.desc}</div>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginTop: 'auto' }}>
         {o.items.map((item, i) => (
           <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <div style={{ width: 5, height: 5, borderRadius: '50%', background: o.color, flexShrink: 0 }} />
-            <span style={{ fontSize: 12, color: T.muted }}>{item}</span>
+            <div style={{ width: 4, height: 4, borderRadius: '50%', background: o.color, flexShrink: 0 }} />
+            <span style={{ fontSize: 14, color: T.muted }}>{item}</span>
           </div>
         ))}
       </div>
@@ -88,8 +88,8 @@ function HubCard({ o }) {
 function StatPill({ label, value, color }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-      <div style={{ fontSize: 11, fontWeight: 600, color: T.muted, letterSpacing: '0.06em', textTransform: 'uppercase' }}>{label}</div>
-      <div style={{ fontSize: 26, fontWeight: 800, color: color || T.text, letterSpacing: '-0.03em', lineHeight: 1 }}>
+      <div style={{ fontSize: 12, fontWeight: 500, color: T.muted }}>{label}</div>
+      <div style={{ fontSize: 26, fontWeight: 500, color: color || T.text, letterSpacing: '-0.5px', lineHeight: 1 }}>
         {value !== null && value !== undefined ? Number(value).toLocaleString() : '—'}
       </div>
     </div>
@@ -123,8 +123,8 @@ function MasterDatabasePanel({ stats }) {
     }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 28 }}>
         <div>
-          <div style={{ fontSize: 10, fontWeight: 700, color: '#5647E0', letterSpacing: '0.1em', marginBottom: 6 }}>MASTER DATABASE</div>
-          <div style={{ fontSize: 20, fontWeight: 800, color: T.text, letterSpacing: '-0.03em' }}>Data Workflows</div>
+          <div style={{ fontSize: 12, fontWeight: 500, color: '#5647E0', marginBottom: 6 }}>MASTER DATABASE</div>
+          <div style={{ fontSize: 20, fontWeight: 500, color: T.text, letterSpacing: '-0.3px' }}>Data Workflows</div>
         </div>
         <div style={{ fontSize: 11, fontWeight: 600, color: T.muted, background: T.bg, border: `1px solid ${T.border}`, borderRadius: 8, padding: '4px 12px' }}>COMING SOON</div>
       </div>
@@ -171,9 +171,9 @@ export default function Hub() {
       <Nav title="Workflow Configurator" />
       <div style={{ maxWidth: 1200, margin: '0 auto', padding: '40px 48px 80px' }}>
         <div style={{ marginBottom: 44 }}>
-          <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: '.1em', textTransform: 'uppercase', color: T.accent, marginBottom: 8 }}>Dashboard</div>
-          <div style={{ fontSize: 30, fontWeight: 800, letterSpacing: '-0.03em', color: T.text, marginBottom: 6 }}>What would you like to do?</div>
-          <div style={{ fontSize: 13, color: T.muted, lineHeight: 1.6 }}>Choose an action to get started.</div>
+          <div style={{ fontSize: 14, fontWeight: 500, color: T.accent, marginBottom: 8 }}>Dashboard</div>
+          <div style={{ fontSize: 40, fontWeight: 500, letterSpacing: '-0.8px', lineHeight: 1.15, color: T.text, marginBottom: 8 }}>What would you like to do?</div>
+          <div style={{ fontSize: 16, color: T.muted, lineHeight: 1.5 }}>Choose an action to get started.</div>
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 20, gridAutoRows: '1fr' }}>

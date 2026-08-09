@@ -35,25 +35,25 @@ export default function Nav({ title, subtitle, pendingCount, onDownload, status,
           style={{ width: 28, height: 28, objectFit: 'contain', marginRight: 9, filter: 'drop-shadow(0 2px 6px rgba(168,85,247,0.25))' }}
         />
         <span className="mpbx-brand-name">MPBX</span>
-        <span style={{ fontSize: 15, fontWeight: 400, letterSpacing: '-0.01em', color: 'rgba(60,50,80,0.72)', marginLeft: 1 }}>
+        <span style={{ fontSize: 14, fontWeight: 400, color: T.muted, marginLeft: 1 }}>
           tracking
         </span>
 
         {/* separator */}
-        <div style={{ width: 1, height: 18, background: 'rgba(120,110,150,0.18)', margin: '0 18px', flexShrink: 0 }} />
+        <div style={{ width: 1, height: 18, background: T.border, margin: '0 18px', flexShrink: 0 }} />
 
         {/* back button or page title */}
         {backTo && (
           <button
             onClick={() => navigate(backTo)}
-            style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 12, fontWeight: 600, color: 'rgba(50,40,70,0.65)', padding: 0, fontFamily: 'inherit', marginRight: 12 }}
+            style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 14, fontWeight: 500, color: T.muted, padding: 0, fontFamily: 'inherit', marginRight: 12 }}
           >
             ← Back
           </button>
         )}
-        <span style={{ fontSize: 12.5, fontWeight: 600, color: 'rgba(50,40,70,0.68)', letterSpacing: '-0.01em' }}>
+        <span style={{ fontSize: 14, fontWeight: 500, color: T.text }}>
           {title}
-          {subtitle && <span style={{ fontWeight: 400, color: 'rgba(80,70,100,0.45)', marginLeft: 4 }}>{subtitle}</span>}
+          {subtitle && <span style={{ fontWeight: 400, color: T.muted, marginLeft: 4 }}>{subtitle}</span>}
         </span>
       </div>
 
@@ -66,11 +66,11 @@ export default function Nav({ title, subtitle, pendingCount, onDownload, status,
         )}
         {onDownload && (
           <button onClick={onDownload} style={{
-            padding: '7px 18px',
-            background: status === 'done' ? '#16A34A' : GRAD,
-            color: '#fff', border: 'none', borderRadius: 8,
-            fontSize: 12, fontWeight: 600, fontFamily: 'inherit',
-            letterSpacing: '-0.01em', cursor: 'pointer',
+            padding: T.btnPadding,
+            background: status === 'done' ? T.green : T.accent,
+            color: '#fff', border: 'none', borderRadius: T.btnRadius,
+            fontSize: T.btnFontSize, fontWeight: T.btnWeight, fontFamily: 'inherit',
+            cursor: 'pointer', lineHeight: 1.2,
           }}>
             {status === 'done' ? '✓ Downloaded' : 'Download JSON'}
           </button>
@@ -80,12 +80,12 @@ export default function Nav({ title, subtitle, pendingCount, onDownload, status,
         <button
           onClick={logout}
           style={{
-            fontFamily: 'inherit', fontSize: 12, fontWeight: 500,
-            color: 'rgba(80,70,100,0.65)',
-            background: 'rgba(255,255,255,0.32)',
-            border: '1px solid rgba(160,150,190,0.22)',
-            borderRadius: 8, padding: '6px 15px',
-            cursor: 'pointer',
+            fontFamily: 'inherit', fontSize: 14, fontWeight: 500,
+            color: T.muted,
+            background: T.surface,
+            border: `1px solid ${T.border}`,
+            borderRadius: T.btnRadius, padding: '6px 14px',
+            cursor: 'pointer', lineHeight: 1.2,
           }}
         >
           Sign out
