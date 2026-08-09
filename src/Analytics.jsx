@@ -11,11 +11,18 @@ const GREEN = '#16A34A'
 const RED   = '#DC2626'
 const AMBER = '#F97316'
 const BLUE  = '#F43F5E'
-const INK   = '#111111'
+const INK   = '#1a1a1a'
 const MUTED = '#626260'
-const LINE  = '#d3cec6'
+const LINE  = 'rgba(0,0,0,0.08)'
 const MONO  = "'JetBrains Mono', ui-monospace, monospace"
-const FONT  = "'Inter', ui-sans-serif, system-ui, sans-serif"
+const FONT  = "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
+
+// ── neumorphic tokens ───────────────────────────────────────────────────────
+const NEU_BG     = '#F0F0F0'
+const NEU_SURF   = 'linear-gradient(145deg, #f6f6f6, #e8e8e8)'
+const NEU_SHADOW = '-6px -6px 14px rgba(255,255,255,0.85), 6px 6px 14px rgba(0,0,0,0.12)'
+const NEU_INSET  = 'inset 3px 3px 8px rgba(0,0,0,0.10), inset -3px -3px 8px rgba(255,255,255,0.80)'
+const NEU_BTN    = '-4px -4px 10px rgba(255,255,255,0.9), 4px 4px 10px rgba(0,0,0,0.10)'
 
 // ── data helpers ───────────────────────────────────────────────────────────────
 const parseDate = value => {
@@ -37,11 +44,12 @@ const fmtTime = date => date?.toLocaleTimeString('en-GB', { hour: '2-digit', min
 
 // ── chart helpers ──────────────────────────────────────────────────────────────
 const tooltip = {
-  backgroundColor: '#111118',
-  borderWidth: 0,
+  backgroundColor: 'rgba(255,255,255,0.85)',
+  borderWidth: 1,
+  borderColor: 'rgba(255,255,255,0.6)',
   padding: [10, 14],
-  textStyle: { color: '#fff', fontSize: 11, fontFamily: FONT },
-  extraCssText: 'border-radius:10px;box-shadow:0 8px 32px rgba(0,0,0,0.18)',
+  textStyle: { color: INK, fontSize: 11, fontFamily: FONT },
+  extraCssText: 'border-radius:12px;box-shadow:0 8px 32px rgba(0,0,0,0.12);backdrop-filter:blur(20px)',
 }
 
 function buildArea(labels, sent, replies) {
@@ -91,12 +99,12 @@ function buildHeatmap(data, max) {
 function Card({ title, subtitle, action, children, dark }) {
   return (
     <section style={{
-      background: dark ? 'linear-gradient(140deg,#3D0A45,#5C1230)' : '#fff',
-      border: `1px solid ${dark ? 'transparent' : LINE}`,
-      borderRadius: 16,
+      background: dark ? 'linear-gradient(145deg,#3D0A45,#5C1230)' : NEU_SURF,
+      border: 'none',
+      borderRadius: 20,
       padding: '20px 22px',
       minWidth: 0,
-      boxShadow: dark ? '0 4px 24px rgba(192,38,211,0.18)' : '0 1px 4px rgba(0,0,0,0.04)',
+      boxShadow: dark ? '0 4px 24px rgba(192,38,211,0.25)' : NEU_SHADOW,
     }}>
       {(title || action) && (
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12, marginBottom: 16 }}>
@@ -123,21 +131,12 @@ function KPI({ label, value, hint, tone = INK, icon, delta, deltaLabel = 'vs las
 
   return (
     <div style={{
-      background: '#fff',
-      border: `1px solid ${LINE}`,
-      borderRadius: 14,
+      background: NEU_SURF,
+      border: 'none',
+      borderRadius: 20,
       padding: '16px 18px',
-      borderTop: 'none',
-      boxShadow: '0 1px 4px rgba(0,0,0,0.04)',
-      backgroundImage: 'linear-gradient(#fff 0%, #fff 100%), linear-gradient(90deg, #C026D3, #F43F5E, #F97316)',
-      backgroundOrigin: 'border-box',
-      backgroundClip: 'padding-box, border-box',
-      border: `1px solid transparent`,
-      borderRadius: 14,
-      outline: '3px solid transparent',
-      position: 'relative',
+      boxShadow: NEU_SHADOW,
     }}>
-      <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 3, borderRadius: '14px 14px 0 0', background: 'linear-gradient(90deg, #C026D3, #F43F5E, #F97316)' }} />
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 9, fontWeight: 800, letterSpacing: '.08em', textTransform: 'uppercase', color: MUTED, fontFamily: FONT }}>
         <span>{label}</span>
         <span style={{ width: 24, height: 24, borderRadius: 7, background: `${tone}15`, color: tone, display: 'grid', placeItems: 'center', fontSize: 11 }}>{icon}</span>
@@ -182,7 +181,7 @@ function ProgressRow({ label, value, total, tone }) {
         <span>{label}</span>
         <b style={{ fontFamily: MONO, fontWeight: 700 }}>{value}</b>
       </div>
-      <div style={{ height: 6, background: '#F3F4F6', borderRadius: 99, overflow: 'hidden' }}>
+      <div style={{ height: 6, background: 'rgba(0,0,0,0.08)', borderRadius: 99, overflow: 'hidden', boxShadow: 'inset 1px 1px 3px rgba(0,0,0,0.1)' }}>
         <div style={{ height: '100%', width: `${pct}%`, background: tone, borderRadius: 99, transition: 'width 0.6s ease' }} />
       </div>
     </div>
@@ -205,7 +204,7 @@ function AttentionQueue({ rows }) {
   const setTag = (id, tagId) => setTags(prev => ({ ...prev, [id]: prev[id] === tagId ? null : tagId }))
 
   return (
-    <section style={{ background: '#fff', border: `1px solid ${LINE}`, borderRadius: 16, padding: '20px 22px', minWidth: 0, boxShadow: '0 1px 4px rgba(0,0,0,0.04)', gridColumn: 'span 1' }}>
+    <section style={{ background: NEU_SURF, border: 'none', borderRadius: 20, padding: '20px 22px', minWidth: 0, boxShadow: NEU_SHADOW, gridColumn: 'span 1' }}>
       {/* Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 14 }}>
         <div>
@@ -248,7 +247,7 @@ function AttentionQueue({ rows }) {
               border: `1px solid ${isResolved ? GREEN + '40' : LINE}`,
               borderRadius: 10,
               padding: '10px 12px',
-              background: isResolved ? '#F0FDF4' : '#FAFAFA',
+              background: isResolved ? '#F0FDF4' : NEU_BG,
               opacity: isResolved ? 0.7 : 1,
               transition: 'all 0.2s',
             }}>
@@ -747,11 +746,10 @@ export default function Analytics() {
   }, [dashboard, query])
 
   // ── shared styles ────────────────────────────────────────────────────────────
-  const shell   = { minHeight: '100vh', color: INK, fontFamily: FONT }
-  const nav     = { height: 60, padding: '0 32px', background: 'rgba(232,230,237,0.52)', backdropFilter: 'blur(36px) saturate(150%)', WebkitBackdropFilter: 'blur(36px) saturate(150%)', borderBottom: '1px solid rgba(180,174,200,0.28)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'sticky', top: 0, zIndex: 20, boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.72)' }
+  const shell   = { minHeight: '100vh', color: INK, fontFamily: FONT, background: NEU_BG }
   const grid12  = (cols) => ({ display: 'grid', gridTemplateColumns: cols, gap: 16, marginBottom: 16 })
   const kpiGrid = { display: 'grid', gridTemplateColumns: 'repeat(6,1fr)', gap: 12, marginBottom: 16 }
-  const selectS = { height: 36, border: `1px solid ${LINE}`, borderRadius: 8, background: '#fff', padding: '0 12px', color: INK, fontFamily: FONT, fontSize: 14, outline: 'none', minWidth: 220 }
+  const selectS = { height: 36, border: 'none', borderRadius: 10, background: NEU_SURF, padding: '0 12px', color: INK, fontFamily: FONT, fontSize: 14, outline: 'none', minWidth: 220, boxShadow: NEU_BTN }
 
   return (
     <div style={shell}>
@@ -759,7 +757,7 @@ export default function Analytics() {
         <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
           {!googleSyncing && !connected && role === 'superadmin' && (
             <button disabled={!googleReady} onClick={() => { initTokenClient(() => setConnected(true)); requestToken() }}
-              style={{ height: 36, border: 0, borderRadius: 8, padding: '0 18px', background: '#5647E0', color: '#fff', cursor: 'pointer', fontFamily: FONT, fontWeight: 700, fontSize: 15 }}>
+              style={{ height: 36, border: 'none', borderRadius: 10, padding: '0 18px', background: NEU_SURF, color: INK, cursor: 'pointer', fontFamily: FONT, fontWeight: 600, fontSize: 14, boxShadow: NEU_BTN }}>
               Connect Google
             </button>
           )}
@@ -810,18 +808,18 @@ export default function Analytics() {
                 replies:     acc.replies     + (r.replies     || 0),
               }), { total: 0, initialSent: 0, thisWeek: 0, f1: 0, f2: 0, f3: 0, replies: 0 })
 
-              const thS = { padding: '12px 20px', textAlign: 'left', fontSize: 12, fontWeight: 500, color: MUTED, borderBottom: `1px solid ${LINE}`, whiteSpace: 'nowrap', background: '#FAFAFA' }
-              const tdS = { padding: '16px 20px', fontSize: 14, color: INK, borderBottom: `1px solid ${LINE}`, whiteSpace: 'nowrap' }
+              const thS = { padding: '12px 20px', textAlign: 'left', fontSize: 12, fontWeight: 500, color: MUTED, borderBottom: `1px solid rgba(0,0,0,0.06)`, whiteSpace: 'nowrap', background: 'rgba(0,0,0,0.02)' }
+              const tdS = { padding: '16px 20px', fontSize: 14, color: INK, borderBottom: `1px solid rgba(0,0,0,0.05)`, whiteSpace: 'nowrap' }
               const numS = { ...tdS, textAlign: 'right', fontVariantNumeric: 'tabular-nums', fontFamily: MONO, fontSize: 13 }
-              const totS = { ...numS, fontWeight: 700, color: INK, background: '#F4F4F8', borderTop: `2px solid ${LINE}`, borderBottom: 'none' }
-              const totLabelS = { ...tdS, fontWeight: 700, color: INK, background: '#F4F4F8', borderTop: `2px solid ${LINE}`, borderBottom: 'none' }
+              const totS = { ...numS, fontWeight: 700, color: INK, background: 'rgba(0,0,0,0.03)', borderTop: `1px solid rgba(0,0,0,0.08)`, borderBottom: 'none' }
+              const totLabelS = { ...tdS, fontWeight: 700, color: INK, background: 'rgba(0,0,0,0.03)', borderTop: `1px solid rgba(0,0,0,0.08)`, borderBottom: 'none' }
 
               const pill = (n, color) => (
                 <span style={{ display: 'inline-block', minWidth: 36, textAlign: 'center', padding: '2px 10px', borderRadius: 20, fontSize: 12, fontWeight: 600, fontFamily: MONO, background: color + '18', color }}>{n}</span>
               )
 
               return (
-                <div style={{ background: '#fff', borderRadius: 14, border: `1px solid ${LINE}`, overflow: 'hidden', boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}>
+                <div style={{ background: NEU_SURF, borderRadius: 20, border: 'none', overflow: 'hidden', boxShadow: NEU_SHADOW }}>
                   <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                     <thead>
                       <tr style={{ background: '#FAFAFA' }}>
@@ -839,7 +837,7 @@ export default function Analytics() {
                       {overview.map((r, i) => (
                         <tr key={r.id} style={{ cursor: 'pointer', transition: 'background .12s' }}
                           onClick={() => { setSheetId(r.id); loadSheet(r.id) }}
-                          onMouseEnter={e => e.currentTarget.style.background = '#F5F5FF'}
+                          onMouseEnter={e => e.currentTarget.style.background = 'rgba(0,0,0,0.03)'}
                           onMouseLeave={e => e.currentTarget.style.background = ''}>
                           <td style={tdS}>
                             <div style={{ fontWeight: 600, color: A }}>{r.name}</div>
@@ -891,7 +889,7 @@ export default function Analytics() {
               )}
 
               {!outlookLoading && !outlookError && (
-                <div style={{ background: '#fff', borderRadius: 14, border: `1px solid ${LINE}`, overflow: 'hidden', boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}>
+                <div style={{ background: NEU_SURF, borderRadius: 20, border: 'none', overflow: 'hidden', boxShadow: NEU_SHADOW }}>
                   <div style={{ padding: '12px 20px', borderBottom: `1px solid ${LINE}`, background: '#FAFAFA', display: 'flex', alignItems: 'center', gap: 10 }}>
                     <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: '.06em', textTransform: 'uppercase', color: MUTED }}>
                       {outlookTotal} account{outlookTotal !== 1 ? 's' : ''} connected
@@ -908,7 +906,7 @@ export default function Analytics() {
                     <tbody>
                       {outlookAccounts.map((acc, i) => (
                         <tr key={acc.credentialId || i}
-                          onMouseEnter={e => e.currentTarget.style.background = '#F5F5FF'}
+                          onMouseEnter={e => e.currentTarget.style.background = 'rgba(0,0,0,0.03)'}
                           onMouseLeave={e => e.currentTarget.style.background = ''}>
                           <td style={{ padding: '14px 20px', fontSize: 12, color: MUTED, borderBottom: `1px solid ${LINE}`, fontFamily: MONO }}>{i + 1}</td>
                           <td style={{ padding: '14px 20px', fontSize: 13, color: INK, borderBottom: `1px solid ${LINE}`, fontWeight: 600 }}>{acc.email}</td>
@@ -934,15 +932,14 @@ export default function Analytics() {
                 <div style={{ fontSize: 14, color: MUTED, lineHeight: 1.5 }}>{book.name} · verified against the workflow schema</div>
               </div>
               {/* Period tabs */}
-              <div style={{ display: 'flex', gap: 4, background: '#EDEDF1', padding: 4, borderRadius: 11 }}>
+              <div style={{ display: 'flex', gap: 6, background: NEU_BG, padding: 4, borderRadius: 14, boxShadow: NEU_INSET }}>
                 {[['today','Today'],['week','7 days'],['all','All time']].map(([id, label]) => (
                   <button key={id} onClick={() => setPeriod(id)} style={{
-                    border: 0, padding: '7px 16px', borderRadius: 8,
-                    background: period === id ? '#fff' : 'transparent',
+                    border: 'none', padding: '7px 16px', borderRadius: 10,
+                    background: period === id ? NEU_SURF : 'transparent',
                     color: period === id ? INK : MUTED,
-                    fontSize: 14, fontWeight: period === id ? 500 : 400,
-                    fontSize: 12, fontWeight: 700, cursor: 'pointer', fontFamily: FONT,
-                    boxShadow: period === id ? '0 1px 4px rgba(0,0,0,0.08)' : 'none',
+                    fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: FONT,
+                    boxShadow: period === id ? NEU_BTN : 'none',
                     transition: 'all 0.15s',
                   }}>{label}</button>
                 ))}
@@ -988,9 +985,9 @@ export default function Analytics() {
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12, marginBottom: 16 }}>
 
               {/* Doc request rate */}
-              <div style={{ background: '#fff', border: `1px solid ${LINE}`, borderRadius: 14, padding: '16px 18px', borderTop: '3px solid transparent', backgroundImage: 'linear-gradient(#fff,#fff), linear-gradient(90deg,#C026D3,#F43F5E,#F97316)', backgroundOrigin: 'border-box', backgroundClip: 'padding-box,border-box', boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}>
+              <div style={{ background: NEU_SURF, border: 'none', borderRadius: 20, padding: '16px 18px', boxShadow: NEU_SHADOW }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
-                  <div style={{ fontSize: 9, fontWeight: 800, letterSpacing: '.08em', textTransform: 'uppercase', color: MUTED }}>Doc requested</div>
+                  <div style={{ fontSize: 10, fontWeight: 500, color: MUTED }}>Doc requested</div>
                   <span style={{ fontSize: 11, background: `${BLUE}15`, color: BLUE, padding: '2px 8px', borderRadius: 99, fontWeight: 700 }}>📄</span>
                 </div>
                 <div style={{ fontFamily: MONO, fontSize: 28, fontWeight: 700, color: BLUE, lineHeight: 1, marginBottom: 6 }}>
@@ -999,15 +996,15 @@ export default function Analytics() {
                 <div style={{ fontSize: 10, color: MUTED, marginBottom: 8 }}>
                   {dashboard.docRequestedCount} of {dashboard.replies} investors asked for a one-pager
                 </div>
-                <div style={{ height: 4, background: '#F3F4F6', borderRadius: 99 }}>
+                <div style={{ height: 4, background: 'rgba(0,0,0,0.07)', borderRadius: 99 }}>
                   <div style={{ height: '100%', width: `${dashboard.docRequestRate}%`, background: 'linear-gradient(90deg,#C026D3,#F43F5E,#F97316)', borderRadius: 99, transition: 'width 0.6s' }} />
                 </div>
               </div>
 
               {/* Avg reply speed */}
-              <div style={{ background: '#fff', border: `1px solid ${LINE}`, borderRadius: 14, padding: '16px 18px', borderTop: '3px solid transparent', backgroundImage: 'linear-gradient(#fff,#fff), linear-gradient(90deg,#C026D3,#F43F5E,#F97316)', backgroundOrigin: 'border-box', backgroundClip: 'padding-box,border-box', boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}>
+              <div style={{ background: NEU_SURF, border: 'none', borderRadius: 20, padding: '16px 18px', boxShadow: NEU_SHADOW }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
-                  <div style={{ fontSize: 9, fontWeight: 800, letterSpacing: '.08em', textTransform: 'uppercase', color: MUTED }}>Avg reply speed</div>
+                  <div style={{ fontSize: 10, fontWeight: 500, color: MUTED }}>Avg reply speed</div>
                   <span style={{ fontSize: 11, background: `${GREEN}15`, color: GREEN, padding: '2px 8px', borderRadius: 99, fontWeight: 700 }}>⚡</span>
                 </div>
                 {dashboard.avgReplyMinutes !== null ? (
@@ -1025,9 +1022,9 @@ export default function Analytics() {
               </div>
 
               {/* Weekly send pacing */}
-              <div style={{ background: '#fff', border: `1px solid ${LINE}`, borderRadius: 14, padding: '16px 18px', borderTop: '3px solid transparent', backgroundImage: 'linear-gradient(#fff,#fff), linear-gradient(90deg,#C026D3,#F43F5E,#F97316)', backgroundOrigin: 'border-box', backgroundClip: 'padding-box,border-box', boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}>
+              <div style={{ background: NEU_SURF, border: 'none', borderRadius: 20, padding: '16px 18px', boxShadow: NEU_SHADOW }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
-                  <div style={{ fontSize: 9, fontWeight: 800, letterSpacing: '.08em', textTransform: 'uppercase', color: MUTED }}>Weekly pacing</div>
+                  <div style={{ fontSize: 10, fontWeight: 500, color: MUTED }}>Weekly pacing</div>
                   <span style={{ fontSize: 11, background: `${A}15`, color: A, padding: '2px 8px', borderRadius: 99, fontWeight: 700 }}>📅</span>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'baseline', gap: 6, marginBottom: 4 }}>
@@ -1036,7 +1033,7 @@ export default function Analytics() {
                   </div>
                   <div style={{ fontSize: 11, color: MUTED }}>/ 50 this week</div>
                 </div>
-                <div style={{ height: 6, background: '#F3F4F6', borderRadius: 99, marginBottom: 6 }}>
+                <div style={{ height: 6, background: 'rgba(0,0,0,0.07)', borderRadius: 99, marginBottom: 6 }}>
                   <div style={{
                     height: '100%', width: `${dashboard.weeklyCapPct}%`,
                     background: 'linear-gradient(90deg,#C026D3,#F43F5E,#F97316)',
@@ -1089,7 +1086,7 @@ export default function Analytics() {
               <Card title="Latest events" subtitle="Most recent workflow activity">
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
                   {dashboard.events.map((event, n) => (
-                    <div key={`${event.at}-${n}`} style={{ display: 'flex', gap: 12, padding: '10px 0', borderBottom: n < dashboard.events.length - 1 ? `1px solid #F3F4F6` : 'none' }}>
+                    <div key={`${event.at}-${n}`} style={{ display: 'flex', gap: 12, padding: '10px 0', borderBottom: n < dashboard.events.length - 1 ? `1px solid rgba(0,0,0,0.07)` : 'none' }}>
                       <div style={{ width: 3, borderRadius: 99, background: event.tone, flexShrink: 0, alignSelf: 'stretch', minHeight: 32 }} />
                       <div style={{ minWidth: 0 }}>
                         <div style={{ fontSize: 11, fontWeight: 600, color: INK }}>{event.type}</div>
@@ -1120,7 +1117,7 @@ export default function Analytics() {
                     { label: 'Missing',     value: Math.max(0, dashboard.contacted - dashboard.openThreads),       tone: AMBER, icon: '?' },
                     { label: 'Multi-ID',    value: dashboard.duplicateThreads,                                     tone: RED,   icon: '≠' },
                   ].map(({ label, value, tone, icon }) => (
-                    <div key={label} style={{ padding: '14px', background: '#F7F7FB', borderRadius: 12, textAlign: 'center' }}>
+                    <div key={label} style={{ padding: '14px', background: NEU_BG, borderRadius: 12, boxShadow: NEU_INSET, textAlign: 'center' }}>
                       <div style={{ fontSize: 16, color: tone, marginBottom: 6 }}>{icon}</div>
                       <div style={{ fontFamily: MONO, fontSize: 22, fontWeight: 700, color: tone, marginBottom: 4 }}>{value}</div>
                       <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: '.06em', textTransform: 'uppercase', color: MUTED }}>{label}</div>
