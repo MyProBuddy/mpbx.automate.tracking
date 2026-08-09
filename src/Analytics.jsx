@@ -11,11 +11,11 @@ const GREEN = '#16A34A'
 const RED   = '#DC2626'
 const AMBER = '#F97316'
 const BLUE  = '#F43F5E'
-const INK   = '#111118'
-const MUTED = '#6B7280'
-const LINE  = '#E5E7EB'
+const INK   = '#111111'
+const MUTED = '#626260'
+const LINE  = '#d3cec6'
 const MONO  = "'JetBrains Mono', ui-monospace, monospace"
-const FONT  = "Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
+const FONT  = "'Inter', ui-sans-serif, system-ui, sans-serif"
 
 // ── data helpers ───────────────────────────────────────────────────────────────
 const parseDate = value => {
@@ -751,7 +751,7 @@ export default function Analytics() {
   const nav     = { height: 60, padding: '0 32px', background: 'rgba(232,230,237,0.52)', backdropFilter: 'blur(36px) saturate(150%)', WebkitBackdropFilter: 'blur(36px) saturate(150%)', borderBottom: '1px solid rgba(180,174,200,0.28)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'sticky', top: 0, zIndex: 20, boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.72)' }
   const grid12  = (cols) => ({ display: 'grid', gridTemplateColumns: cols, gap: 16, marginBottom: 16 })
   const kpiGrid = { display: 'grid', gridTemplateColumns: 'repeat(6,1fr)', gap: 12, marginBottom: 16 }
-  const selectS = { height: 36, border: `1px solid ${LINE}`, borderRadius: 9, background: '#fff', padding: '0 12px', color: INK, fontFamily: FONT, fontSize: 13, outline: 'none', minWidth: 220 }
+  const selectS = { height: 36, border: `1px solid ${LINE}`, borderRadius: 8, background: '#fff', padding: '0 12px', color: INK, fontFamily: FONT, fontSize: 14, outline: 'none', minWidth: 220 }
 
   return (
     <div style={shell}>
@@ -759,7 +759,7 @@ export default function Analytics() {
         <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
           {!googleSyncing && !connected && role === 'superadmin' && (
             <button disabled={!googleReady} onClick={() => { initTokenClient(() => setConnected(true)); requestToken() }}
-              style={{ height: 32, border: 0, borderRadius: 8, padding: '0 14px', background: 'linear-gradient(90deg,#C026D3,#F43F5E)', color: '#fff', cursor: 'pointer', fontFamily: FONT, fontWeight: 600, fontSize: 12 }}>
+              style={{ height: 36, border: 0, borderRadius: 8, padding: '0 18px', background: '#5647E0', color: '#fff', cursor: 'pointer', fontFamily: FONT, fontWeight: 700, fontSize: 15 }}>
               Connect Google
             </button>
           )}
@@ -789,9 +789,9 @@ export default function Analytics() {
           <div>
             <div style={{ marginBottom: 28, display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between' }}>
               <div>
-                <div style={{ fontSize: 10, fontWeight: 800, letterSpacing: '.12em', color: A, marginBottom: 8 }}>ALL CLIENTS — OUTREACH OVERVIEW</div>
-                <h2 style={{ fontSize: 28, letterSpacing: '-.03em', margin: '0 0 4px', color: INK }}>Outreach at a glance.</h2>
-                <p style={{ color: MUTED, fontSize: 13, margin: 0 }}>Select a client above to drill into the full command center.</p>
+                <div style={{ fontSize: 14, fontWeight: 500, color: A, marginBottom: 8 }}>ALL CLIENTS — OUTREACH OVERVIEW</div>
+                <h2 style={{ fontSize: 40, fontWeight: 500, letterSpacing: '-0.8px', lineHeight: 1.15, margin: '0 0 8px', color: INK }}>Outreach at a glance.</h2>
+                <p style={{ color: MUTED, fontSize: 16, lineHeight: 1.5, margin: 0 }}>Select a client above to drill into the full command center.</p>
               </div>
             </div>
 
@@ -810,8 +810,8 @@ export default function Analytics() {
                 replies:     acc.replies     + (r.replies     || 0),
               }), { total: 0, initialSent: 0, thisWeek: 0, f1: 0, f2: 0, f3: 0, replies: 0 })
 
-              const thS = { padding: '12px 20px', textAlign: 'left', fontSize: 11, fontWeight: 700, letterSpacing: '.06em', color: MUTED, borderBottom: `1px solid ${LINE}`, whiteSpace: 'nowrap', textTransform: 'uppercase', background: '#FAFAFA' }
-              const tdS = { padding: '16px 20px', fontSize: 13, color: INK, borderBottom: `1px solid ${LINE}`, whiteSpace: 'nowrap' }
+              const thS = { padding: '12px 20px', textAlign: 'left', fontSize: 12, fontWeight: 500, color: MUTED, borderBottom: `1px solid ${LINE}`, whiteSpace: 'nowrap', background: '#FAFAFA' }
+              const tdS = { padding: '16px 20px', fontSize: 14, color: INK, borderBottom: `1px solid ${LINE}`, whiteSpace: 'nowrap' }
               const numS = { ...tdS, textAlign: 'right', fontVariantNumeric: 'tabular-nums', fontFamily: MONO, fontSize: 13 }
               const totS = { ...numS, fontWeight: 700, color: INK, background: '#F4F4F8', borderTop: `2px solid ${LINE}`, borderBottom: 'none' }
               const totLabelS = { ...tdS, fontWeight: 700, color: INK, background: '#F4F4F8', borderTop: `2px solid ${LINE}`, borderBottom: 'none' }
@@ -929,17 +929,18 @@ export default function Analytics() {
             {/* Page title */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', gap: 24, marginBottom: 22 }}>
               <div>
-                <div style={{ fontSize: 10, fontWeight: 800, letterSpacing: '.12em', color: A, marginBottom: 6 }}>LIVE OPERATIONS</div>
-                <h1 style={{ fontSize: 32, letterSpacing: '-.045em', margin: '0 0 4px', color: INK }}>Today's outreach at a glance.</h1>
-                <div style={{ fontSize: 12, color: MUTED }}>{book.name} · verified against the workflow schema</div>
+                <div style={{ fontSize: 14, fontWeight: 500, color: A, marginBottom: 6 }}>LIVE OPERATIONS</div>
+                <h1 style={{ fontSize: 40, fontWeight: 500, letterSpacing: '-0.8px', lineHeight: 1.15, margin: '0 0 8px', color: INK }}>Today's outreach at a glance.</h1>
+                <div style={{ fontSize: 14, color: MUTED, lineHeight: 1.5 }}>{book.name} · verified against the workflow schema</div>
               </div>
               {/* Period tabs */}
               <div style={{ display: 'flex', gap: 4, background: '#EDEDF1', padding: 4, borderRadius: 11 }}>
                 {[['today','Today'],['week','7 days'],['all','All time']].map(([id, label]) => (
                   <button key={id} onClick={() => setPeriod(id)} style={{
-                    border: 0, padding: '7px 14px', borderRadius: 8,
+                    border: 0, padding: '7px 16px', borderRadius: 8,
                     background: period === id ? '#fff' : 'transparent',
                     color: period === id ? INK : MUTED,
+                    fontSize: 14, fontWeight: period === id ? 500 : 400,
                     fontSize: 12, fontWeight: 700, cursor: 'pointer', fontFamily: FONT,
                     boxShadow: period === id ? '0 1px 4px rgba(0,0,0,0.08)' : 'none',
                     transition: 'all 0.15s',
