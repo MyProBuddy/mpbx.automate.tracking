@@ -24,7 +24,7 @@ getConfig().then(c => {
 })
 
 function FieldLabel({ children }) {
-  return <div style={{ fontSize: 11, fontWeight: 600, color: T.muted, marginBottom: 7, letterSpacing: '0.04em', textTransform: 'uppercase', fontFamily: T.sans }}>{children}</div>
+  return <div style={{ fontSize: 12, fontWeight: 500, color: T.muted, marginBottom: 6, fontFamily: T.sans }}>{children}</div>
 }
 
 function TextInput({ value, onChange, placeholder, disabled }) {
@@ -40,11 +40,11 @@ function TextInput({ value, onChange, placeholder, disabled }) {
       style={{
         width: '100%', padding: '11px 14px',
         background: disabled ? T.bg : focused ? T.surface : T.bg,
-        border: `1.5px solid ${focused && !disabled ? T.accent : T.border}`,
-        borderRadius: 8, fontSize: 14, fontFamily: T.sans,
+        border: `1px solid ${focused && !disabled ? T.accent : T.border}`,
+        borderRadius: T.btnRadius, fontSize: 16, fontFamily: T.sans,
         color: disabled ? T.faint : T.text,
-        outline: 'none', transition: 'border-color 0.15s, background 0.15s',
-        letterSpacing: '-0.01em', boxSizing: 'border-box',
+        outline: 'none', transition: 'border-color 0.15s',
+        letterSpacing: 0, boxSizing: 'border-box',
         cursor: disabled ? 'not-allowed' : 'text',
       }}
     />
@@ -54,16 +54,16 @@ function TextInput({ value, onChange, placeholder, disabled }) {
 function Btn({ onClick, disabled, children, variant = 'primary', small }) {
   const styles = {
     primary: { background: T.accent, color: '#fff', border: 'none' },
-    ghost:   { background: 'transparent', color: T.text, border: `1.5px solid ${T.border}` },
+    ghost:   { background: 'transparent', color: T.text, border: `1px solid ${T.border}` },
     danger:  { background: T.red, color: '#fff', border: 'none' },
   }
   const s = styles[variant] || styles.primary
   return (
     <button onClick={onClick} disabled={disabled} style={{
-      padding: small ? '7px 16px' : '11px 22px',
+      padding: small ? '6px 14px' : T.btnPadding,
       ...s,
-      borderRadius: 8, fontSize: small ? 12 : 14, fontWeight: 600,
-      fontFamily: T.sans, letterSpacing: '-0.01em',
+      borderRadius: T.btnRadius, fontSize: small ? 13 : T.btnFontSize, fontWeight: T.btnWeight,
+      fontFamily: T.sans, lineHeight: 1.2,
       cursor: disabled ? 'not-allowed' : 'pointer',
       opacity: disabled ? 0.4 : 1,
       transition: 'opacity 0.15s', whiteSpace: 'nowrap',
@@ -72,7 +72,7 @@ function Btn({ onClick, disabled, children, variant = 'primary', small }) {
 }
 
 function Card({ children, style }) {
-  return <div style={{ background: T.surface, borderRadius: 14, border: `1.5px solid ${T.border}`, padding: 28, ...style }}>{children}</div>
+  return <div style={{ background: T.surface, borderRadius: 12, border: `1px solid ${T.border}`, padding: 24, ...style }}>{children}</div>
 }
 
 function Badge({ children, color }) {
@@ -111,10 +111,10 @@ const CHART_COLORS = ['#5647E0','#2DB67D','#F59E0B','#EF4444','#8B5CF6','#06B6D4
 
 function StatCard({ label, value, sub }) {
   return (
-    <div style={{ background: T.surface, border: `1.5px solid ${T.border}`, borderRadius: 12, padding: '20px 24px' }}>
-      <div style={{ fontSize: 11, fontWeight: 700, color: T.muted, letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: 8 }}>{label}</div>
-      <div style={{ fontSize: 36, fontWeight: 800, color: T.text, letterSpacing: '-0.03em', lineHeight: 1 }}>{value}</div>
-      {sub && <div style={{ fontSize: 12, color: T.muted, marginTop: 6 }}>{sub}</div>}
+    <div style={{ background: T.surface, border: `1px solid ${T.border}`, borderRadius: 12, padding: '20px 24px' }}>
+      <div style={{ fontSize: 12, fontWeight: 500, color: T.muted, marginBottom: 8 }}>{label}</div>
+      <div style={{ fontSize: 36, fontWeight: 500, color: T.text, letterSpacing: '-0.8px', lineHeight: 1 }}>{value}</div>
+      {sub && <div style={{ fontSize: 14, color: T.muted, marginTop: 6, lineHeight: 1.5 }}>{sub}</div>}
     </div>
   )
 }
@@ -490,13 +490,13 @@ export default function AddData() {
 
         {/* Hero */}
         <div style={{ marginBottom: 36 }}>
-          <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: '.1em', textTransform: 'uppercase', color: T.accent, marginBottom: 8 }}>Data</div>
-          <div style={{ fontSize: 30, fontWeight: 800, letterSpacing: '-0.03em', color: T.text, marginBottom: 6 }}>Manage investor data</div>
-          <div style={{ fontSize: 13, color: T.muted, lineHeight: 1.6 }}>Create client folders, upload pitch docs, and set up sheets.</div>
+          <div style={{ fontSize: 14, fontWeight: 500, color: T.accent, marginBottom: 8 }}>Data</div>
+          <div style={{ fontSize: 40, fontWeight: 500, letterSpacing: '-0.8px', lineHeight: 1.15, color: T.text, marginBottom: 8 }}>Manage investor data</div>
+          <div style={{ fontSize: 16, color: T.muted, lineHeight: 1.5 }}>Create client folders, upload pitch docs, and set up sheets.</div>
         </div>
 
         {/* Tabs */}
-        <div style={{ display: 'flex', gap: 2, marginBottom: 28, borderBottom: `1.5px solid ${T.border}` }}>
+        <div style={{ display: 'flex', gap: 2, marginBottom: 28, borderBottom: `1px solid ${T.border}` }}>
           {[
             { id: 'new', label: 'New Client' },
             { id: 'clients', label: `All Clients${clients.length ? ` (${clients.length})` : ''}` },

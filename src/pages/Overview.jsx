@@ -38,7 +38,7 @@ function ReportRow({ icon, iconColor, label, value, detail }) {
     <div style={{ display: 'flex', alignItems: 'center', gap: 16, padding: '14px 22px' }}>
       <div style={{ width: 34, height: 34, borderRadius: 9, background: iconColor + '15', display: 'grid', placeItems: 'center', fontSize: 15, flexShrink: 0 }}>{icon}</div>
       <div style={{ flex: 1, minWidth: 0 }}>
-        <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '.06em', textTransform: 'uppercase', color: MUTED, marginBottom: 2 }}>{label}</div>
+        <div style={{ fontSize: 12, fontWeight: 500, color: MUTED, marginBottom: 2 }}>{label}</div>
         <div style={{ fontSize: 13, color: INK, fontFamily: SANS }}>{detail}</div>
       </div>
       <div style={{ fontSize: 26, fontWeight: 800, fontFamily: MONO, letterSpacing: '-0.03em', color: value > 0 ? iconColor : MUTED, flexShrink: 0 }}>{value}</div>
@@ -52,8 +52,8 @@ function StatCard({ label, value, color }) {
       background: '#fff', borderRadius: 12, border: `1px solid ${LINE}`,
       padding: '20px 24px', display: 'flex', flexDirection: 'column', gap: 6,
     }}>
-      <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase', color: MUTED }}>{label}</div>
-      <div style={{ fontSize: 30, fontWeight: 800, letterSpacing: '-0.03em', color: color || INK, fontFamily: MONO, lineHeight: 1 }}>{value}</div>
+      <div style={{ fontSize: 12, fontWeight: 500, color: MUTED }}>{label}</div>
+      <div style={{ fontSize: 30, fontWeight: 500, letterSpacing: '-0.5px', color: color || INK, fontFamily: MONO, lineHeight: 1 }}>{value}</div>
     </div>
   )
 }
@@ -213,8 +213,7 @@ export default function Overview() {
 
   // table styles
   const th = (right) => ({
-    padding: '11px 18px', fontSize: 11, fontWeight: 700, letterSpacing: '.06em',
-    textTransform: 'uppercase', color: MUTED, borderBottom: `1px solid ${LINE}`,
+    padding: '11px 18px', fontSize: 12, fontWeight: 500, color: MUTED, borderBottom: `1px solid ${LINE}`,
     textAlign: right ? 'right' : 'left', background: '#FAFAFA', whiteSpace: 'nowrap',
     fontFamily: SANS,
   })
@@ -248,8 +247,8 @@ export default function Overview() {
 
         {/* Page title */}
         <div style={{ marginBottom: 32 }}>
-          <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: '.1em', textTransform: 'uppercase', color: A, marginBottom: 8 }}>All Clients</div>
-          <h1 style={{ fontSize: 30, fontWeight: 800, letterSpacing: '-0.03em', margin: '0 0 6px', color: INK }}>Outreach at a glance</h1>
+          <div style={{ fontSize: 14, fontWeight: 500, color: A, marginBottom: 8 }}>All Clients</div>
+          <h1 style={{ fontSize: 40, fontWeight: 500, letterSpacing: '-0.8px', lineHeight: 1.15, margin: '0 0 8px', color: INK }}>Outreach at a glance</h1>
           <p style={{ fontSize: 13, color: MUTED, margin: 0, lineHeight: 1.6 }}>Live summary across every client campaign. Click a row to drill into Analytics.</p>
         </div>
 
@@ -284,7 +283,7 @@ export default function Overview() {
             <div style={{ background: '#fff', borderRadius: 14, border: `1px solid ${LINE}`, overflow: 'hidden', boxShadow: '0 1px 6px rgba(0,0,0,0.05)', marginBottom: 28 }}>
               <div style={{ padding: '14px 22px', borderBottom: `1px solid ${LINE}`, display: 'flex', alignItems: 'center', gap: 10, background: '#FAFAFA' }}>
                 <div style={{ width: 8, height: 8, borderRadius: '50%', background: GREEN, boxShadow: `0 0 0 3px ${GREEN}30` }} />
-                <span style={{ fontSize: 11, fontWeight: 800, letterSpacing: '.08em', textTransform: 'uppercase', color: MUTED, fontFamily: SANS }}>Today's Report</span>
+                <span style={{ fontSize: 12, fontWeight: 500, color: MUTED, fontFamily: SANS }}>Today's Report</span>
                 <span style={{ fontSize: 11, color: MUTED, fontFamily: MONO, marginLeft: 'auto' }}>
                   {new Date().toLocaleDateString('en-GB', { weekday: 'long', day: '2-digit', month: 'short', year: 'numeric' })}
                 </span>

@@ -11,7 +11,7 @@ const amber = '#D97706'
 const amberLight = '#FFFBEB'
 
 function FieldLabel({ children }) {
-  return <div style={{ fontSize: 11, fontWeight: 600, color: T.muted, marginBottom: 7, letterSpacing: '0.04em', textTransform: 'uppercase', fontFamily: T.sans }}>{children}</div>
+  return <div style={{ fontSize: 12, fontWeight: 500, color: T.muted, marginBottom: 6, fontFamily: T.sans }}>{children}</div>
 }
 
 function TextInput({ value, onChange, placeholder, disabled, mono }) {
@@ -27,11 +27,11 @@ function TextInput({ value, onChange, placeholder, disabled, mono }) {
       style={{
         width: '100%', padding: '11px 14px',
         background: disabled ? T.bg : focused ? T.surface : T.bg,
-        border: `1.5px solid ${focused && !disabled ? T.accent : T.border}`,
-        borderRadius: 8, fontSize: mono ? 12 : 14, fontFamily: mono ? T.mono : T.sans,
+        border: `1px solid ${focused && !disabled ? T.accent : T.border}`,
+        borderRadius: T.btnRadius, fontSize: mono ? 13 : 16, fontFamily: mono ? T.mono : T.sans,
         color: disabled ? T.faint : T.text,
-        outline: 'none', transition: 'border-color 0.15s, background 0.15s',
-        letterSpacing: '-0.01em', boxSizing: 'border-box',
+        outline: 'none', transition: 'border-color 0.15s',
+        letterSpacing: 0, boxSizing: 'border-box',
         cursor: disabled ? 'not-allowed' : 'text',
       }}
     />
@@ -52,11 +52,11 @@ function TextArea({ value, onChange, placeholder, disabled, rows = 4 }) {
       style={{
         width: '100%', padding: '11px 14px',
         background: disabled ? T.bg : focused ? T.surface : T.bg,
-        border: `1.5px solid ${focused && !disabled ? T.accent : T.border}`,
-        borderRadius: 8, fontSize: 14, fontFamily: T.sans,
+        border: `1px solid ${focused && !disabled ? T.accent : T.border}`,
+        borderRadius: T.btnRadius, fontSize: 16, fontFamily: T.sans,
         color: disabled ? T.faint : T.text,
-        outline: 'none', transition: 'border-color 0.15s, background 0.15s',
-        letterSpacing: '-0.01em', boxSizing: 'border-box',
+        outline: 'none', transition: 'border-color 0.15s',
+        letterSpacing: 0, boxSizing: 'border-box',
         resize: 'vertical', lineHeight: 1.6,
         cursor: disabled ? 'not-allowed' : 'text',
       }}
@@ -67,16 +67,16 @@ function TextArea({ value, onChange, placeholder, disabled, rows = 4 }) {
 function Btn({ onClick, disabled, children, variant = 'primary', small }) {
   const styles = {
     primary: { background: T.accent, color: '#fff', border: 'none' },
-    ghost:   { background: 'transparent', color: T.text, border: `1.5px solid ${T.border}` },
+    ghost:   { background: 'transparent', color: T.text, border: `1px solid ${T.border}` },
     danger:  { background: T.red, color: '#fff', border: 'none' },
   }
   const s = styles[variant] || styles.primary
   return (
     <button onClick={onClick} disabled={disabled} style={{
-      padding: small ? '7px 16px' : '11px 22px',
+      padding: small ? '6px 14px' : T.btnPadding,
       ...s,
-      borderRadius: 8, fontSize: small ? 12 : 14, fontWeight: 600,
-      fontFamily: T.sans, letterSpacing: '-0.01em',
+      borderRadius: T.btnRadius, fontSize: small ? 13 : T.btnFontSize, fontWeight: T.btnWeight,
+      fontFamily: T.sans, lineHeight: 1.2,
       cursor: disabled ? 'not-allowed' : 'pointer',
       opacity: disabled ? 0.4 : 1,
       transition: 'opacity 0.15s', whiteSpace: 'nowrap',
@@ -85,7 +85,7 @@ function Btn({ onClick, disabled, children, variant = 'primary', small }) {
 }
 
 function Card({ children, style }) {
-  return <div style={{ background: T.surface, borderRadius: 14, border: `1.5px solid ${T.border}`, padding: 28, ...style }}>{children}</div>
+  return <div style={{ background: T.surface, borderRadius: 12, border: `1px solid ${T.border}`, padding: 24, ...style }}>{children}</div>
 }
 
 function Badge({ children, color }) {
@@ -262,8 +262,8 @@ export default function CompanyIntel() {
 
         {/* Hero */}
         <div style={{ marginBottom: 36 }}>
-          <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: '.1em', textTransform: 'uppercase', color: T.accent, marginBottom: 8 }}>Intel</div>
-          <div style={{ fontSize: 30, fontWeight: 800, letterSpacing: '-0.03em', color: T.text, marginBottom: 6 }}>Company Intel</div>
+          <div style={{ fontSize: 14, fontWeight: 500, color: T.accent, marginBottom: 8 }}>Intel</div>
+          <div style={{ fontSize: 40, fontWeight: 500, letterSpacing: '-0.8px', lineHeight: 1.15, color: T.text, marginBottom: 8 }}>Company Intel</div>
           <div style={{ fontSize: 13, color: T.muted, maxWidth: 520, lineHeight: 1.6 }}>
             Log company updates — funding rounds, leadership changes, news — so the AI references them during followups to write sharper, more relevant pitch emails.
           </div>
