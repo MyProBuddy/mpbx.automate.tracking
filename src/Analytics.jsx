@@ -17,6 +17,10 @@ const LINE  = 'rgba(0,0,0,0.08)'
 const MONO  = "'JetBrains Mono', ui-monospace, monospace"
 const FONT  = "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
 
+// ── 4-size type scale ───────────────────────────────────────────────────────
+// H=heading  SH=subheading  C=content  SC=sub-content
+const FS = { h: 22, sh: 15, c: 13, sc: 11 }
+
 // ── neumorphic tokens ───────────────────────────────────────────────────────
 const NEU_BG     = '#F0F0F0'
 const NEU_SURF   = 'linear-gradient(145deg, #f6f6f6, #e8e8e8)'
@@ -55,9 +59,9 @@ const tooltip = {
 function buildArea(labels, sent, replies) {
   return {
     tooltip: { ...tooltip, trigger: 'axis' },
-    legend: { right: 0, top: 0, itemWidth: 8, itemHeight: 8, textStyle: { color: MUTED, fontSize: 10, fontFamily: FONT } },
+    legend: { right: 0, top: 0, itemWidth: 8, itemHeight: 8, textStyle: { color: MUTED, fontSize: FS.sc, fontFamily: FONT } },
     grid: { left: 28, right: 10, top: 34, bottom: 24 },
-    xAxis: { type: 'category', data: labels, boundaryGap: false, axisLine: { show: false }, axisTick: { show: false }, axisLabel: { color: MUTED, fontSize: 9, fontFamily: FONT } },
+    xAxis: { type: 'category', data: labels, boundaryGap: false, axisLine: { show: false }, axisTick: { show: false }, axisLabel: { color: MUTED, fontSize: FS.sc, fontFamily: FONT } },
     yAxis: { type: 'value', minInterval: 1, axisLabel: { show: false }, axisLine: { show: false }, axisTick: { show: false }, splitLine: { lineStyle: { color: LINE } } },
     series: [
       { name: 'Emails',  type: 'line', data: sent,    smooth: .35, symbol: 'none',
@@ -88,8 +92,8 @@ function buildHeatmap(data, max) {
       formatter: p => `${['Mon','Tue','Wed','Thu','Fri'][p.value[1]]}, ${['08','10','12','14','16','18'][p.value[0]]}:00<br><b>${p.value[2]} replies</b>`,
     },
     grid: { left: 38, right: 8, top: 4, bottom: 25 },
-    xAxis: { type: 'category', data: ['08','10','12','14','16','18'], axisLine: { show: false }, axisTick: { show: false }, axisLabel: { color: MUTED, fontSize: 9 } },
-    yAxis: { type: 'category', data: ['Mon','Tue','Wed','Thu','Fri'], axisLine: { show: false }, axisTick: { show: false }, axisLabel: { color: MUTED, fontSize: 9 } },
+    xAxis: { type: 'category', data: ['08','10','12','14','16','18'], axisLine: { show: false }, axisTick: { show: false }, axisLabel: { color: MUTED, fontSize: FS.sc } },
+    yAxis: { type: 'category', data: ['Mon','Tue','Wed','Thu','Fri'], axisLine: { show: false }, axisTick: { show: false }, axisLabel: { color: MUTED, fontSize: FS.sc } },
     visualMap: { show: false, min: 0, max: Math.max(1, max), inRange: { color: ['#FDF2FF', '#E879F9', A] } },
     series: [{ type: 'heatmap', data, itemStyle: { borderWidth: 4, borderColor: '#fff', borderRadius: 6 } }],
   }
@@ -109,8 +113,8 @@ function Card({ title, subtitle, action, children, dark }) {
       {(title || action) && (
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12, marginBottom: 16 }}>
           <div>
-            <div style={{ fontSize: 13, fontWeight: 600, color: dark ? '#fff' : INK }}>{title}</div>
-            {subtitle && <div style={{ fontSize: 11, color: dark ? 'rgba(255,255,255,0.5)' : MUTED, marginTop: 3 }}>{subtitle}</div>}
+            <div style={{ fontSize: FS.sh, fontWeight: 600, color: dark ? '#fff' : INK }}>{title}</div>
+            {subtitle && <div style={{ fontSize: FS.sc, color: dark ? 'rgba(255,255,255,0.5)' : MUTED, marginTop: 3 }}>{subtitle}</div>}
           </div>
           {action}
         </div>
@@ -143,11 +147,11 @@ function KPI({ label, value, hint, tone = INK, icon, delta, deltaLabel = 'vs las
       </div>
       <div style={{ fontFamily: MONO, fontSize: 30, fontWeight: 700, letterSpacing: '-.04em', color: tone, margin: '12px 0 6px', lineHeight: 1 }}>{value}</div>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 6 }}>
-        <div style={{ fontSize: 10, color: MUTED }}>{hint}</div>
+        <div style={{ fontSize: FS.sc, color: MUTED }}>{hint}</div>
         {delta !== undefined && (
           <div style={{
             display: 'flex', alignItems: 'center', gap: 3,
-            fontSize: 10, fontWeight: 700, fontFamily: MONO,
+            fontSize: FS.sc, fontWeight: 700, fontFamily: MONO,
             color: arrowColor,
             background: arrowBg,
             padding: '2px 7px', borderRadius: 99,
@@ -156,7 +160,7 @@ function KPI({ label, value, hint, tone = INK, icon, delta, deltaLabel = 'vs las
             {hasData ? (
               <>{arrowIcon} {Math.abs(delta).toFixed(1)}% <span style={{ fontFamily: FONT, fontWeight: 500, opacity: 0.7 }}>{deltaLabel}</span></>
             ) : (
-              <span style={{ fontSize: 10, fontFamily: FONT, fontWeight: 600, color: MUTED }}>no comparison data</span>
+              <span style={{ fontSize: FS.sc, fontFamily: FONT, fontWeight: 600, color: MUTED }}>no comparison data</span>
             )}
           </div>
         )}
@@ -167,7 +171,7 @@ function KPI({ label, value, hint, tone = INK, icon, delta, deltaLabel = 'vs las
 
 function Pill({ children, tone = MUTED }) {
   return (
-    <span style={{ display: 'inline-flex', alignItems: 'center', padding: '4px 9px', borderRadius: 99, fontSize: 10, fontWeight: 700, color: tone, background: `${tone}15`, fontFamily: FONT }}>
+    <span style={{ display: 'inline-flex', alignItems: 'center', padding: '4px 9px', borderRadius: 99, fontSize: FS.sc, fontWeight: 700, color: tone, background: `${tone}15`, fontFamily: FONT }}>
       {children}
     </span>
   )
@@ -177,7 +181,7 @@ function ProgressRow({ label, value, total, tone }) {
   const pct = total ? Math.min(100, value / total * 100) : 0
   return (
     <div style={{ marginBottom: 18 }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 7, fontSize: 12, color: INK }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 7, fontSize: FS.c, color: INK }}>
         <span>{label}</span>
         <b style={{ fontFamily: MONO, fontWeight: 700 }}>{value}</b>
       </div>
@@ -210,18 +214,18 @@ function AttentionQueue({ rows }) {
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             <div style={{ width: 8, height: 8, borderRadius: '50%', background: rows.length ? AMBER : GREEN, boxShadow: rows.length ? `0 0 0 3px ${AMBER}30` : `0 0 0 3px ${GREEN}30` }} />
-            <span style={{ fontSize: 13, fontWeight: 700, color: INK, letterSpacing: '-.01em' }}>
+            <span style={{ fontSize: FS.sh, fontWeight: 600, color: INK }}>
               {rows.length ? 'Needs quick attention' : 'All clear'}
             </span>
           </div>
-          <div style={{ fontSize: 10, color: MUTED, marginTop: 3 }}>
+          <div style={{ fontSize: FS.sc, color: MUTED, marginTop: 3 }}>
             {rows.length
               ? `${rows.length} investor${rows.length > 1 ? 's' : ''} awaiting a human response`
               : 'No escalated conversations right now'}
           </div>
         </div>
         {rows.length > 0 && (
-          <span style={{ display: 'inline-flex', alignItems: 'center', padding: '4px 9px', borderRadius: 99, fontSize: 10, fontWeight: 700, color: AMBER, background: `${AMBER}15` }}>
+          <span style={{ display: 'inline-flex', alignItems: 'center', padding: '4px 9px', borderRadius: 99, fontSize: FS.sc, fontWeight: 700, color: AMBER, background: `${AMBER}15` }}>
             {rows.length} open
           </span>
         )}
@@ -232,7 +236,7 @@ function AttentionQueue({ rows }) {
         {rows.length === 0 && (
           <div style={{ padding: '20px', textAlign: 'center', background: '#F0FDF4', borderRadius: 10, border: `1px solid ${GREEN}25` }}>
             <div style={{ fontSize: 18, marginBottom: 4 }}>✓</div>
-            <div style={{ fontSize: 12, fontWeight: 600, color: GREEN }}>No conversations escalated</div>
+            <div style={{ fontSize: FS.c, fontWeight: 600, color: GREEN }}>No conversations escalated</div>
             <div style={{ fontSize: 11, color: MUTED, marginTop: 2 }}>AI is handling all active threads</div>
           </div>
         )}
@@ -257,15 +261,15 @@ function AttentionQueue({ rows }) {
                   {(row.first || row.id || '?').slice(0, 1)}
                 </div>
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontSize: 12, fontWeight: 600, color: INK, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  <div style={{ fontSize: FS.c, fontWeight: 600, color: INK, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                     {[row.first, row.last].filter(Boolean).join(' ') || row.id}
                   </div>
-                  <div style={{ fontSize: 10, color: MUTED, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  <div style={{ fontSize: FS.sc, color: MUTED, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                     {row.company}
                   </div>
                 </div>
                 {activeTag && activeTag !== 'note' && (
-                  <span style={{ fontSize: 9, fontWeight: 700, padding: '3px 7px', borderRadius: 99, color: ACTION_TAGS.find(t => t.id === activeTag)?.color, background: `${ACTION_TAGS.find(t => t.id === activeTag)?.color}18`, whiteSpace: 'nowrap' }}>
+                  <span style={{ fontSize: FS.sc, fontWeight: 700, padding: '3px 7px', borderRadius: 99, color: ACTION_TAGS.find(t => t.id === activeTag)?.color, background: `${ACTION_TAGS.find(t => t.id === activeTag)?.color}18`, whiteSpace: 'nowrap' }}>
                     {ACTION_TAGS.find(t => t.id === activeTag)?.label}
                   </span>
                 )}
@@ -273,7 +277,7 @@ function AttentionQueue({ rows }) {
 
               {/* Reason — from conversation_log, not tracking summary */}
               {(row.convSummary || row.summary) && (
-                <div style={{ fontSize: 10, color: MUTED, marginBottom: 8, padding: '6px 8px', background: `${AMBER}0C`, borderRadius: 6, borderLeft: `2px solid ${AMBER}60` }}>
+                <div style={{ fontSize: FS.sc, color: MUTED, marginBottom: 8, padding: '6px 8px', background: `${AMBER}0C`, borderRadius: 6, borderLeft: `2px solid ${AMBER}60` }}>
                   {row.convSummary || row.summary}
                 </div>
               )}
@@ -285,7 +289,7 @@ function AttentionQueue({ rows }) {
                     if (tag.id === 'note') { setOpen(noteOpen ? null : row.id); return }
                     setTag(row.id, tag.id)
                   }} style={{
-                    padding: '4px 9px', borderRadius: 7, fontSize: 10, fontWeight: 600, cursor: 'pointer', fontFamily: FONT,
+                    padding: '4px 9px', borderRadius: 7, fontSize: FS.sc, fontWeight: 600, cursor: 'pointer', fontFamily: FONT,
                     border: `1px solid ${activeTag === tag.id ? tag.color : LINE}`,
                     background: activeTag === tag.id ? `${tag.color}15` : '#fff',
                     color: activeTag === tag.id ? tag.color : MUTED,
@@ -314,7 +318,7 @@ function AttentionQueue({ rows }) {
 
               {/* Saved note display */}
               {notes[row.id] && !noteOpen && (
-                <div onClick={() => setOpen(row.id)} style={{ marginTop: 6, fontSize: 10, color: BLUE, padding: '5px 8px', background: `${BLUE}0C`, borderRadius: 6, cursor: 'pointer', border: `1px solid ${BLUE}20` }}>
+                <div onClick={() => setOpen(row.id)} style={{ marginTop: 6, fontSize: FS.sc, color: BLUE, padding: '5px 8px', background: `${BLUE}0C`, borderRadius: 6, cursor: 'pointer', border: `1px solid ${BLUE}20` }}>
                   📝 {notes[row.id]}
                 </div>
               )}
@@ -357,8 +361,8 @@ function RecentConversations({ convByInvestor, investorMap, query, setQuery }) {
     <section style={{ background: '#fff', border: `1px solid ${LINE}`, borderRadius: 16, padding: '20px 22px', minWidth: 0, boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14, gap: 10 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <span style={{ fontSize: 13, fontWeight: 700, color: INK }}>Recent conversations</span>
-          <span style={{ fontSize: 10, fontWeight: 700, padding: '3px 8px', borderRadius: 99, background: `${A}12`, color: A }}>{filtered.length}</span>
+          <span style={{ fontSize: FS.sh, fontWeight: 600, color: INK }}>Recent conversations</span>
+          <span style={{ fontSize: FS.sc, fontWeight: 700, padding: '3px 8px', borderRadius: 99, background: `${A}12`, color: A }}>{filtered.length}</span>
         </div>
         <input
           value={query}
@@ -370,7 +374,7 @@ function RecentConversations({ convByInvestor, investorMap, query, setQuery }) {
 
       {filtered.length === 0 && (
         <div style={{ padding: '24px', textAlign: 'center', background: '#F9FAFB', borderRadius: 10 }}>
-          <div style={{ fontSize: 12, color: MUTED }}>{allInvestors.length === 0 ? 'No conversation log data yet' : 'No results match your search'}</div>
+          <div style={{ fontSize: FS.c, color: MUTED }}>{allInvestors.length === 0 ? 'No conversation log data yet' : 'No results match your search'}</div>
         </div>
       )}
 
@@ -384,17 +388,17 @@ function RecentConversations({ convByInvestor, investorMap, query, setQuery }) {
             <div key={id} style={{ border: `1px solid ${LINE}`, borderRadius: 12, overflow: 'hidden' }}>
               {/* Investor header */}
               <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '9px 13px', background: '#FAFAFA', borderBottom: `1px solid ${LINE}` }}>
-                <div style={{ width: 30, height: 30, borderRadius: 9, background: `${A}15`, color: A, display: 'grid', placeItems: 'center', fontWeight: 800, fontSize: 12, flexShrink: 0 }}>
+                <div style={{ width: 30, height: 30, borderRadius: 9, background: `${A}15`, color: A, display: 'grid', placeItems: 'center', fontWeight: 800, fontSize: FS.c, flexShrink: 0 }}>
                   {(inv.first || id || '?').slice(0, 1)}
                 </div>
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontSize: 12, fontWeight: 700, color: INK, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  <div style={{ fontSize: FS.c, fontWeight: 700, color: INK, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                     {[inv.first, inv.last].filter(Boolean).join(' ') || id}
                     {inv.company ? <span style={{ fontWeight: 400, color: MUTED }}> · {inv.company}</span> : null}
                   </div>
-                  <div style={{ fontSize: 10, color: MUTED }}>{inv.email || id}</div>
+                  <div style={{ fontSize: FS.sc, color: MUTED }}>{inv.email || id}</div>
                 </div>
-                <span style={{ fontSize: 9, color: MUTED, fontFamily: MONO, flexShrink: 0 }}>{fmtDate(latest.at)}</span>
+                <span style={{ fontSize: FS.sc, color: MUTED, fontFamily: MONO, flexShrink: 0 }}>{fmtDate(latest.at)}</span>
               </div>
 
               {/* Latest message bubble only */}
@@ -403,8 +407,8 @@ function RecentConversations({ convByInvestor, investorMap, query, setQuery }) {
                   <div style={{ width: 7, height: 7, borderRadius: '50%', background: dot, marginTop: 5, flexShrink: 0 }} />
                   <div style={{ flex: 1, background: bg, borderRadius: 8, padding: '7px 10px' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 3 }}>
-                      <span style={{ fontSize: 10, fontWeight: 500, color: dot }}>{label}</span>
-                      <span style={{ fontSize: 9, color: MUTED, fontFamily: MONO }}>{fmtTime(latest.at)}</span>
+                      <span style={{ fontSize: FS.sc, fontWeight: 500, color: dot }}>{label}</span>
+                      <span style={{ fontSize: FS.sc, color: MUTED, fontFamily: MONO }}>{fmtTime(latest.at)}</span>
                     </div>
                     <div style={{ fontSize: 11, color: INK, lineHeight: 1.5 }}>
                       {latest.summary || <span style={{ color: MUTED, fontStyle: 'italic' }}>No summary</span>}
@@ -412,7 +416,7 @@ function RecentConversations({ convByInvestor, investorMap, query, setQuery }) {
                   </div>
                 </div>
                 {thread.length > 1 && (
-                  <div style={{ marginTop: 6, fontSize: 10, color: MUTED }}>+{thread.length - 1} earlier message{thread.length > 2 ? 's' : ''}</div>
+                  <div style={{ marginTop: 6, fontSize: FS.sc, color: MUTED }}>+{thread.length - 1} earlier message{thread.length > 2 ? 's' : ''}</div>
                 )}
               </div>
             </div>
@@ -749,7 +753,7 @@ export default function Analytics() {
   const shell   = { minHeight: '100vh', color: INK, fontFamily: FONT, background: NEU_BG }
   const grid12  = (cols) => ({ display: 'grid', gridTemplateColumns: cols, gap: 16, marginBottom: 16 })
   const kpiGrid = { display: 'grid', gridTemplateColumns: 'repeat(6,1fr)', gap: 12, marginBottom: 16 }
-  const selectS = { height: 36, border: 'none', borderRadius: 10, background: NEU_SURF, padding: '0 12px', color: INK, fontFamily: FONT, fontSize: 14, outline: 'none', minWidth: 220, boxShadow: NEU_BTN }
+  const selectS = { height: 36, border: 'none', borderRadius: 10, background: NEU_SURF, padding: '0 12px', color: INK, fontFamily: FONT, fontSize: FS.c, outline: 'none', minWidth: 220, boxShadow: NEU_BTN }
 
   return (
     <div style={shell}>
@@ -757,12 +761,12 @@ export default function Analytics() {
         <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
           {!googleSyncing && !connected && role === 'superadmin' && (
             <button disabled={!googleReady} onClick={() => { initTokenClient(() => setConnected(true)); requestToken() }}
-              style={{ height: 36, border: 'none', borderRadius: 10, padding: '0 18px', background: NEU_SURF, color: INK, cursor: 'pointer', fontFamily: FONT, fontWeight: 600, fontSize: 14, boxShadow: NEU_BTN }}>
+              style={{ height: 36, border: 'none', borderRadius: 10, padding: '0 18px', background: NEU_SURF, color: INK, cursor: 'pointer', fontFamily: FONT, fontWeight: 600, fontSize: FS.c, boxShadow: NEU_BTN }}>
               Connect Google
             </button>
           )}
           {!googleSyncing && !connected && role !== 'superadmin' && (
-            <span style={{ fontSize: 12, color: '#DC2626', background: '#FEF2F2', borderRadius: 6, padding: '4px 10px', fontWeight: 600 }}>Google not connected</span>
+            <span style={{ fontSize: FS.c, color: '#DC2626', background: '#FEF2F2', borderRadius: 6, padding: '4px 10px', fontWeight: 600 }}>Google not connected</span>
           )}
           <select style={selectS} value={sheetId} onChange={e => { const v = e.target.value; setSheetId(v); if (v) loadSheet(v); else setBook(null) }}>
             <option value="">Overview</option>
@@ -779,7 +783,7 @@ export default function Analytics() {
 
         {loading && (
           <div style={{ minHeight: '60vh', display: 'grid', placeItems: 'center', textAlign: 'center', color: MUTED }}>
-            <div style={{ fontSize: 14 }}>Reading tracking, investors, conversations and threads…</div>
+            <div style={{ fontSize: FS.c }}>Reading tracking, investors, conversations and threads…</div>
           </div>
         )}
 
@@ -787,9 +791,9 @@ export default function Analytics() {
           <div>
             <div style={{ marginBottom: 28, display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between' }}>
               <div>
-                <div style={{ fontSize: 12, fontWeight: 500, color: A, marginBottom: 8 }}>All clients — outreach overview</div>
-                <h2 style={{ fontSize: 28, fontWeight: 600, letterSpacing: '-0.4px', lineHeight: 1.2, margin: '0 0 8px', color: INK }}>Outreach at a glance.</h2>
-                <p style={{ color: MUTED, fontSize: 14, lineHeight: 1.6, margin: 0 }}>Select a client above to drill into the full command center.</p>
+                <div style={{ fontSize: FS.c, fontWeight: 500, color: A, marginBottom: 8 }}>All clients — outreach overview</div>
+                <h2 style={{ fontSize: FS.h, fontWeight: 600, letterSpacing: '-0.3px', lineHeight: 1.2, margin: '0 0 8px', color: INK }}>Outreach at a glance.</h2>
+                <p style={{ color: MUTED, fontSize: FS.c, lineHeight: 1.6, margin: 0 }}>Select a client above to drill into the full command center.</p>
               </div>
             </div>
 
@@ -808,14 +812,14 @@ export default function Analytics() {
                 replies:     acc.replies     + (r.replies     || 0),
               }), { total: 0, initialSent: 0, thisWeek: 0, f1: 0, f2: 0, f3: 0, replies: 0 })
 
-              const thS = { padding: '12px 20px', textAlign: 'left', fontSize: 12, fontWeight: 500, color: MUTED, borderBottom: `1px solid rgba(0,0,0,0.06)`, whiteSpace: 'nowrap', background: 'rgba(0,0,0,0.02)' }
-              const tdS = { padding: '16px 20px', fontSize: 14, color: INK, borderBottom: `1px solid rgba(0,0,0,0.05)`, whiteSpace: 'nowrap' }
+              const thS = { padding: '12px 20px', textAlign: 'left', fontSize: FS.c, fontWeight: 500, color: MUTED, borderBottom: `1px solid rgba(0,0,0,0.06)`, whiteSpace: 'nowrap', background: 'rgba(0,0,0,0.02)' }
+              const tdS = { padding: '16px 20px', fontSize: FS.c, color: INK, borderBottom: `1px solid rgba(0,0,0,0.05)`, whiteSpace: 'nowrap' }
               const numS = { ...tdS, textAlign: 'right', fontVariantNumeric: 'tabular-nums', fontFamily: MONO, fontSize: 13 }
               const totS = { ...numS, fontWeight: 700, color: INK, background: 'rgba(0,0,0,0.03)', borderTop: `1px solid rgba(0,0,0,0.08)`, borderBottom: 'none' }
               const totLabelS = { ...tdS, fontWeight: 700, color: INK, background: 'rgba(0,0,0,0.03)', borderTop: `1px solid rgba(0,0,0,0.08)`, borderBottom: 'none' }
 
               const pill = (n, color) => (
-                <span style={{ display: 'inline-block', minWidth: 36, textAlign: 'center', padding: '2px 10px', borderRadius: 20, fontSize: 12, fontWeight: 600, fontFamily: MONO, background: color + '18', color }}>{n}</span>
+                <span style={{ display: 'inline-block', minWidth: 36, textAlign: 'center', padding: '2px 10px', borderRadius: 20, fontSize: FS.c, fontWeight: 600, fontFamily: MONO, background: color + '18', color }}>{n}</span>
               )
 
               return (
@@ -876,9 +880,9 @@ export default function Analytics() {
 
             {/* ── Connected Outlook Accounts ── */}
             <div style={{ marginTop: 40 }}>
-              <div style={{ fontSize: 12, fontWeight: 500, color: A, marginBottom: 8 }}>Connected accounts</div>
-              <h2 style={{ fontSize: 28, fontWeight: 600, letterSpacing: '-0.4px', lineHeight: 1.2, margin: '0 0 6px', color: INK }}>Outlook Sending Accounts</h2>
-              <p style={{ color: MUTED, fontSize: 14, lineHeight: 1.6, margin: '0 0 20px' }}>All Microsoft Outlook accounts connected via n8n for outreach automation.</p>
+              <div style={{ fontSize: FS.c, fontWeight: 500, color: A, marginBottom: 8 }}>Connected accounts</div>
+              <h2 style={{ fontSize: FS.h, fontWeight: 600, letterSpacing: '-0.3px', lineHeight: 1.2, margin: '0 0 6px', color: INK }}>Outlook Sending Accounts</h2>
+              <p style={{ color: MUTED, fontSize: FS.c, lineHeight: 1.6, margin: '0 0 20px' }}>All Microsoft Outlook accounts connected via n8n for outreach automation.</p>
 
               {outlookLoading && (
                 <div style={{ padding: '32px 0', textAlign: 'center', color: MUTED, fontSize: 13 }}>Loading accounts…</div>
@@ -891,16 +895,16 @@ export default function Analytics() {
               {!outlookLoading && !outlookError && (
                 <div style={{ background: NEU_SURF, borderRadius: 20, border: 'none', overflow: 'hidden', boxShadow: NEU_SHADOW }}>
                   <div style={{ padding: '12px 20px', borderBottom: `1px solid ${LINE}`, background: '#FAFAFA', display: 'flex', alignItems: 'center', gap: 10 }}>
-                    <span style={{ fontSize: 12, fontWeight: 500, color: MUTED }}>
+                    <span style={{ fontSize: FS.c, fontWeight: 500, color: MUTED }}>
                       {outlookTotal} account{outlookTotal !== 1 ? 's' : ''} connected
                     </span>
                   </div>
                   <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                     <thead>
                       <tr style={{ background: '#FAFAFA' }}>
-                        <th style={{ padding: '12px 20px', textAlign: 'left', fontSize: 12, fontWeight: 500, color: MUTED, borderBottom: `1px solid rgba(0,0,0,0.06)` }}>#</th>
-                        <th style={{ padding: '12px 20px', textAlign: 'left', fontSize: 12, fontWeight: 500, color: MUTED, borderBottom: `1px solid rgba(0,0,0,0.06)` }}>Email</th>
-                        <th style={{ padding: '12px 20px', textAlign: 'left', fontSize: 12, fontWeight: 500, color: MUTED, borderBottom: `1px solid rgba(0,0,0,0.06)` }}>Account Name</th>
+                        <th style={{ padding: '12px 20px', textAlign: 'left', fontSize: FS.c, fontWeight: 500, color: MUTED, borderBottom: `1px solid rgba(0,0,0,0.06)` }}>#</th>
+                        <th style={{ padding: '12px 20px', textAlign: 'left', fontSize: FS.c, fontWeight: 500, color: MUTED, borderBottom: `1px solid rgba(0,0,0,0.06)` }}>Email</th>
+                        <th style={{ padding: '12px 20px', textAlign: 'left', fontSize: FS.c, fontWeight: 500, color: MUTED, borderBottom: `1px solid rgba(0,0,0,0.06)` }}>Account Name</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -908,7 +912,7 @@ export default function Analytics() {
                         <tr key={acc.credentialId || i}
                           onMouseEnter={e => e.currentTarget.style.background = 'rgba(0,0,0,0.03)'}
                           onMouseLeave={e => e.currentTarget.style.background = ''}>
-                          <td style={{ padding: '14px 20px', fontSize: 12, color: MUTED, borderBottom: `1px solid ${LINE}`, fontFamily: MONO }}>{i + 1}</td>
+                          <td style={{ padding: '14px 20px', fontSize: FS.c, color: MUTED, borderBottom: `1px solid ${LINE}`, fontFamily: MONO }}>{i + 1}</td>
                           <td style={{ padding: '14px 20px', fontSize: 13, color: INK, borderBottom: `1px solid ${LINE}`, fontWeight: 600 }}>{acc.email}</td>
                           <td style={{ padding: '14px 20px', fontSize: 13, color: MUTED, borderBottom: `1px solid ${LINE}` }}>{acc.credentialName}</td>
                         </tr>
@@ -927,9 +931,9 @@ export default function Analytics() {
             {/* Page title */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', gap: 24, marginBottom: 22 }}>
               <div>
-                <div style={{ fontSize: 12, fontWeight: 500, color: A, marginBottom: 6 }}>Live operations</div>
-                <h1 style={{ fontSize: 28, fontWeight: 600, letterSpacing: '-0.4px', lineHeight: 1.2, margin: '0 0 8px', color: INK }}>Today's outreach at a glance.</h1>
-                <div style={{ fontSize: 14, color: MUTED, lineHeight: 1.6 }}>{book.name} · verified against the workflow schema</div>
+                <div style={{ fontSize: FS.c, fontWeight: 500, color: A, marginBottom: 6 }}>Live operations</div>
+                <h1 style={{ fontSize: FS.h, fontWeight: 600, letterSpacing: '-0.3px', lineHeight: 1.2, margin: '0 0 8px', color: INK }}>Today's outreach at a glance.</h1>
+                <div style={{ fontSize: FS.c, color: MUTED, lineHeight: 1.6 }}>{book.name} · verified against the workflow schema</div>
               </div>
               {/* Period tabs */}
               <div style={{ display: 'flex', gap: 6, background: NEU_BG, padding: 4, borderRadius: 14, boxShadow: NEU_INSET }}>
@@ -938,7 +942,7 @@ export default function Analytics() {
                     border: 'none', padding: '7px 16px', borderRadius: 10,
                     background: period === id ? NEU_SURF : 'transparent',
                     color: period === id ? INK : MUTED,
-                    fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: FONT,
+                    fontSize: FS.c, fontWeight: 600, cursor: 'pointer', fontFamily: FONT,
                     boxShadow: period === id ? NEU_BTN : 'none',
                     transition: 'all 0.15s',
                   }}>{label}</button>
@@ -973,8 +977,8 @@ export default function Analytics() {
               }}>
                 <span style={{ fontSize: 16 }}>⚠️</span>
                 <div style={{ flex: 1 }}>
-                  <span style={{ fontSize: 12, fontWeight: 700, color: AMBER }}>Possible workflow loop detected — </span>
-                  <span style={{ fontSize: 12, color: MUTED }}>
+                  <span style={{ fontSize: FS.c, fontWeight: 700, color: AMBER }}>Possible workflow loop detected — </span>
+                  <span style={{ fontSize: FS.c, color: MUTED }}>
                     {dashboard.duplicateLogInvestors.join(', ')} {dashboard.duplicateLogInvestors.length === 1 ? 'has' : 'have'} multiple conversation_log entries within 60 minutes. The n8n workflow may be re-triggering on the same email thread.
                   </span>
                 </div>
@@ -987,13 +991,13 @@ export default function Analytics() {
               {/* Doc request rate */}
               <div style={{ background: NEU_SURF, border: 'none', borderRadius: 20, padding: '16px 18px', boxShadow: NEU_SHADOW }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
-                  <div style={{ fontSize: 10, fontWeight: 500, color: MUTED }}>Doc requested</div>
+                  <div style={{ fontSize: FS.sc, fontWeight: 500, color: MUTED }}>Doc requested</div>
                   <span style={{ fontSize: 11, background: `${BLUE}15`, color: BLUE, padding: '2px 8px', borderRadius: 99, fontWeight: 700 }}>📄</span>
                 </div>
                 <div style={{ fontFamily: MONO, fontSize: 28, fontWeight: 700, color: BLUE, lineHeight: 1, marginBottom: 6 }}>
                   {dashboard.docRequestRate}%
                 </div>
-                <div style={{ fontSize: 10, color: MUTED, marginBottom: 8 }}>
+                <div style={{ fontSize: FS.sc, color: MUTED, marginBottom: 8 }}>
                   {dashboard.docRequestedCount} of {dashboard.replies} investors asked for a one-pager
                 </div>
                 <div style={{ height: 4, background: 'rgba(0,0,0,0.07)', borderRadius: 99 }}>
@@ -1004,7 +1008,7 @@ export default function Analytics() {
               {/* Avg reply speed */}
               <div style={{ background: NEU_SURF, border: 'none', borderRadius: 20, padding: '16px 18px', boxShadow: NEU_SHADOW }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
-                  <div style={{ fontSize: 10, fontWeight: 500, color: MUTED }}>Avg reply speed</div>
+                  <div style={{ fontSize: FS.sc, fontWeight: 500, color: MUTED }}>Avg reply speed</div>
                   <span style={{ fontSize: 11, background: `${GREEN}15`, color: GREEN, padding: '2px 8px', borderRadius: 99, fontWeight: 700 }}>⚡</span>
                 </div>
                 {dashboard.avgReplyMinutes !== null ? (
@@ -1014,7 +1018,7 @@ export default function Analytics() {
                         ? `${dashboard.avgReplyMinutes}m`
                         : `${Math.round(dashboard.avgReplyMinutes / 60 * 10) / 10}h`}
                     </div>
-                    <div style={{ fontSize: 10, color: MUTED }}>avg time from first email to reply</div>
+                    <div style={{ fontSize: FS.sc, color: MUTED }}>avg time from first email to reply</div>
                   </>
                 ) : (
                   <div style={{ fontSize: 13, color: MUTED, marginTop: 8 }}>No replies yet</div>
@@ -1024,7 +1028,7 @@ export default function Analytics() {
               {/* Weekly send pacing */}
               <div style={{ background: NEU_SURF, border: 'none', borderRadius: 20, padding: '16px 18px', boxShadow: NEU_SHADOW }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
-                  <div style={{ fontSize: 10, fontWeight: 500, color: MUTED }}>Weekly pacing</div>
+                  <div style={{ fontSize: FS.sc, fontWeight: 500, color: MUTED }}>Weekly pacing</div>
                   <span style={{ fontSize: 11, background: `${A}15`, color: A, padding: '2px 8px', borderRadius: 99, fontWeight: 700 }}>📅</span>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'baseline', gap: 6, marginBottom: 4 }}>
@@ -1040,7 +1044,7 @@ export default function Analytics() {
                     borderRadius: 99, transition: 'width 0.6s',
                   }} />
                 </div>
-                <div style={{ fontSize: 10, color: dashboard.weeklyCapPct > 80 ? AMBER : MUTED }}>
+                <div style={{ fontSize: FS.sc, color: dashboard.weeklyCapPct > 80 ? AMBER : MUTED }}>
                   {dashboard.weeklyCapPct > 80 ? `⚠ ${100 - dashboard.weeklyCapPct}% remaining` : `${100 - dashboard.weeklyCapPct}% of weekly cap remaining`}
                 </div>
               </div>
@@ -1090,13 +1094,13 @@ export default function Analytics() {
                       <div style={{ width: 3, borderRadius: 99, background: event.tone, flexShrink: 0, alignSelf: 'stretch', minHeight: 32 }} />
                       <div style={{ minWidth: 0 }}>
                         <div style={{ fontSize: 11, fontWeight: 600, color: INK }}>{event.type}</div>
-                        <div style={{ fontSize: 10, color: MUTED, marginTop: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{event.who}</div>
-                        <div style={{ fontSize: 9, fontFamily: MONO, color: MUTED, marginTop: 2 }}>{fmtDate(event.at)} {fmtTime(event.at)}</div>
+                        <div style={{ fontSize: FS.sc, color: MUTED, marginTop: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{event.who}</div>
+                        <div style={{ fontSize: FS.sc, fontFamily: MONO, color: MUTED, marginTop: 2 }}>{fmtDate(event.at)} {fmtTime(event.at)}</div>
                       </div>
                     </div>
                   ))}
                   {!dashboard.events.length && (
-                    <div style={{ textAlign: 'center', padding: '32px', color: MUTED, fontSize: 12 }}>No timestamped activity yet.</div>
+                    <div style={{ textAlign: 'center', padding: '32px', color: MUTED, fontSize: FS.c }}>No timestamped activity yet.</div>
                   )}
                 </div>
               </Card>
@@ -1120,7 +1124,7 @@ export default function Analytics() {
                     <div key={label} style={{ padding: '14px', background: NEU_BG, borderRadius: 12, boxShadow: NEU_INSET, textAlign: 'center' }}>
                       <div style={{ fontSize: 16, color: tone, marginBottom: 6 }}>{icon}</div>
                       <div style={{ fontFamily: MONO, fontSize: 22, fontWeight: 700, color: tone, marginBottom: 4 }}>{value}</div>
-                      <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: '.06em', textTransform: 'uppercase', color: MUTED }}>{label}</div>
+                      <div style={{ fontSize: FS.sc, fontWeight: 500, color: MUTED }}>{label}</div>
                     </div>
                   ))}
                 </div>
