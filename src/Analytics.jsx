@@ -109,8 +109,8 @@ function Card({ title, subtitle, action, children, dark }) {
       {(title || action) && (
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12, marginBottom: 16 }}>
           <div>
-            <div style={{ fontSize: 13, fontWeight: 700, color: dark ? '#fff' : INK, letterSpacing: '-.01em' }}>{title}</div>
-            {subtitle && <div style={{ fontSize: 10, color: dark ? 'rgba(255,255,255,0.5)' : MUTED, marginTop: 3 }}>{subtitle}</div>}
+            <div style={{ fontSize: 13, fontWeight: 600, color: dark ? '#fff' : INK }}>{title}</div>
+            {subtitle && <div style={{ fontSize: 11, color: dark ? 'rgba(255,255,255,0.5)' : MUTED, marginTop: 3 }}>{subtitle}</div>}
           </div>
           {action}
         </div>
@@ -137,7 +137,7 @@ function KPI({ label, value, hint, tone = INK, icon, delta, deltaLabel = 'vs las
       padding: '16px 18px',
       boxShadow: NEU_SHADOW,
     }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 9, fontWeight: 800, letterSpacing: '.08em', textTransform: 'uppercase', color: MUTED, fontFamily: FONT }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 11, fontWeight: 500, color: MUTED, fontFamily: FONT }}>
         <span>{label}</span>
         <span style={{ width: 24, height: 24, borderRadius: 7, background: `${tone}15`, color: tone, display: 'grid', placeItems: 'center', fontSize: 11 }}>{icon}</span>
       </div>
@@ -403,7 +403,7 @@ function RecentConversations({ convByInvestor, investorMap, query, setQuery }) {
                   <div style={{ width: 7, height: 7, borderRadius: '50%', background: dot, marginTop: 5, flexShrink: 0 }} />
                   <div style={{ flex: 1, background: bg, borderRadius: 8, padding: '7px 10px' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 3 }}>
-                      <span style={{ fontSize: 9, fontWeight: 700, color: dot, textTransform: 'uppercase', letterSpacing: '.04em' }}>{label}</span>
+                      <span style={{ fontSize: 10, fontWeight: 500, color: dot }}>{label}</span>
                       <span style={{ fontSize: 9, color: MUTED, fontFamily: MONO }}>{fmtTime(latest.at)}</span>
                     </div>
                     <div style={{ fontSize: 11, color: INK, lineHeight: 1.5 }}>
@@ -787,7 +787,7 @@ export default function Analytics() {
           <div>
             <div style={{ marginBottom: 28, display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between' }}>
               <div>
-                <div style={{ fontSize: 14, fontWeight: 500, color: A, marginBottom: 8 }}>ALL CLIENTS — OUTREACH OVERVIEW</div>
+                <div style={{ fontSize: 12, fontWeight: 500, color: A, marginBottom: 8 }}>All clients — outreach overview</div>
                 <h2 style={{ fontSize: 40, fontWeight: 500, letterSpacing: '-0.8px', lineHeight: 1.15, margin: '0 0 8px', color: INK }}>Outreach at a glance.</h2>
                 <p style={{ color: MUTED, fontSize: 16, lineHeight: 1.5, margin: 0 }}>Select a client above to drill into the full command center.</p>
               </div>
@@ -876,8 +876,8 @@ export default function Analytics() {
 
             {/* ── Connected Outlook Accounts ── */}
             <div style={{ marginTop: 40 }}>
-              <div style={{ fontSize: 10, fontWeight: 800, letterSpacing: '.12em', color: A, marginBottom: 8, textTransform: 'uppercase' }}>Connected Accounts</div>
-              <h2 style={{ fontSize: 20, fontWeight: 700, letterSpacing: '-.02em', margin: '0 0 4px', color: INK }}>Outlook Sending Accounts</h2>
+              <div style={{ fontSize: 12, fontWeight: 500, color: A, marginBottom: 8 }}>Connected accounts</div>
+              <h2 style={{ fontSize: 20, fontWeight: 600, margin: '0 0 4px', color: INK }}>Outlook Sending Accounts</h2>
               <p style={{ color: MUTED, fontSize: 13, margin: '0 0 20px' }}>All Microsoft Outlook accounts connected via n8n for outreach automation.</p>
 
               {outlookLoading && (
@@ -891,16 +891,16 @@ export default function Analytics() {
               {!outlookLoading && !outlookError && (
                 <div style={{ background: NEU_SURF, borderRadius: 20, border: 'none', overflow: 'hidden', boxShadow: NEU_SHADOW }}>
                   <div style={{ padding: '12px 20px', borderBottom: `1px solid ${LINE}`, background: '#FAFAFA', display: 'flex', alignItems: 'center', gap: 10 }}>
-                    <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: '.06em', textTransform: 'uppercase', color: MUTED }}>
+                    <span style={{ fontSize: 12, fontWeight: 500, color: MUTED }}>
                       {outlookTotal} account{outlookTotal !== 1 ? 's' : ''} connected
                     </span>
                   </div>
                   <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                     <thead>
                       <tr style={{ background: '#FAFAFA' }}>
-                        <th style={{ padding: '12px 20px', textAlign: 'left', fontSize: 11, fontWeight: 700, letterSpacing: '.06em', color: MUTED, borderBottom: `1px solid ${LINE}`, textTransform: 'uppercase' }}>#</th>
-                        <th style={{ padding: '12px 20px', textAlign: 'left', fontSize: 11, fontWeight: 700, letterSpacing: '.06em', color: MUTED, borderBottom: `1px solid ${LINE}`, textTransform: 'uppercase' }}>Email</th>
-                        <th style={{ padding: '12px 20px', textAlign: 'left', fontSize: 11, fontWeight: 700, letterSpacing: '.06em', color: MUTED, borderBottom: `1px solid ${LINE}`, textTransform: 'uppercase' }}>Account Name</th>
+                        <th style={{ padding: '12px 20px', textAlign: 'left', fontSize: 12, fontWeight: 500, color: MUTED, borderBottom: `1px solid rgba(0,0,0,0.06)` }}>#</th>
+                        <th style={{ padding: '12px 20px', textAlign: 'left', fontSize: 12, fontWeight: 500, color: MUTED, borderBottom: `1px solid rgba(0,0,0,0.06)` }}>Email</th>
+                        <th style={{ padding: '12px 20px', textAlign: 'left', fontSize: 12, fontWeight: 500, color: MUTED, borderBottom: `1px solid rgba(0,0,0,0.06)` }}>Account Name</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -927,7 +927,7 @@ export default function Analytics() {
             {/* Page title */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', gap: 24, marginBottom: 22 }}>
               <div>
-                <div style={{ fontSize: 14, fontWeight: 500, color: A, marginBottom: 6 }}>LIVE OPERATIONS</div>
+                <div style={{ fontSize: 12, fontWeight: 500, color: A, marginBottom: 6 }}>Live operations</div>
                 <h1 style={{ fontSize: 40, fontWeight: 500, letterSpacing: '-0.8px', lineHeight: 1.15, margin: '0 0 8px', color: INK }}>Today's outreach at a glance.</h1>
                 <div style={{ fontSize: 14, color: MUTED, lineHeight: 1.5 }}>{book.name} · verified against the workflow schema</div>
               </div>
