@@ -753,7 +753,23 @@ export default function Analytics() {
   const shell   = { minHeight: '100vh', color: INK, fontFamily: FONT, background: NEU_BG }
   const grid12  = (cols) => ({ display: 'grid', gridTemplateColumns: cols, gap: 16, marginBottom: 16 })
   const kpiGrid = { display: 'grid', gridTemplateColumns: 'repeat(6,1fr)', gap: 12, marginBottom: 16 }
-  const selectS = { height: 36, border: 'none', borderRadius: 10, background: NEU_SURF, padding: '0 12px', color: INK, fontFamily: FONT, fontSize: FS.c, outline: 'none', minWidth: 220, boxShadow: NEU_BTN }
+  const selectS = {
+    height: 40,
+    border: 'none',
+    borderRadius: 14,
+    background: NEU_SURF,
+    padding: '0 36px 0 14px',
+    color: INK,
+    fontFamily: FONT,
+    fontSize: FS.c,
+    fontWeight: 500,
+    outline: 'none',
+    minWidth: 240,
+    boxShadow: NEU_SHADOW,
+    appearance: 'none',
+    WebkitAppearance: 'none',
+    cursor: 'pointer',
+  }
 
   return (
     <div style={shell}>
@@ -768,10 +784,15 @@ export default function Analytics() {
           {!googleSyncing && !connected && role !== 'superadmin' && (
             <span style={{ fontSize: FS.c, color: '#DC2626', background: '#FEF2F2', borderRadius: 6, padding: '4px 10px', fontWeight: 600 }}>Google not connected</span>
           )}
-          <select style={selectS} value={sheetId} onChange={e => { const v = e.target.value; setSheetId(v); if (v) loadSheet(v); else setBook(null) }}>
-            <option value="">Overview</option>
-            {sheets.map(sheet => <option key={sheet.id} value={sheet.id}>{sheet.name}</option>)}
-          </select>
+          <div style={{ position: 'relative', display: 'inline-flex', alignItems: 'center' }}>
+            <select style={selectS} value={sheetId} onChange={e => { const v = e.target.value; setSheetId(v); if (v) loadSheet(v); else setBook(null) }}>
+              <option value="">Overview</option>
+              {sheets.map(sheet => <option key={sheet.id} value={sheet.id}>{sheet.name}</option>)}
+            </select>
+            <svg style={{ position: 'absolute', right: 12, pointerEvents: 'none', color: MUTED }} width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="6 9 12 15 18 9" />
+            </svg>
+          </div>
         </div>
       } />
 
