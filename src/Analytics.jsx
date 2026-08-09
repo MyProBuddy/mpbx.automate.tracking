@@ -865,7 +865,7 @@ export default function Analytics() {
                           onMouseEnter={e => e.currentTarget.style.background = 'rgba(0,0,0,0.03)'}
                           onMouseLeave={e => e.currentTarget.style.background = ''}>
                           <td style={tdS}>
-                            <div style={{ fontWeight: 600, color: A }}>{r.name}</div>
+                            <div style={{ fontWeight: 400, color: INK }}>{r.name}</div>
                             {r.error && <div style={{ fontSize: 11, color: RED, marginTop: 2 }}>{r.error}</div>}
                           </td>
                           <td style={numS}>{r.error ? '—' : r.total}</td>
