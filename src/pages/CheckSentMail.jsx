@@ -149,7 +149,7 @@ export default function CheckSentMail() {
     return [inv.first, inv.last, inv.firm, inv.email].some(v => v.toLowerCase().includes(q))
   })
 
-  const selectStyle = { padding: '10px 14px', border: `1.5px solid ${T.border}`, borderRadius: 8, fontSize: 13, fontFamily: 'inherit', color: T.text, background: '#fff', outline: 'none', cursor: 'pointer', minWidth: 320 }
+  const selectStyle = { padding: '10px 14px', border: `1px solid ${T.border}`, borderRadius: T.btnRadius, fontSize: 14, fontFamily: 'inherit', color: T.text, background: T.surface, outline: 'none', cursor: 'pointer', minWidth: 320 }
 
   return (
     <div style={{ minHeight: '100vh', fontFamily: T.sans }}>
@@ -157,19 +157,19 @@ export default function CheckSentMail() {
       <div style={{ maxWidth: 1200, margin: '0 auto', padding: '40px 48px 80px' }}>
 
         <div style={{ marginBottom: 44 }}>
-          <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: '.1em', textTransform: 'uppercase', color: '#7C3AED', marginBottom: 8 }}>Tools</div>
-          <div style={{ fontSize: 30, fontWeight: 800, letterSpacing: '-0.03em', color: T.text, marginBottom: 6 }}>Check Sent Mail</div>
-          <div style={{ fontSize: 13, color: T.muted }}>Review sent emails across your outreach campaigns.</div>
+          <div style={{ fontSize: 14, fontWeight: 500, color: '#7C3AED', marginBottom: 8 }}>Tools</div>
+          <div style={{ fontSize: 40, fontWeight: 500, letterSpacing: '-0.8px', lineHeight: 1.15, color: T.text, marginBottom: 8 }}>Check Sent Mail</div>
+          <div style={{ fontSize: 16, color: T.muted, lineHeight: 1.5 }}>Review sent emails across your outreach campaigns.</div>
         </div>
 
         {/* Google connect */}
         {!googleSyncing && !connected && (
-          <div style={{ background: T.surface, border: `1.5px solid ${T.border}`, borderRadius: 12, padding: '32px', textAlign: 'center', marginBottom: 32 }}>
-            <div style={{ fontSize: 14, fontWeight: 700, color: T.text, marginBottom: 8 }}>Google not connected</div>
-            <div style={{ fontSize: 13, color: T.muted, marginBottom: 20 }}>Connect Google to load your client sheets.</div>
+          <div style={{ background: T.surface, border: `1px solid ${T.border}`, borderRadius: 12, padding: '32px', textAlign: 'center', marginBottom: 32 }}>
+            <div style={{ fontSize: 16, fontWeight: 500, color: T.text, marginBottom: 8 }}>Google not connected</div>
+            <div style={{ fontSize: 14, color: T.muted, lineHeight: 1.5, marginBottom: 20 }}>Connect Google to load your client sheets.</div>
             {role === 'superadmin' && (
               <button disabled={!googleReady} onClick={() => { initTokenClient(() => setConnected(true)); requestToken() }}
-                style={{ padding: '10px 24px', borderRadius: 8, border: 'none', background: 'linear-gradient(90deg,#C026D3,#F43F5E)', color: '#fff', fontSize: 13, fontWeight: 700, cursor: googleReady ? 'pointer' : 'default', fontFamily: 'inherit' }}>
+                style={{ padding: T.btnPadding, borderRadius: T.btnRadius, border: 'none', background: T.accent, color: '#fff', fontSize: T.btnFontSize, fontWeight: T.btnWeight, cursor: googleReady ? 'pointer' : 'default', fontFamily: 'inherit', lineHeight: 1.2 }}>
                 Connect Google
               </button>
             )}
@@ -182,7 +182,7 @@ export default function CheckSentMail() {
             {/* Client selector */}
             <div>
               <div style={{ marginBottom: 8 }}>
-                <div style={{ fontSize: 11, fontWeight: 600, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Client</div>
+                <div style={{ fontSize: 14, fontWeight: 500, color: T.text }}>Client</div>
               </div>
               {sheetsError && <div style={{ fontSize: 12, color: '#DC2626', marginBottom: 8 }}>{sheetsError}</div>}
               {!sheetsLoading && sheets.length === 0 && !sheetsError && (
@@ -198,9 +198,9 @@ export default function CheckSentMail() {
             {/* Investor dropdown */}
             {clientId && (
               <div>
-                <div style={{ fontSize: 11, fontWeight: 600, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 8 }}>
+                <div style={{ fontSize: 14, fontWeight: 500, color: T.text, marginBottom: 8 }}>
                   Investor
-                  {investors.length > 0 && <span style={{ fontWeight: 400, textTransform: 'none', letterSpacing: 0, marginLeft: 8, fontSize: 11, color: T.faint }}>({investors.length} total)</span>}
+                  {investors.length > 0 && <span style={{ fontWeight: 400, marginLeft: 8, fontSize: 14, color: T.muted }}>({investors.length} total)</span>}
                 </div>
                 {invLoading && <div style={{ fontSize: 13, color: T.muted }}>Loading investors…</div>}
                 {invError  && <div style={{ fontSize: 13, color: '#DC2626' }}>{invError}</div>}
@@ -276,7 +276,7 @@ export default function CheckSentMail() {
             {/* n8n account selector */}
             {n8nAccounts.length > 0 && (
               <div>
-                <div style={{ fontSize: 11, fontWeight: 600, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 8 }}>Sent From Account</div>
+                <div style={{ fontSize: 14, fontWeight: 500, color: T.text, marginBottom: 8 }}>Sent From Account</div>
                 <select value={n8nClientId} onChange={e => { setN8nClientId(e.target.value); setCheckResult(null); setCheckError('') }} style={selectStyle}>
                   {n8nAccounts.map(a => <option key={a.clientId} value={a.clientId}>{a.credentialName}</option>)}
                 </select>
@@ -289,16 +289,16 @@ export default function CheckSentMail() {
         {/* Selected investor info */}
         {selectedInv && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-            <div style={{ background: T.surface, border: `1.5px solid ${T.border}`, borderRadius: 12, padding: '24px 28px' }}>
-              <div style={{ fontSize: 11, fontWeight: 700, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 18 }}>Investor Details</div>
+            <div style={{ background: T.surface, border: `1px solid ${T.border}`, borderRadius: 12, padding: '24px 28px' }}>
+              <div style={{ fontSize: 12, fontWeight: 500, color: T.muted, marginBottom: 18 }}>Investor Details</div>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr)', gap: 20 }}>
                 {selectedInv._headers.map((header, i) => {
                   const value = selectedInv._row[i]
                   if (!header) return null
                   return (
                     <div key={i}>
-                      <div style={{ fontSize: 10, fontWeight: 700, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 6 }}>{header}</div>
-                      <div style={{ fontSize: 13, color: value ? T.text : T.faint, fontWeight: value ? 600 : 400, wordBreak: 'break-all' }}>{value || '—'}</div>
+                      <div style={{ fontSize: 12, fontWeight: 500, color: T.muted, marginBottom: 4 }}>{header}</div>
+                      <div style={{ fontSize: 14, color: value ? T.text : T.faint, fontWeight: value ? 500 : 400, wordBreak: 'break-all', lineHeight: 1.5 }}>{value || '—'}</div>
                     </div>
                   )
                 })}
@@ -310,11 +310,10 @@ export default function CheckSentMail() {
                 onClick={handleCheckSentMail}
                 disabled={checking}
                 style={{
-                  padding: '11px 28px', borderRadius: 8, border: 'none',
-                  background: checking ? T.border : 'linear-gradient(90deg,#7C3AED,#C026D3)',
-                  color: checking ? T.muted : '#fff', fontSize: 13, fontWeight: 700,
-                  cursor: checking ? 'default' : 'pointer', fontFamily: 'inherit',
-                  transition: 'background 0.15s',
+                  padding: T.btnPadding, borderRadius: T.btnRadius, border: 'none',
+                  background: checking ? T.faint : T.accent,
+                  color: '#fff', fontSize: T.btnFontSize, fontWeight: T.btnWeight,
+                  cursor: checking ? 'default' : 'pointer', fontFamily: 'inherit', lineHeight: 1.2,
                 }}
               >
                 {checking ? 'Checking…' : 'Check Sent Mail'}
@@ -327,7 +326,7 @@ export default function CheckSentMail() {
               return (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                    <div style={{ fontSize: 11, fontWeight: 700, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.07em' }}>Sent Mails</div>
+                    <div style={{ fontSize: 12, fontWeight: 500, color: T.muted }}>Sent Mails</div>
                     <span style={{ fontSize: 11, fontWeight: 700, background: messages.length > 0 ? '#EDE9FE' : T.bg, color: messages.length > 0 ? '#7C3AED' : T.muted, borderRadius: 99, padding: '2px 10px' }}>
                       {messages.length} found
                     </span>
@@ -345,10 +344,10 @@ export default function CheckSentMail() {
                     const hasHtml = msg.bodyContentType === 'html' || (msg.body && msg.body.trim().startsWith('<'))
                     const cleanBody = msg.body ? msg.body.replace(/<hr[^>]*>[\s\S]*/i, '</body></html>') : ''
                     return (
-                      <div key={msg.id || i} style={{ background: '#fff', border: `1.5px solid ${T.border}`, borderRadius: 12, padding: '20px 24px', display: 'flex', flexDirection: 'column', gap: 10 }}>
+                      <div key={msg.id || i} style={{ background: T.surface, border: `1px solid ${T.border}`, borderRadius: 12, padding: '20px 24px', display: 'flex', flexDirection: 'column', gap: 10 }}>
                         <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16 }}>
-                          <div style={{ fontSize: 14, fontWeight: 700, color: T.text, lineHeight: 1.4 }}>{msg.subject || '(no subject)'}</div>
-                          <div style={{ fontSize: 11, color: T.muted, flexShrink: 0, marginTop: 2 }}>
+                          <div style={{ fontSize: 16, fontWeight: 500, color: T.text, lineHeight: 1.4 }}>{msg.subject || '(no subject)'}</div>
+                          <div style={{ fontSize: 12, color: T.muted, flexShrink: 0, marginTop: 2 }}>
                             {msg.sentDateTime ? new Date(msg.sentDateTime).toLocaleString('en-IN', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : ''}
                           </div>
                         </div>

@@ -505,10 +505,10 @@ function PromptBlock({ promptType, data, onSaved, clientEmail }) {
 
   const tabBtn = (id, label) => (
     <button onClick={() => setLeftTab(id)} style={{
-      fontSize: 11, fontWeight: 700, padding: '5px 14px', borderRadius: 6, border: 'none',
+      fontSize: 13, fontWeight: 500, padding: '5px 14px', borderRadius: T.btnRadius, border: 'none',
       background: leftTab === id ? T.accentLight : 'transparent',
       color: leftTab === id ? T.accent : T.muted,
-      cursor: 'pointer', fontFamily: 'inherit',
+      cursor: 'pointer', fontFamily: 'inherit', lineHeight: 1.2,
     }}>{label}</button>
   )
 
@@ -517,8 +517,8 @@ function PromptBlock({ promptType, data, onSaved, clientEmail }) {
     <div style={{ background: '#fff', borderRadius: 12, border: `1.5px solid ${dirty ? T.accent : T.border}`, overflow: 'hidden', transition: 'border-color 0.15s', height: 500, display: 'flex', flexDirection: 'column' }}>
 
       {/* Header */}
-      <div style={{ display: 'flex', alignItems: 'center', padding: '14px 20px', borderBottom: `1px solid ${T.border}`, background: '#FAFAFA', flexShrink: 0 }}>
-        <div style={{ fontSize: 13, fontWeight: 700, color: T.text }}>{TYPE_LABELS[promptType]}</div>
+      <div style={{ display: 'flex', alignItems: 'center', padding: '14px 20px', borderBottom: `1px solid ${T.border}`, background: T.bg, flexShrink: 0 }}>
+        <div style={{ fontSize: 14, fontWeight: 500, color: T.text }}>{TYPE_LABELS[promptType]}</div>
       </div>
 
       {/* Test panel */}
@@ -539,7 +539,7 @@ function PromptBlock({ promptType, data, onSaved, clientEmail }) {
                 <button
                   onClick={() => dirty && setShowDiff(true)}
                   disabled={!dirty}
-                  style={{ fontSize: 11, fontWeight: 700, padding: '5px 14px', borderRadius: 6, border: `1px solid ${dirty ? T.green : T.border}`, background: dirty ? '#F0FDF4' : 'transparent', color: dirty ? T.green : T.faint, cursor: dirty ? 'pointer' : 'default', fontFamily: 'inherit', transition: 'all 0.15s' }}
+                  style={{ fontSize: 13, fontWeight: 500, padding: '5px 14px', borderRadius: T.btnRadius, border: `1px solid ${dirty ? T.green : T.border}`, background: dirty ? T.greenLight : 'transparent', color: dirty ? T.green : T.faint, cursor: dirty ? 'pointer' : 'default', fontFamily: 'inherit', transition: 'all 0.15s', lineHeight: 1.2 }}
                 >
                   Save
                 </button>
@@ -629,7 +629,7 @@ function PromptBlock({ promptType, data, onSaved, clientEmail }) {
                   {/* Save button */}
                   {selectedSheet && (
                     <button onClick={saveUpdatesState}
-                      style={{ alignSelf: 'flex-start', padding: '7px 18px', borderRadius: 6, border: 'none', background: updatesSaved ? T.green : T.accent, color: '#fff', fontSize: 11, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}>
+                      style={{ alignSelf: 'flex-start', padding: T.btnPadding, borderRadius: T.btnRadius, border: 'none', background: updatesSaved ? T.green : T.accent, color: '#fff', fontSize: T.btnFontSize, fontWeight: T.btnWeight, cursor: 'pointer', fontFamily: 'inherit', lineHeight: 1.2 }}>
                       {updatesSaved ? '✓ Saved' : 'Save Selection'}
                     </button>
                   )}
@@ -667,7 +667,7 @@ function PromptBlock({ promptType, data, onSaved, clientEmail }) {
                   {/* Save button */}
                   {selectedFolder && mdFileId && (
                     <button onClick={saveFilesState}
-                      style={{ alignSelf: 'flex-start', padding: '7px 18px', borderRadius: 6, border: 'none', background: filesSaved ? T.green : T.accent, color: '#fff', fontSize: 11, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}>
+                      style={{ alignSelf: 'flex-start', padding: T.btnPadding, borderRadius: T.btnRadius, border: 'none', background: filesSaved ? T.green : T.accent, color: '#fff', fontSize: T.btnFontSize, fontWeight: T.btnWeight, cursor: 'pointer', fontFamily: 'inherit', lineHeight: 1.2 }}>
                       {filesSaved ? '✓ Saved' : 'Save Selection'}
                     </button>
                   )}
@@ -679,12 +679,12 @@ function PromptBlock({ promptType, data, onSaved, clientEmail }) {
           {/* RIGHT — output */}
           <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', minHeight: 0 }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 16px', borderBottom: `1px solid ${T.border}`, background: '#FAFAFA', height: 44, flexShrink: 0 }}>
-              <span style={{ fontSize: 10, fontWeight: 700, color: T.muted, letterSpacing: '0.07em', textTransform: 'uppercase' }}>Generated Output</span>
+              <span style={{ fontSize: 12, fontWeight: 500, color: T.muted }}>Generated Output</span>
               <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
                 <select
                   value={model}
                   onChange={e => setModel(e.target.value)}
-                  style={{ fontSize: 11, fontWeight: 600, padding: '5px 8px', borderRadius: 6, border: `1px solid ${T.border}`, background: '#fff', color: T.text, cursor: 'pointer', fontFamily: 'inherit', outline: 'none' }}
+                  style={{ fontSize: 13, fontWeight: 400, padding: '5px 8px', borderRadius: T.btnRadius, border: `1px solid ${T.border}`, background: '#fff', color: T.text, cursor: 'pointer', fontFamily: 'inherit', outline: 'none' }}
                 >
                   {models.map(m => <option key={m.value} value={m.value}>{m.label}</option>)}
                 </select>
@@ -692,7 +692,7 @@ function PromptBlock({ promptType, data, onSaved, clientEmail }) {
                   onClick={runTest}
                   disabled={generating || (promptType === 'outreach_followup' && !prevMail)}
                   title={promptType === 'outreach_followup' && !prevMail ? 'Run the Outreach prompt first' : ''}
-                  style={{ fontSize: 11, fontWeight: 700, padding: '5px 18px', borderRadius: 6, border: 'none', background: (generating || (promptType === 'outreach_followup' && !prevMail)) ? T.faint : T.accent, color: '#fff', cursor: (generating || (promptType === 'outreach_followup' && !prevMail)) ? 'default' : 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: 6 }}
+                  style={{ fontSize: T.btnFontSize, fontWeight: T.btnWeight, padding: T.btnPadding, borderRadius: T.btnRadius, border: 'none', background: (generating || (promptType === 'outreach_followup' && !prevMail)) ? T.faint : T.accent, color: '#fff', cursor: (generating || (promptType === 'outreach_followup' && !prevMail)) ? 'default' : 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: 6, lineHeight: 1.2 }}
                 >
                   {generating
                     ? <><span style={{ display: 'inline-block', width: 10, height: 10, border: '2px solid rgba(255,255,255,0.5)', borderTopColor: '#fff', borderRadius: '50%', animation: 'spin 0.7s linear infinite' }} /> Generating…</>
@@ -804,11 +804,11 @@ export default function PromptEditor() {
 
         <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 36 }}>
           <div>
-            <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: '.1em', textTransform: 'uppercase', color: '#7C3AED', marginBottom: 8 }}>Tools</div>
-            <div style={{ fontSize: 30, fontWeight: 800, letterSpacing: '-0.03em', color: T.text, marginBottom: 6 }}>Prompt Editor</div>
-            <div style={{ fontSize: 13, color: T.muted }}>Manage and test AI prompt templates per client.</div>
+            <div style={{ fontSize: 14, fontWeight: 500, color: '#7C3AED', marginBottom: 8 }}>Tools</div>
+            <div style={{ fontSize: 40, fontWeight: 500, letterSpacing: '-0.8px', lineHeight: 1.15, color: T.text, marginBottom: 8 }}>Prompt Editor</div>
+            <div style={{ fontSize: 16, color: T.muted, lineHeight: 1.5 }}>Manage and test AI prompt templates per client.</div>
           </div>
-          <button onClick={() => setShowModal(true)} style={{ padding: '10px 20px', background: T.accent, color: '#fff', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', marginTop: 6 }}>
+          <button onClick={() => setShowModal(true)} style={{ padding: T.btnPadding, background: T.accent, color: '#fff', border: 'none', borderRadius: T.btnRadius, fontSize: T.btnFontSize, fontWeight: T.btnWeight, cursor: 'pointer', fontFamily: 'inherit', marginTop: 6, lineHeight: 1.2 }}>
             + Add Client
           </button>
         </div>
