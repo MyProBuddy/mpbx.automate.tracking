@@ -788,8 +788,8 @@ export default function Analytics() {
             <div style={{ marginBottom: 28, display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between' }}>
               <div>
                 <div style={{ fontSize: 12, fontWeight: 500, color: A, marginBottom: 8 }}>All clients — outreach overview</div>
-                <h2 style={{ fontSize: 40, fontWeight: 500, letterSpacing: '-0.8px', lineHeight: 1.15, margin: '0 0 8px', color: INK }}>Outreach at a glance.</h2>
-                <p style={{ color: MUTED, fontSize: 16, lineHeight: 1.5, margin: 0 }}>Select a client above to drill into the full command center.</p>
+                <h2 style={{ fontSize: 28, fontWeight: 600, letterSpacing: '-0.4px', lineHeight: 1.2, margin: '0 0 8px', color: INK }}>Outreach at a glance.</h2>
+                <p style={{ color: MUTED, fontSize: 14, lineHeight: 1.6, margin: 0 }}>Select a client above to drill into the full command center.</p>
               </div>
             </div>
 
@@ -877,8 +877,8 @@ export default function Analytics() {
             {/* ── Connected Outlook Accounts ── */}
             <div style={{ marginTop: 40 }}>
               <div style={{ fontSize: 12, fontWeight: 500, color: A, marginBottom: 8 }}>Connected accounts</div>
-              <h2 style={{ fontSize: 20, fontWeight: 600, margin: '0 0 4px', color: INK }}>Outlook Sending Accounts</h2>
-              <p style={{ color: MUTED, fontSize: 13, margin: '0 0 20px' }}>All Microsoft Outlook accounts connected via n8n for outreach automation.</p>
+              <h2 style={{ fontSize: 18, fontWeight: 600, margin: '0 0 6px', color: INK }}>Outlook Sending Accounts</h2>
+              <p style={{ color: MUTED, fontSize: 14, lineHeight: 1.6, margin: '0 0 20px' }}>All Microsoft Outlook accounts connected via n8n for outreach automation.</p>
 
               {outlookLoading && (
                 <div style={{ padding: '32px 0', textAlign: 'center', color: MUTED, fontSize: 13 }}>Loading accounts…</div>
@@ -928,8 +928,8 @@ export default function Analytics() {
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', gap: 24, marginBottom: 22 }}>
               <div>
                 <div style={{ fontSize: 12, fontWeight: 500, color: A, marginBottom: 6 }}>Live operations</div>
-                <h1 style={{ fontSize: 40, fontWeight: 500, letterSpacing: '-0.8px', lineHeight: 1.15, margin: '0 0 8px', color: INK }}>Today's outreach at a glance.</h1>
-                <div style={{ fontSize: 14, color: MUTED, lineHeight: 1.5 }}>{book.name} · verified against the workflow schema</div>
+                <h1 style={{ fontSize: 28, fontWeight: 600, letterSpacing: '-0.4px', lineHeight: 1.2, margin: '0 0 8px', color: INK }}>Today's outreach at a glance.</h1>
+                <div style={{ fontSize: 14, color: MUTED, lineHeight: 1.6 }}>{book.name} · verified against the workflow schema</div>
               </div>
               {/* Period tabs */}
               <div style={{ display: 'flex', gap: 6, background: NEU_BG, padding: 4, borderRadius: 14, boxShadow: NEU_INSET }}>
