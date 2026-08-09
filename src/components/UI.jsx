@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { T } from '../constants.js'
 
 export function FieldLabel({ children }) {
-  return <div style={{ fontSize: 11, fontWeight: 600, color: T.muted, marginBottom: 7, letterSpacing: '0.04em', textTransform: 'uppercase', fontFamily: T.sans }}>{children}</div>
+  return <div style={{ fontSize: 12, fontWeight: 500, color: T.muted, marginBottom: 7, fontFamily: T.sans }}>{children}</div>
 }
 
 export function TextInput({ value, onChange, placeholder, mono, disabled }) {
@@ -18,8 +18,8 @@ export function TextInput({ value, onChange, placeholder, mono, disabled }) {
       style={{
         width: '100%', padding: '11px 14px',
         background: focused ? T.surface : T.bg,
-        border: `1.5px solid ${focused ? T.accent : T.border}`,
-        borderRadius: 8, fontSize: mono ? 12 : 14,
+        border: `1px solid ${focused ? T.accent : T.border}`,
+        borderRadius: T.btnRadius, fontSize: mono ? 12 : 16,
         fontFamily: mono ? T.mono : T.sans,
         color: T.text, outline: 'none', transition: 'border-color 0.15s, background 0.15s',
         letterSpacing: mono ? '0.02em' : '-0.01em',
@@ -32,17 +32,17 @@ export function TextInput({ value, onChange, placeholder, mono, disabled }) {
 export function Btn({ onClick, children, variant = 'primary', small, disabled }) {
   const styles = {
     primary: { background: T.accent, color: '#fff' },
-    ghost:   { background: 'transparent', color: T.text, border: `1.5px solid ${T.border}` },
+    ghost:   { background: 'transparent', color: T.text, border: `1px solid ${T.border}` },
     danger:  { background: T.red, color: '#fff' },
   }
   const s = styles[variant] || styles.primary
   return (
     <button onClick={onClick} disabled={disabled} style={{
-      padding: small ? '7px 16px' : '11px 22px',
+      padding: small ? '7px 16px' : T.btnPadding,
       ...s,
       border: s.border || 'none',
-      borderRadius: 8,
-      fontSize: small ? 12 : 14, fontWeight: 600,
+      borderRadius: T.btnRadius,
+      fontSize: small ? 12 : T.btnFontSize, fontWeight: T.btnWeight,
       fontFamily: T.sans,
       letterSpacing: '-0.01em', cursor: disabled ? 'not-allowed' : 'pointer',
       opacity: disabled ? 0.4 : 1,
@@ -56,9 +56,9 @@ export function Card({ children, style }) {
   return (
     <div style={{
       background: T.surface,
-      borderRadius: 14,
-      border: `1.5px solid ${T.border}`,
-      padding: 28,
+      borderRadius: 12,
+      border: `1px solid ${T.border}`,
+      padding: 24,
       boxSizing: 'border-box',
       ...style,
     }}>{children}</div>
@@ -66,7 +66,7 @@ export function Card({ children, style }) {
 }
 
 export function CardTitle({ children }) {
-  return <div style={{ fontSize: 17, fontWeight: 700, letterSpacing: '-0.02em', color: T.text, marginBottom: 6, fontFamily: T.sans }}>{children}</div>
+  return <div style={{ fontSize: 17, fontWeight: 500, letterSpacing: '-0.02em', color: T.text, marginBottom: 6, fontFamily: T.sans }}>{children}</div>
 }
 
 export function CardDesc({ children }) {

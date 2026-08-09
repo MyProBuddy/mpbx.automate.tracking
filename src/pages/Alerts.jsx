@@ -108,16 +108,16 @@ export default function Alerts() {
   ]
 
   const tdS = { padding: '12px 16px', fontSize: 13, color: INK, borderBottom: `1px solid ${LINE}` }
-  const thS = { padding: '10px 16px', fontSize: 10, fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase', color: MUTED, borderBottom: `2px solid ${LINE}`, textAlign: 'left' }
+  const thS = { padding: '10px 16px', fontSize: 12, fontWeight: 500, color: MUTED, borderBottom: `1px solid ${LINE}`, textAlign: 'left' }
 
   return (
     <div style={{ minHeight: '100vh', fontFamily: FONT }}>
       <Nav title="Needs Attention" backTo="/hub" />
       <main style={{ maxWidth: 1100, margin: '0 auto', padding: '40px 34px 80px' }}>
         <div style={{ marginBottom: 32 }}>
-          <div style={{ fontSize: 10, fontWeight: 800, letterSpacing: '.12em', color: RED, marginBottom: 6 }}>ATTENTION</div>
-          <h1 style={{ fontSize: 28, fontWeight: 800, letterSpacing: '-0.03em', margin: '0 0 6px', color: INK }}>Items needing action</h1>
-          <p style={{ fontSize: 13, color: MUTED, margin: 0 }}>Invalid emails, escalations, and overdue followups across all clients.</p>
+          <div style={{ fontSize: 12, fontWeight: 500, color: RED, marginBottom: 6 }}>Attention</div>
+          <h1 style={{ fontSize: 40, fontWeight: 500, letterSpacing: '-0.8px', lineHeight: 1.15, margin: '0 0 8px', color: INK }}>Items needing action</h1>
+          <p style={{ fontSize: 14, color: MUTED, margin: 0 }}>Invalid emails, escalations, and overdue followups across all clients.</p>
         </div>
 
         {!connected && (
@@ -145,7 +145,7 @@ export default function Alerts() {
                 <span style={{ fontSize: 13, fontWeight: 700, color: sec.color }}>{sec.title}</span>
                 <span style={{ background: sec.color + '18', color: sec.color, fontSize: 11, fontWeight: 700, padding: '2px 10px', borderRadius: 20, fontFamily: MONO }}>{rows.length}</span>
               </div>
-              <div style={{ background: '#fff', borderRadius: 12, border: `1px solid ${LINE}`, overflow: 'hidden' }}>
+              <div style={{ background: '#fff', borderRadius: 12, border: `1px solid ${LINE}`, overflow: 'hidden', boxSizing: 'border-box' }}>
                 <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                   <thead>
                     <tr style={{ background: '#FAFAFA' }}>

@@ -83,9 +83,9 @@ export default function OutlookConfigurator() {
       <Nav title="Outlook Outreach" subtitle="· configure" pendingCount={pendingCount} onDownload={generate} status={status} backTo="/workflow" />
       <div style={{ maxWidth: 1200, margin: '0 auto', padding: '40px 48px 80px' }}>
         <div style={{ marginBottom: 36 }}>
-          <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: '.1em', textTransform: 'uppercase', color: T.accent, marginBottom: 8 }}>Workflow</div>
-          <div style={{ fontSize: 30, fontWeight: 800, letterSpacing: '-0.03em', color: T.text, marginBottom: 6 }}>Configure Outlook outreach</div>
-          <div style={{ fontSize: 13, color: T.muted, lineHeight: 1.6 }}>Set your credentials and IDs, then download a ready-to-import n8n workflow.</div>
+          <div style={{ fontSize: 12, fontWeight: 500, color: T.accent, marginBottom: 8 }}>Workflow</div>
+          <h1 style={{ fontSize: 40, fontWeight: 500, letterSpacing: '-0.8px', lineHeight: 1.15, margin: '0 0 8px', color: T.text }}>Configure Outlook outreach</h1>
+          <div style={{ fontSize: 14, color: T.muted, lineHeight: 1.6 }}>Set your credentials and IDs, then download a ready-to-import n8n workflow.</div>
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, alignItems: 'stretch' }}>
           <Card>

@@ -9,12 +9,12 @@ function StatCard({ label, value, sub }) {
   return (
     <div style={{
       background: T.surface, borderRadius: 12, padding: '24px 28px',
-      border: `1.5px solid ${T.border}`, borderTop: '3px solid transparent',
+      border: `1px solid ${T.border}`, borderTop: '3px solid transparent',
       backgroundImage: `linear-gradient(${T.surface}, ${T.surface}), ${GRAD}`,
       backgroundOrigin: 'border-box', backgroundClip: 'padding-box, border-box',
     }}>
-      <div style={{ fontSize: 11, fontWeight: 700, color: T.muted, letterSpacing: '0.07em', textTransform: 'uppercase', marginBottom: 12 }}>{label}</div>
-      <div style={{ fontSize: 36, fontWeight: 800, color: T.text, letterSpacing: '-0.03em', lineHeight: 1 }}>
+      <div style={{ fontSize: 12, fontWeight: 500, color: T.muted, marginBottom: 12 }}>{label}</div>
+      <div style={{ fontSize: 36, fontWeight: 500, color: T.text, letterSpacing: '-0.8px', lineHeight: 1 }}>
         {value !== null && value !== undefined ? Number(value).toLocaleString() : '—'}
       </div>
       {sub && <div style={{ fontSize: 12, color: T.muted, marginTop: 6 }}>{sub}</div>}
@@ -25,8 +25,8 @@ function StatCard({ label, value, sub }) {
 function FilterBtn({ active, onClick, children }) {
   return (
     <button onClick={onClick} style={{
-      padding: '7px 16px', borderRadius: 8, fontSize: 12, fontWeight: 600, cursor: 'pointer',
-      border: `1.5px solid ${active ? '#C026D3' : T.border}`,
+      padding: '7px 16px', borderRadius: 8, fontSize: 13, fontWeight: 500, cursor: 'pointer',
+      border: `1px solid ${active ? '#C026D3' : T.border}`,
       background: active ? '#FDF4FF' : T.surface,
       color: active ? '#C026D3' : T.muted,
       transition: 'all 0.15s',
@@ -51,7 +51,7 @@ function RecordCard({ record, type }) {
 
   return (
     <div style={{
-      background: T.surface, borderRadius: 12, border: `1.5px solid ${T.border}`,
+      background: T.surface, borderRadius: 12, border: `1px solid ${T.border}`,
       overflow: 'hidden', transition: 'border-color 0.15s',
     }}>
       <div
@@ -80,7 +80,7 @@ function RecordCard({ record, type }) {
         <div style={{ borderTop: `1px solid ${T.border}`, padding: '16px 20px', display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '10px 24px' }}>
           {entries.map(([key, val]) => (
             <div key={key}>
-              <div style={{ fontSize: 10, fontWeight: 700, color: T.faint, letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: 2 }}>{key.replace(/_/g, ' ')}</div>
+              <div style={{ fontSize: 12, fontWeight: 500, color: T.faint, marginBottom: 2 }}>{key.replace(/_/g, ' ')}</div>
               <div style={{ fontSize: 12, color: T.text, wordBreak: 'break-word', lineHeight: 1.5 }}>{String(val)}</div>
             </div>
           ))}
@@ -154,13 +154,13 @@ function DataOverview() {
           <button
             onClick={() => setPage(p => Math.max(1, p - 1))}
             disabled={page === 1}
-            style={{ padding: '7px 16px', borderRadius: 8, fontSize: 12, fontWeight: 600, cursor: page === 1 ? 'default' : 'pointer', border: `1.5px solid ${T.border}`, background: T.surface, color: page === 1 ? T.faint : T.text }}
+            style={{ padding: '7px 16px', borderRadius: 8, fontSize: 13, fontWeight: 500, cursor: page === 1 ? 'default' : 'pointer', border: `1px solid ${T.border}`, background: T.surface, color: page === 1 ? T.faint : T.text }}
           >← Prev</button>
           <span style={{ fontSize: 12, color: T.muted }}>Page {page} of {totalPages.toLocaleString()}</span>
           <button
             onClick={() => setPage(p => Math.min(totalPages, p + 1))}
             disabled={page === totalPages}
-            style={{ padding: '7px 16px', borderRadius: 8, fontSize: 12, fontWeight: 600, cursor: page === totalPages ? 'default' : 'pointer', border: `1.5px solid ${T.border}`, background: T.surface, color: page === totalPages ? T.faint : T.text }}
+            style={{ padding: '7px 16px', borderRadius: 8, fontSize: 13, fontWeight: 500, cursor: page === totalPages ? 'default' : 'pointer', border: `1px solid ${T.border}`, background: T.surface, color: page === totalPages ? T.faint : T.text }}
           >Next →</button>
         </div>
       )}
@@ -186,13 +186,13 @@ export default function DataWorkflows() {
       <div style={{ maxWidth: 1200, margin: '0 auto', padding: '40px 48px 80px' }}>
 
         <div style={{ marginBottom: 44 }}>
-          <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: '.1em', textTransform: 'uppercase', background: GRAD, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', marginBottom: 8 }}>Master Database</div>
-          <div style={{ fontSize: 30, fontWeight: 800, letterSpacing: '-0.03em', color: T.text, marginBottom: 6 }}>Data Workflows</div>
-          <div style={{ fontSize: 13, color: T.muted }}>Live counts from the master investor and firm database.</div>
+          <div style={{ fontSize: 12, fontWeight: 500, background: GRAD, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', marginBottom: 8 }}>Master Database</div>
+          <h1 style={{ fontSize: 40, fontWeight: 500, letterSpacing: '-0.8px', lineHeight: 1.15, margin: '0 0 8px', color: T.text }}>Data Workflows</h1>
+          <div style={{ fontSize: 14, color: T.muted }}>Live counts from the master investor and firm database.</div>
         </div>
 
         {/* Firms */}
-        <div style={{ fontSize: 12, fontWeight: 700, color: T.muted, letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 16 }}>Firms</div>
+        <div style={{ fontSize: 12, fontWeight: 500, color: T.muted, marginBottom: 16 }}>Firms</div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16, marginBottom: 40 }}>
           <StatCard label="Total Firms"    value={loading ? null : firms?.total}    sub="All firms in database" />
           <StatCard label="Active Firms"   value={loading ? null : firms?.active}   sub="Currently active" />
@@ -200,7 +200,7 @@ export default function DataWorkflows() {
         </div>
 
         {/* Investors */}
-        <div style={{ fontSize: 12, fontWeight: 700, color: T.muted, letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 16 }}>Investors</div>
+        <div style={{ fontSize: 12, fontWeight: 500, color: T.muted, marginBottom: 16 }}>Investors</div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16, marginBottom: 40 }}>
           <StatCard label="Total Investors"    value={loading ? null : investors?.total}    sub="All investors in database" />
           <StatCard label="Active Investors"   value={loading ? null : investors?.active}   sub="Currently active" />
@@ -208,11 +208,11 @@ export default function DataWorkflows() {
         </div>
 
         {/* Antigravity OpenWeb Enrichment */}
-        <div style={{ fontSize: 12, fontWeight: 700, color: T.muted, letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 16 }}>Antigravity OpenWeb Enrichment Workflow</div>
-        <div style={{ background: T.surface, borderRadius: 14, border: `1.5px solid ${T.border}`, marginBottom: 40, overflow: 'hidden' }}>
+        <div style={{ fontSize: 12, fontWeight: 500, color: T.muted, marginBottom: 16 }}>Antigravity OpenWeb Enrichment Workflow</div>
+        <div style={{ background: T.surface, borderRadius: 14, border: `1px solid ${T.border}`, marginBottom: 40, overflow: 'hidden' }}>
           {/* Total enriched banner */}
           <div style={{ padding: '20px 28px', borderBottom: `1px solid ${T.border}`, display: 'flex', alignItems: 'center', gap: 16 }}>
-            <div style={{ fontSize: 28, fontWeight: 800, color: T.text, letterSpacing: '-0.03em' }}>
+            <div style={{ fontSize: 28, fontWeight: 500, color: T.text, letterSpacing: '-0.03em' }}>
               {loading ? '—' : (stats?.antigravity?.totalEnriched ?? 0).toLocaleString()}
             </div>
             <div style={{ fontSize: 13, color: T.muted }}>total investors processed through Antigravity enrichment</div>
@@ -221,38 +221,38 @@ export default function DataWorkflows() {
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 0 }}>
             {/* Today */}
             <div style={{ padding: '24px 28px', borderRight: `1px solid ${T.border}` }}>
-              <div style={{ fontSize: 11, fontWeight: 700, color: T.muted, letterSpacing: '0.07em', textTransform: 'uppercase', marginBottom: 16 }}>Today</div>
+              <div style={{ fontSize: 12, fontWeight: 500, color: T.muted, marginBottom: 16 }}>Today</div>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 20 }}>
                 <div>
-                  <div style={{ fontSize: 11, color: T.muted, marginBottom: 4 }}>Processed</div>
-                  <div style={{ fontSize: 24, fontWeight: 800, color: T.text, letterSpacing: '-0.02em' }}>{loading ? '—' : (stats?.antigravity?.today?.total ?? 0).toLocaleString()}</div>
+                  <div style={{ fontSize: 12, fontWeight: 500, color: T.muted, marginBottom: 4 }}>Processed</div>
+                  <div style={{ fontSize: 24, fontWeight: 500, color: T.text, letterSpacing: '-0.5px' }}>{loading ? '—' : (stats?.antigravity?.today?.total ?? 0).toLocaleString()}</div>
                 </div>
                 <div>
-                  <div style={{ fontSize: 11, color: T.muted, marginBottom: 4 }}>Active Found</div>
-                  <div style={{ fontSize: 24, fontWeight: 800, color: T.green, letterSpacing: '-0.02em' }}>{loading ? '—' : (stats?.antigravity?.today?.active ?? 0).toLocaleString()}</div>
+                  <div style={{ fontSize: 12, fontWeight: 500, color: T.muted, marginBottom: 4 }}>Active Found</div>
+                  <div style={{ fontSize: 24, fontWeight: 500, color: T.green, letterSpacing: '-0.02em' }}>{loading ? '—' : (stats?.antigravity?.today?.active ?? 0).toLocaleString()}</div>
                 </div>
                 <div>
-                  <div style={{ fontSize: 11, color: T.muted, marginBottom: 4 }}>Inactive</div>
-                  <div style={{ fontSize: 24, fontWeight: 800, color: T.muted, letterSpacing: '-0.02em' }}>{loading ? '—' : (stats?.antigravity?.today?.inactive ?? 0).toLocaleString()}</div>
+                  <div style={{ fontSize: 12, fontWeight: 500, color: T.muted, marginBottom: 4 }}>Inactive</div>
+                  <div style={{ fontSize: 24, fontWeight: 500, color: T.muted, letterSpacing: '-0.02em' }}>{loading ? '—' : (stats?.antigravity?.today?.inactive ?? 0).toLocaleString()}</div>
                 </div>
               </div>
             </div>
 
             {/* This week */}
             <div style={{ padding: '24px 28px' }}>
-              <div style={{ fontSize: 11, fontWeight: 700, color: T.muted, letterSpacing: '0.07em', textTransform: 'uppercase', marginBottom: 16 }}>This Week</div>
+              <div style={{ fontSize: 12, fontWeight: 500, color: T.muted, marginBottom: 16 }}>This Week</div>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 20 }}>
                 <div>
-                  <div style={{ fontSize: 11, color: T.muted, marginBottom: 4 }}>Processed</div>
-                  <div style={{ fontSize: 24, fontWeight: 800, color: T.text, letterSpacing: '-0.02em' }}>{loading ? '—' : (stats?.antigravity?.week?.total ?? 0).toLocaleString()}</div>
+                  <div style={{ fontSize: 12, fontWeight: 500, color: T.muted, marginBottom: 4 }}>Processed</div>
+                  <div style={{ fontSize: 24, fontWeight: 500, color: T.text, letterSpacing: '-0.5px' }}>{loading ? '—' : (stats?.antigravity?.week?.total ?? 0).toLocaleString()}</div>
                 </div>
                 <div>
-                  <div style={{ fontSize: 11, color: T.muted, marginBottom: 4 }}>Active Found</div>
-                  <div style={{ fontSize: 24, fontWeight: 800, color: T.green, letterSpacing: '-0.02em' }}>{loading ? '—' : (stats?.antigravity?.week?.active ?? 0).toLocaleString()}</div>
+                  <div style={{ fontSize: 12, fontWeight: 500, color: T.muted, marginBottom: 4 }}>Active Found</div>
+                  <div style={{ fontSize: 24, fontWeight: 500, color: T.green, letterSpacing: '-0.02em' }}>{loading ? '—' : (stats?.antigravity?.week?.active ?? 0).toLocaleString()}</div>
                 </div>
                 <div>
-                  <div style={{ fontSize: 11, color: T.muted, marginBottom: 4 }}>Inactive</div>
-                  <div style={{ fontSize: 24, fontWeight: 800, color: T.muted, letterSpacing: '-0.02em' }}>{loading ? '—' : (stats?.antigravity?.week?.inactive ?? 0).toLocaleString()}</div>
+                  <div style={{ fontSize: 12, fontWeight: 500, color: T.muted, marginBottom: 4 }}>Inactive</div>
+                  <div style={{ fontSize: 24, fontWeight: 500, color: T.muted, letterSpacing: '-0.02em' }}>{loading ? '—' : (stats?.antigravity?.week?.inactive ?? 0).toLocaleString()}</div>
                 </div>
               </div>
             </div>
@@ -268,13 +268,13 @@ export default function DataWorkflows() {
         </div>
 
         {/* Apollo / PhantomBuster / LinkedIn Discovery */}
-        <div style={{ fontSize: 12, fontWeight: 700, color: T.muted, letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 16 }}>Apollo / PhantomBuster / LinkedIn Discovery Workflow</div>
-        <div style={{ background: T.surface, borderRadius: 14, padding: 32, border: `1.5px solid ${T.border}`, marginBottom: 40, display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 120 }}>
+        <div style={{ fontSize: 12, fontWeight: 500, color: T.muted, marginBottom: 16 }}>Apollo / PhantomBuster / LinkedIn Discovery Workflow</div>
+        <div style={{ background: T.surface, borderRadius: 14, padding: 32, border: `1px solid ${T.border}`, marginBottom: 40, display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 120 }}>
           <div style={{ fontSize: 13, color: T.faint, fontStyle: 'italic' }}>Content coming soon</div>
         </div>
 
         {/* Data Overview */}
-        <div style={{ fontSize: 12, fontWeight: 700, color: T.muted, letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 16 }}>Data Overview</div>
+        <div style={{ fontSize: 12, fontWeight: 500, color: T.muted, marginBottom: 16 }}>Data Overview</div>
         <DataOverview />
 
       </div>

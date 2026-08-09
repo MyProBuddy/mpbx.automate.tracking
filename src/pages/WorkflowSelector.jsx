@@ -15,9 +15,9 @@ export default function WorkflowSelector() {
       <Nav title="Get Workflow" backTo="/hub" />
       <div style={{ maxWidth: 1200, margin: '0 auto', padding: '40px 48px 80px' }}>
         <div style={{ marginBottom: 40 }}>
-          <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: '.1em', textTransform: 'uppercase', color: T.accent, marginBottom: 8 }}>Workflow</div>
-          <div style={{ fontSize: 30, fontWeight: 800, letterSpacing: '-0.03em', color: T.text, marginBottom: 6 }}>Choose a workflow</div>
-          <div style={{ fontSize: 13, color: T.muted, lineHeight: 1.6 }}>Select the workflow you want to configure and download.</div>
+          <div style={{ fontSize: 12, fontWeight: 500, color: T.accent, marginBottom: 8 }}>Workflow</div>
+          <h1 style={{ fontSize: 40, fontWeight: 500, letterSpacing: '-0.8px', lineHeight: 1.15, margin: '0 0 8px', color: T.text }}>Choose a workflow</h1>
+          <div style={{ fontSize: 14, color: T.muted, lineHeight: 1.6 }}>Select the workflow you want to configure and download.</div>
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, maxWidth: 720 }}>
           {WORKFLOWS.map(w => {
@@ -27,14 +27,14 @@ export default function WorkflowSelector() {
                 onMouseEnter={() => setHov(true)}
                 onMouseLeave={() => setHov(false)}
                 style={{
-                  background: T.surface, borderRadius: 14, padding: 28, textAlign: 'left',
-                  border: `1.5px solid ${hov ? w.color : T.border}`,
+                  background: T.surface, borderRadius: 12, padding: 24, textAlign: 'left',
+                  border: `1px solid ${hov ? w.color : T.border}`,
                   cursor: 'pointer', transition: 'border-color 0.15s',
                 }}
               >
-                <div style={{ fontSize: 10, fontWeight: 700, color: w.color, letterSpacing: '0.1em', marginBottom: 14 }}>{w.label}</div>
-                <div style={{ fontSize: 19, fontWeight: 700, color: T.text, letterSpacing: '-0.02em', marginBottom: 8 }}>{w.title}</div>
-                <div style={{ fontSize: 13, color: T.muted, lineHeight: 1.5 }}>{w.desc}</div>
+                <div style={{ fontSize: 12, fontWeight: 500, color: w.color, marginBottom: 14 }}>{w.label}</div>
+                <div style={{ fontSize: 19, fontWeight: 500, color: T.text, letterSpacing: '-0.3px', marginBottom: 8 }}>{w.title}</div>
+                <div style={{ fontSize: 14, color: T.muted, lineHeight: 1.5 }}>{w.desc}</div>
               </button>
             )
           })}
