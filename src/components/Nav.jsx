@@ -81,11 +81,12 @@ export default function Nav({ title, subtitle, pendingCount, onDownload, status,
           onClick={logout}
           style={{
             fontFamily: 'inherit', fontSize: 14, fontWeight: 500,
-            color: T.muted,
-            background: T.surface,
-            border: `1px solid ${T.border}`,
+            color: '#7a7a7a',
+            background: 'linear-gradient(145deg, #f6f6f6, #e8e8e8)',
+            border: 'none',
             borderRadius: T.btnRadius, padding: '6px 14px',
             cursor: 'pointer', lineHeight: 1.2,
+            boxShadow: '-3px -3px 7px rgba(255,255,255,0.9), 3px 3px 7px rgba(0,0,0,0.1)',
           }}
         >
           Sign out
