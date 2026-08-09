@@ -877,7 +877,7 @@ export default function Analytics() {
             {/* ── Connected Outlook Accounts ── */}
             <div style={{ marginTop: 40 }}>
               <div style={{ fontSize: 12, fontWeight: 500, color: A, marginBottom: 8 }}>Connected accounts</div>
-              <h2 style={{ fontSize: 18, fontWeight: 600, margin: '0 0 6px', color: INK }}>Outlook Sending Accounts</h2>
+              <h2 style={{ fontSize: 28, fontWeight: 600, letterSpacing: '-0.4px', lineHeight: 1.2, margin: '0 0 6px', color: INK }}>Outlook Sending Accounts</h2>
               <p style={{ color: MUTED, fontSize: 14, lineHeight: 1.6, margin: '0 0 20px' }}>All Microsoft Outlook accounts connected via n8n for outreach automation.</p>
 
               {outlookLoading && (
