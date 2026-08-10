@@ -565,7 +565,7 @@ function PromptBlock({ promptType, data, onSaved, clientEmail }) {
                   className="hide-scroll"
                   value={text}
                   onChange={e => setText(e.target.value)}
-                  style={{ width: '100%', height: '100%', fontSize: 11, color: T.text, lineHeight: 1.8, fontFamily: T.mono, margin: 0, background: T.bg, borderRadius: 8, padding: '12px 14px', border: 'none', outline: 'none', resize: 'none', boxSizing: 'border-box', overflowY: 'auto' }}
+                  style={{ width: '100%', height: '100%', fontSize: 11, color: INK, lineHeight: 1.8, fontFamily: T.mono, margin: 0, background: 'rgba(0,0,0,0.04)', borderRadius: 10, padding: '12px 14px', border: 'none', outline: 'none', resize: 'none', boxSizing: 'border-box', overflowY: 'auto', boxShadow: 'inset 3px 3px 8px rgba(0,0,0,0.08), inset -3px -3px 8px rgba(255,255,255,0.70)' }}
                 />
               )}
               {leftTab === 'investor' && (
@@ -592,22 +592,22 @@ function PromptBlock({ promptType, data, onSaved, clientEmail }) {
               {leftTab === 'prevmail' && (
                 <div className="hide-scroll" style={{ height: '100%', overflowY: 'auto', paddingBottom: 12 }}>
                   {prevMail ? (
-                    <div style={{ background: '#fff', borderRadius: 10, border: `1px solid ${T.border}`, overflow: 'hidden' }}>
-                      <div style={{ padding: '12px 16px', borderBottom: `1px solid ${T.border}`, background: '#F8F8FC' }}>
-                        <div style={{ fontSize: 10, fontWeight: 700, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 4 }}>Subject</div>
-                        <div style={{ fontSize: 13, fontWeight: 600, color: T.text, lineHeight: 1.5 }}>{prevMail.subject}</div>
+                    <div style={{ background: NEU_SURF, borderRadius: 14, boxShadow: NEU_SHADOW, overflow: 'hidden' }}>
+                      <div style={{ padding: '12px 16px', borderBottom: `1px solid ${LINE}`, background: 'rgba(0,0,0,0.02)' }}>
+                        <div style={{ fontSize: FS.sc, fontWeight: 500, color: MUTED, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 4 }}>Subject</div>
+                        <div style={{ fontSize: FS.c, fontWeight: 500, color: INK, lineHeight: 1.5 }}>{prevMail.subject}</div>
                       </div>
                       <div style={{ padding: '16px' }}>
-                        <div style={{ fontSize: 12, color: T.text, lineHeight: 2, whiteSpace: 'pre-wrap', fontFamily: 'Georgia, serif' }}>{prevMail.body}</div>
+                        <div style={{ fontSize: FS.c, color: INK, lineHeight: 2, whiteSpace: 'pre-wrap', fontFamily: 'Georgia, serif' }}>{prevMail.body}</div>
                       </div>
                       {prevMail.signature && (
-                        <div style={{ padding: '10px 16px', borderTop: `1px solid ${T.border}`, background: '#FAFAFA' }}>
-                          <div style={{ fontSize: 11, color: T.muted, whiteSpace: 'pre-wrap', fontFamily: T.mono }}>{prevMail.signature}</div>
+                        <div style={{ padding: '10px 16px', borderTop: `1px solid ${LINE}`, background: 'rgba(0,0,0,0.02)' }}>
+                          <div style={{ fontSize: FS.sc, color: MUTED, whiteSpace: 'pre-wrap', fontFamily: T.mono }}>{prevMail.signature}</div>
                         </div>
                       )}
                     </div>
                   ) : (
-                    <div style={{ fontSize: 12, color: T.muted, background: T.bg, borderRadius: 8, padding: '12px 14px' }}>
+                    <div style={{ fontSize: FS.sc, color: MUTED, background: 'rgba(0,0,0,0.04)', borderRadius: 10, padding: '12px 14px', boxShadow: 'inset 2px 2px 6px rgba(0,0,0,0.07), inset -2px -2px 6px rgba(255,255,255,0.65)' }}>
                       No previous outreach mail found. Run the <strong>Outreach</strong> prompt first to generate and save it.
                     </div>
                   )}
@@ -715,45 +715,45 @@ function PromptBlock({ promptType, data, onSaved, clientEmail }) {
             <div style={{ flex: 1, overflow: 'hidden', minHeight: 0, padding: '16px 18px' }}>
               <div className="hide-scroll" style={{ height: '100%', overflowY: 'auto', boxSizing: 'border-box' }}>
                 {!output && !genError && !generating && (
-                  <div style={{ background: '#fff', borderRadius: 10, border: `1px solid ${T.border}`, overflow: 'hidden', boxShadow: '0 1px 6px rgba(0,0,0,0.05)' }}>
-                    <div style={{ padding: '12px 16px', borderBottom: `1px solid ${T.border}`, background: '#F8F8FC' }}>
-                      <div style={{ fontSize: 10, fontWeight: 700, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 4 }}>Subject</div>
-                      <div style={{ fontSize: 13, fontWeight: 600, color: '#C4C4D4', lineHeight: 1.5 }}>Investment Opportunity | SEBI-Registered Category I Angel Fund…</div>
+                  <div style={{ background: NEU_SURF, borderRadius: 14, boxShadow: NEU_SHADOW, overflow: 'hidden' }}>
+                    <div style={{ padding: '12px 16px', borderBottom: `1px solid ${LINE}`, background: 'rgba(0,0,0,0.02)' }}>
+                      <div style={{ fontSize: FS.sc, fontWeight: 500, color: MUTED, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 4 }}>Subject</div>
+                      <div style={{ fontSize: FS.c, fontWeight: 500, color: 'rgba(0,0,0,0.2)', lineHeight: 1.5 }}>Investment Opportunity | SEBI-Registered Category I Angel Fund…</div>
                     </div>
                     <div style={{ padding: '16px' }}>
-                      <div style={{ fontSize: 13, color: '#D1D5DB', lineHeight: 2, whiteSpace: 'pre-wrap', fontFamily: 'Georgia, serif' }}>{`Dear David,\n\nI hope this message finds you well. Given Mangrove Capital Partners' focus on early-stage transformational technology across Europe, Enlighten Capital's thesis on India's underserved Tier 2/3 markets represents a complementary emerging-market opportunity.\n\nI am reaching out from the Investor Relations team at Enlighten Capital, a SEBI-registered Category I Angel Fund currently raising $10.6M USD to invest in post-revenue, high-growth companies across India's Tier 2 and Tier 3 markets.\n\nOur investment strategy is built on three core principles:\n• Investing in revenue-generating businesses with disciplined entry valuations.\n• Concentrating on underserved regional ecosystems with strong long-term growth potential.\n• Preserving capital through structured portfolio construction, including a dedicated 30% follow-on reserve.\n\nThe fund currently has an active pipeline of nine investment opportunities under due diligence, positioning us for immediate capital deployment following the first close.\n\nIf this opportunity aligns with Mangrove Capital Partners' investment mandate, we would welcome the opportunity to share our investment memorandum and discuss the fund in greater detail.\n\nKind regards,\nInvestor Relations\nEnlighten Capital`}</div>
+                      <div style={{ fontSize: FS.c, color: 'rgba(0,0,0,0.18)', lineHeight: 2, whiteSpace: 'pre-wrap', fontFamily: 'Georgia, serif' }}>{`Dear David,\n\nI hope this message finds you well. Given Mangrove Capital Partners' focus on early-stage transformational technology across Europe, Enlighten Capital's thesis on India's underserved Tier 2/3 markets represents a complementary emerging-market opportunity.\n\nI am reaching out from the Investor Relations team at Enlighten Capital, a SEBI-registered Category I Angel Fund currently raising $10.6M USD to invest in post-revenue, high-growth companies across India's Tier 2 and Tier 3 markets.\n\nOur investment strategy is built on three core principles:\n• Investing in revenue-generating businesses with disciplined entry valuations.\n• Concentrating on underserved regional ecosystems with strong long-term growth potential.\n• Preserving capital through structured portfolio construction, including a dedicated 30% follow-on reserve.\n\nThe fund currently has an active pipeline of nine investment opportunities under due diligence, positioning us for immediate capital deployment following the first close.\n\nIf this opportunity aligns with Mangrove Capital Partners' investment mandate, we would welcome the opportunity to share our investment memorandum and discuss the fund in greater detail.\n\nKind regards,\nInvestor Relations\nEnlighten Capital`}</div>
                     </div>
-                    <div style={{ padding: '10px 16px', borderTop: `1px solid ${T.border}`, background: '#FAFAFA' }}>
-                      <div style={{ fontSize: 11, color: '#D1D5DB', fontFamily: T.mono }}>{'Investor Relations\nEnlighten Capital'}</div>
+                    <div style={{ padding: '10px 16px', borderTop: `1px solid ${LINE}`, background: 'rgba(0,0,0,0.02)' }}>
+                      <div style={{ fontSize: FS.sc, color: 'rgba(0,0,0,0.18)', fontFamily: T.mono }}>{'Investor Relations\nEnlighten Capital'}</div>
                     </div>
                   </div>
                 )}
 
                 {generating && (
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 13, color: T.muted }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: FS.c, color: MUTED }}>
                     <span style={{ display: 'inline-block', width: 14, height: 14, border: `2px solid ${MUTED}`, borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 0.7s linear infinite' }} />
                     Calling Gemini API…
                   </div>
                 )}
 
                 {genError && (
-                  <div style={{ fontSize: 12, color: T.red, background: '#FEF2F2', borderRadius: 8, padding: '12px 14px', lineHeight: 1.6, border: `1px solid #FECACA` }}>
-                    <span style={{ fontWeight: 700 }}>Error: </span>{genError}
+                  <div style={{ fontSize: FS.sc, color: '#DC2626', background: 'rgba(0,0,0,0.04)', borderRadius: 10, padding: '12px 14px', lineHeight: 1.6, boxShadow: 'inset 2px 2px 6px rgba(0,0,0,0.07), inset -2px -2px 6px rgba(255,255,255,0.65)' }}>
+                    <span style={{ fontWeight: 600 }}>Error: </span>{genError}
                   </div>
                 )}
 
                 {output && (
-                  <div style={{ background: '#fff', borderRadius: 10, border: `1px solid ${T.border}`, overflow: 'hidden', boxShadow: '0 1px 6px rgba(0,0,0,0.05)' }}>
-                    <div style={{ padding: '12px 16px', borderBottom: `1px solid ${T.border}`, background: '#F8F8FC' }}>
-                      <div style={{ fontSize: 10, fontWeight: 700, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 4 }}>Subject</div>
-                      <div style={{ fontSize: 13, fontWeight: 600, color: T.text, lineHeight: 1.5 }}>{output.subject}</div>
+                  <div style={{ background: NEU_SURF, borderRadius: 14, boxShadow: NEU_SHADOW, overflow: 'hidden' }}>
+                    <div style={{ padding: '12px 16px', borderBottom: `1px solid ${LINE}`, background: 'rgba(0,0,0,0.02)' }}>
+                      <div style={{ fontSize: FS.sc, fontWeight: 500, color: MUTED, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 4 }}>Subject</div>
+                      <div style={{ fontSize: FS.c, fontWeight: 500, color: INK, lineHeight: 1.5 }}>{output.subject}</div>
                     </div>
                     <div style={{ padding: '16px' }}>
-                      <div style={{ fontSize: 13, color: T.text, lineHeight: 2, whiteSpace: 'pre-wrap', fontFamily: 'Georgia, serif' }}>{output.body}</div>
+                      <div style={{ fontSize: FS.c, color: INK, lineHeight: 2, whiteSpace: 'pre-wrap', fontFamily: 'Georgia, serif' }}>{output.body}</div>
                     </div>
                     {output.signature && (
-                      <div style={{ padding: '10px 16px', borderTop: `1px solid ${T.border}`, background: '#FAFAFA' }}>
-                        <div style={{ fontSize: 11, color: T.muted, whiteSpace: 'pre-wrap', fontFamily: T.mono }}>{output.signature}</div>
+                      <div style={{ padding: '10px 16px', borderTop: `1px solid ${LINE}`, background: 'rgba(0,0,0,0.02)' }}>
+                        <div style={{ fontSize: FS.sc, color: MUTED, whiteSpace: 'pre-wrap', fontFamily: T.mono }}>{output.signature}</div>
                       </div>
                     )}
                   </div>
