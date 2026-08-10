@@ -484,42 +484,51 @@ export default function Overview() {
                     <>
                       {(() => {
                         const mailStages = [
-                          { label: 'Valid',   value: safe.length,    color: GREEN },
-                          { label: 'Risky',   value: risky.length,   color: AMBER },
-                          { label: 'Invalid', value: invalid.length, color: RED },
-                          { label: 'Unknown', value: unknown.length, color: '#9CA3AF' },
+                          { label: 'Valid',   value: safe.length,    color: GREEN,      colorLight: GREEN + '40' },
+                          { label: 'Risky',   value: risky.length,   color: AMBER,      colorLight: AMBER + '40' },
+                          { label: 'Invalid', value: invalid.length, color: RED,        colorLight: RED + '40' },
+                          { label: 'Unknown', value: unknown.length, color: '#9CA3AF',  colorLight: 'rgba(0,0,0,0.10)' },
                         ]
-                        const mailMax = Math.max(1, mailRows.length)
+                        // Build one bar per email, grouped by status, each with a random-ish height for organic look
+                        const seed = (i) => 0.45 + (((i * 7 + 13) % 17) / 17) * 0.55
+                        const bars = mailStages.flatMap(({ value, color, colorLight }) =>
+                          Array.from({ length: value }, (_, i) => ({ color, colorLight, h: seed(i) }))
+                        )
+                        const CHART_H = 56
                         return (
                           <div style={{ background: NEU_SURF, borderRadius: 20, boxShadow: NEU_SHADOW, padding: '24px 28px', marginBottom: 24 }}>
-                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
+                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
                               <div style={{ fontSize: FS.sh, fontWeight: 600, color: INK, letterSpacing: '-0.2px' }}>Email Status</div>
                               <div style={{ fontSize: FS.sc, color: MUTED, fontFamily: MONO }}>{mailRows.length.toLocaleString()} checked</div>
                             </div>
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                              {mailStages.map((s) => {
-                                const pct = s.value / mailMax * 100
-                                return (
-                                  <div key={s.label} style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-                                    <div style={{ width: 90, fontSize: FS.sc, fontWeight: 500, color: MUTED, textAlign: 'right', flexShrink: 0 }}>{s.label}</div>
-                                    <div style={{ flex: 1, height: 32, background: 'rgba(0,0,0,0.06)', borderRadius: 8, overflow: 'hidden', boxShadow: 'inset 2px 2px 5px rgba(0,0,0,0.08), inset -2px -2px 5px rgba(255,255,255,0.7)' }}>
-                                      <div style={{
-                                        height: '100%', width: `${pct}%`, background: s.color,
-                                        borderRadius: 8, transition: 'width 0.6s ease',
-                                        display: 'flex', alignItems: 'center', paddingLeft: 10, boxSizing: 'border-box',
-                                      }}>
-                                        {pct > 12 && <span style={{ fontSize: FS.sc, fontWeight: 700, color: '#fff', fontFamily: MONO }}>{s.value.toLocaleString()}</span>}
-                                      </div>
-                                    </div>
-                                    <div style={{ width: 44, fontSize: FS.sc, fontFamily: MONO, fontWeight: 500, color: INK, flexShrink: 0 }}>
-                                      {pct <= 12 ? s.value.toLocaleString() : ''}
-                                    </div>
-                                    <div style={{ width: 44, fontSize: FS.sc, color: MUTED, flexShrink: 0 }}>
-                                      {Math.round(pct)}%
-                                    </div>
-                                  </div>
-                                )
-                              })}
+
+                            {/* Bar chart — one thin bar per email */}
+                            <div style={{ display: 'flex', alignItems: 'flex-end', gap: 2, height: CHART_H, marginBottom: 12, overflow: 'hidden' }}>
+                              {bars.map((b, i) => (
+                                <div key={i} style={{
+                                  flex: '0 0 auto', width: 4, borderRadius: '2px 2px 0 0',
+                                  height: `${Math.round(b.h * CHART_H)}px`,
+                                  background: b.color,
+                                  opacity: 0.8,
+                                }} />
+                              ))}
+                            </div>
+
+                            {/* Total label bar */}
+                            <div style={{ background: 'rgba(0,0,0,0.05)', borderRadius: 6, padding: '6px 12px', marginBottom: 16, fontSize: FS.sc, color: MUTED, textAlign: 'center', fontFamily: MONO }}>
+                              {mailRows.length} total checked
+                            </div>
+
+                            {/* Legend */}
+                            <div style={{ display: 'flex', gap: 20, flexWrap: 'wrap' }}>
+                              {mailStages.map(s => (
+                                <div key={s.label} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                                  <div style={{ width: 10, height: 10, borderRadius: 2, background: s.color }} />
+                                  <span style={{ fontSize: FS.sc, color: MUTED }}>{s.label}</span>
+                                  <span style={{ fontSize: FS.sc, fontFamily: MONO, fontWeight: 600, color: INK }}>{s.value}</span>
+                                  <span style={{ fontSize: FS.sc, color: MUTED }}>{Math.round(s.value / Math.max(1, mailRows.length) * 100)}%</span>
+                                </div>
+                              ))}
                             </div>
                           </div>
                         )
