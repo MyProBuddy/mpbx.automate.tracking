@@ -325,14 +325,16 @@ export default function Overview() {
                           <div style={{ width: 90, fontSize: FS.sc, fontWeight: 500, color: MUTED, textAlign: 'right', flexShrink: 0 }}>{s.label}</div>
                           <div style={{ flex: 1, height: 32, background: 'rgba(0,0,0,0.06)', borderRadius: 8, overflow: 'hidden', boxShadow: 'inset 2px 2px 5px rgba(0,0,0,0.08), inset -2px -2px 5px rgba(255,255,255,0.7)' }}>
                             <div style={{
-                              height: '100%',
-                              width: `${pct}%`,
-                              background: i === stages.length - 1 ? `${GREEN}` : GRAD,
-                              borderRadius: 8,
-                              transition: 'width 0.6s ease',
+                              position: 'relative', height: '100%', width: `${pct}%`,
+                              borderRadius: 8, transition: 'width 0.6s ease',
                               display: 'flex', alignItems: 'center', paddingLeft: 10, boxSizing: 'border-box',
                             }}>
-                              {pct > 12 && <span style={{ fontSize: FS.sc, fontWeight: 700, color: '#fff', fontFamily: MONO }}>{s.value.toLocaleString()}</span>}
+                              <div style={{
+                                position: 'absolute', inset: 0, borderRadius: 8,
+                                background: i === stages.length - 1 ? GREEN : GRAD,
+                                opacity: i === stages.length - 1 ? 1 : (i + 1) / (stages.length - 1),
+                              }} />
+                              {pct > 12 && <span style={{ position: 'relative', fontSize: FS.sc, fontWeight: 700, color: i < 2 ? '#C026D3' : '#fff', fontFamily: MONO }}>{s.value.toLocaleString()}</span>}
                             </div>
                           </div>
                           <div style={{ width: 44, fontSize: FS.sc, fontFamily: MONO, fontWeight: 500, color: INK, flexShrink: 0 }}>
