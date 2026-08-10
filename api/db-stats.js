@@ -29,6 +29,8 @@ export default async function handler(req, res) {
     { count: activeFoundWeek },
     { count: inactiveFoundWeek },
     { count: totalEnriched },
+    { count: activeAllTime },
+    { count: inactiveAllTime },
   ] = await Promise.all([
     supabase.from('firms').select('*', { count: 'exact', head: true }),
     supabase.from('firms').select('*', { count: 'exact', head: true }).eq('activity_status', 'active'),
@@ -43,6 +45,8 @@ export default async function handler(req, res) {
     supabase.from('antigravity_status').select('*', { count: 'exact', head: true }).gte('last_enrichment_date', weekStart.toISOString()).eq('activity_status', 'active'),
     supabase.from('antigravity_status').select('*', { count: 'exact', head: true }).gte('last_enrichment_date', weekStart.toISOString()).eq('activity_status', 'inactive'),
     supabase.from('antigravity_status').select('*', { count: 'exact', head: true }),
+    supabase.from('antigravity_status').select('*', { count: 'exact', head: true }).eq('activity_status', 'active'),
+    supabase.from('antigravity_status').select('*', { count: 'exact', head: true }).eq('activity_status', 'inactive'),
   ])
 
   return res.json({
@@ -50,8 +54,9 @@ export default async function handler(req, res) {
     investors:  { total: totalInvestors, active: activeInvestors, inactive: inactiveInvestors },
     antigravity: {
       totalEnriched,
-      today: { total: enrichedToday,  active: activeFoundToday,  inactive: inactiveFoundToday },
-      week:  { total: enrichedWeek,   active: activeFoundWeek,   inactive: inactiveFoundWeek },
+      today:   { total: enrichedToday, active: activeFoundToday,  inactive: inactiveFoundToday },
+      week:    { total: enrichedWeek,  active: activeFoundWeek,   inactive: inactiveFoundWeek },
+      allTime: { total: totalEnriched, active: activeAllTime,     inactive: inactiveAllTime },
     },
   })
 }

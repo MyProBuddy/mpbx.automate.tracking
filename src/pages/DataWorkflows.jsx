@@ -309,9 +309,9 @@ export default function DataWorkflows() {
           <div style={{ borderTop: `1px solid ${LINE}`, padding: '24px 28px' }}>
             <div style={{ fontSize: FS.sc, fontWeight: 500, color: MUTED, marginBottom: 16 }}>All Time</div>
             {(() => {
-              const processed = stats?.antigravity?.totalEnriched ?? 0
+              const processed = stats?.antigravity?.allTime?.total    ?? 0
               const inactive  = stats?.antigravity?.allTime?.inactive ?? 0
-              const active    = stats?.antigravity?.allTime?.active ?? 0
+              const active    = stats?.antigravity?.allTime?.active   ?? 0
               const max = Math.max(1, processed)
               const stages = [
                 { label: 'Processed',             value: processed },
