@@ -3,21 +3,28 @@ import { T } from '../constants.js'
 import Nav from '../components/Nav.jsx'
 import { fetchDbStats } from '../lib/supabase.js'
 
+const FONT  = "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
+const FS    = { h: 32, sh: 18, c: 14, sc: 12 }
+const INK   = '#1a1a1a'
+const MUTED = '#626260'
+const LINE  = 'rgba(0,0,0,0.08)'
+
+const NEU_BG     = '#F0F0F0'
+const NEU_SURF   = 'linear-gradient(145deg, #f6f6f6, #e8e8e8)'
+const NEU_SHADOW = '-6px -6px 14px rgba(255,255,255,0.85), 6px 6px 14px rgba(0,0,0,0.12)'
+const NEU_BTN    = '-4px -4px 10px rgba(255,255,255,0.9), 4px 4px 10px rgba(0,0,0,0.10)'
+const NEU_INSET  = 'inset 3px 3px 8px rgba(0,0,0,0.10), inset -3px -3px 8px rgba(255,255,255,0.80)'
+
 const GRAD = 'linear-gradient(90deg, #C026D3, #F43F5E, #F97316)'
 
 function StatCard({ label, value, sub }) {
   return (
-    <div style={{
-      background: T.surface, borderRadius: 12, padding: '24px 28px',
-      border: `1px solid ${T.border}`, borderTop: '3px solid transparent',
-      backgroundImage: `linear-gradient(${T.surface}, ${T.surface}), ${GRAD}`,
-      backgroundOrigin: 'border-box', backgroundClip: 'padding-box, border-box',
-    }}>
-      <div style={{ fontSize: 12, fontWeight: 500, color: T.muted, marginBottom: 12 }}>{label}</div>
-      <div style={{ fontSize: 36, fontWeight: 500, color: T.text, letterSpacing: '-0.8px', lineHeight: 1 }}>
+    <div style={{ background: NEU_SURF, borderRadius: 16, padding: '24px 28px', boxShadow: NEU_SHADOW }}>
+      <div style={{ fontSize: FS.sc, fontWeight: 500, color: MUTED, marginBottom: 12 }}>{label}</div>
+      <div style={{ fontSize: 28, fontWeight: 500, color: INK, letterSpacing: '-0.5px', lineHeight: 1, fontFamily: T.mono }}>
         {value !== null && value !== undefined ? Number(value).toLocaleString() : '—'}
       </div>
-      {sub && <div style={{ fontSize: 12, color: T.muted, marginTop: 6 }}>{sub}</div>}
+      {sub && <div style={{ fontSize: FS.sc, color: MUTED, marginTop: 6 }}>{sub}</div>}
     </div>
   )
 }
@@ -25,10 +32,12 @@ function StatCard({ label, value, sub }) {
 function FilterBtn({ active, onClick, children }) {
   return (
     <button onClick={onClick} style={{
-      padding: '7px 16px', borderRadius: 8, fontSize: 13, fontWeight: 500, cursor: 'pointer',
-      border: `1px solid ${active ? '#C026D3' : T.border}`,
-      background: active ? '#FDF4FF' : T.surface,
-      color: active ? '#C026D3' : T.muted,
+      padding: '7px 16px', borderRadius: 10, fontSize: FS.c, fontWeight: 500, cursor: 'pointer',
+      border: 'none',
+      background: active ? NEU_SURF : 'transparent',
+      color: active ? '#C026D3' : MUTED,
+      boxShadow: active ? NEU_BTN : 'none',
+      fontFamily: FONT,
       transition: 'all 0.15s',
     }}>{children}</button>
   )
@@ -50,38 +59,35 @@ function RecordCard({ record, type }) {
   const entries = Object.entries(record).filter(([k, v]) => !skip.includes(k) && v !== null && v !== '')
 
   return (
-    <div style={{
-      background: T.surface, borderRadius: 12, border: `1px solid ${T.border}`,
-      overflow: 'hidden', transition: 'border-color 0.15s',
-    }}>
+    <div style={{ background: NEU_SURF, borderRadius: 14, boxShadow: NEU_SHADOW, overflow: 'hidden' }}>
       <div
         onClick={() => setExpanded(e => !e)}
         style={{ padding: '16px 20px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}
       >
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 4 }}>
-            <span style={{ fontSize: 14, fontWeight: 700, color: T.text, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{title || '—'}</span>
+            <span style={{ fontSize: FS.c, fontWeight: 500, color: INK, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{title || '—'}</span>
             <span style={{
-              fontSize: 10, fontWeight: 700, letterSpacing: '0.07em', textTransform: 'uppercase', flexShrink: 0,
+              fontSize: FS.sc, fontWeight: 500, flexShrink: 0,
               padding: '2px 8px', borderRadius: 99,
-              background: status === 'active' ? '#FDF4FF' : T.bg,
-              color: status === 'active' ? '#C026D3' : T.muted,
+              background: status === 'active' ? '#FDF4FF' : 'rgba(0,0,0,0.05)',
+              color: status === 'active' ? '#C026D3' : MUTED,
             }}>{status}</span>
           </div>
-          <div style={{ fontSize: 12, color: T.muted, display: 'flex', gap: 12 }}>
-            {id && <span style={{ fontFamily: T.mono, fontSize: 11 }}>{id}</span>}
+          <div style={{ fontSize: FS.sc, color: MUTED, display: 'flex', gap: 12 }}>
+            {id && <span style={{ fontFamily: T.mono }}>{id}</span>}
             {subtitle && <span>{subtitle}</span>}
           </div>
         </div>
-        <div style={{ fontSize: 18, color: T.muted, flexShrink: 0 }}>{expanded ? '−' : '+'}</div>
+        <div style={{ fontSize: FS.sh, color: MUTED, flexShrink: 0 }}>{expanded ? '−' : '+'}</div>
       </div>
 
       {expanded && (
-        <div style={{ borderTop: `1px solid ${T.border}`, padding: '16px 20px', display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '10px 24px' }}>
+        <div style={{ borderTop: `1px solid ${LINE}`, padding: '16px 20px', display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '10px 24px' }}>
           {entries.map(([key, val]) => (
             <div key={key}>
-              <div style={{ fontSize: 12, fontWeight: 500, color: T.faint, marginBottom: 2 }}>{key.replace(/_/g, ' ')}</div>
-              <div style={{ fontSize: 12, color: T.text, wordBreak: 'break-word', lineHeight: 1.5 }}>{String(val)}</div>
+              <div style={{ fontSize: FS.sc, fontWeight: 500, color: MUTED, marginBottom: 2 }}>{key.replace(/_/g, ' ')}</div>
+              <div style={{ fontSize: FS.sc, color: INK, wordBreak: 'break-word', lineHeight: 1.5 }}>{String(val)}</div>
             </div>
           ))}
         </div>
@@ -121,46 +127,43 @@ function DataOverview() {
 
   return (
     <div>
-      {/* Filters */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 20, flexWrap: 'wrap' }}>
         <div style={{ display: 'flex', gap: 6 }}>
           <FilterBtn active={type === 'investors'} onClick={() => changeType('investors')}>Investors</FilterBtn>
           <FilterBtn active={type === 'firms'} onClick={() => changeType('firms')}>Firms</FilterBtn>
         </div>
-        <div style={{ width: 1, height: 24, background: T.border, margin: '0 4px' }} />
+        <div style={{ width: 1, height: 24, background: LINE, margin: '0 4px' }} />
         <div style={{ display: 'flex', gap: 6 }}>
           <FilterBtn active={status === 'all'} onClick={() => changeStatus('all')}>All</FilterBtn>
           <FilterBtn active={status === 'active'} onClick={() => changeStatus('active')}>Active</FilterBtn>
           <FilterBtn active={status === 'inactive'} onClick={() => changeStatus('inactive')}>Inactive</FilterBtn>
         </div>
         {total !== null && (
-          <span style={{ fontSize: 12, color: T.muted, marginLeft: 8 }}>
+          <span style={{ fontSize: FS.sc, color: MUTED, marginLeft: 8 }}>
             {total.toLocaleString()} {type} found
           </span>
         )}
       </div>
 
-      {/* Records */}
       {loading
-        ? <div style={{ fontSize: 13, color: T.muted, padding: '32px 0' }}>Loading…</div>
+        ? <div style={{ fontSize: FS.c, color: MUTED, padding: '32px 0' }}>Loading…</div>
         : <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
             {records.map(r => <RecordCard key={r.id} record={r} type={type} />)}
           </div>
       }
 
-      {/* Pagination */}
       {totalPages > 1 && (
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12, marginTop: 28 }}>
           <button
             onClick={() => setPage(p => Math.max(1, p - 1))}
             disabled={page === 1}
-            style={{ padding: '7px 16px', borderRadius: 8, fontSize: 13, fontWeight: 500, cursor: page === 1 ? 'default' : 'pointer', border: `1px solid ${T.border}`, background: T.surface, color: page === 1 ? T.faint : T.text }}
+            style={{ padding: '7px 16px', borderRadius: 10, fontSize: FS.c, fontWeight: 500, cursor: page === 1 ? 'default' : 'pointer', border: 'none', background: NEU_SURF, color: page === 1 ? MUTED : INK, boxShadow: NEU_BTN, fontFamily: FONT }}
           >← Prev</button>
-          <span style={{ fontSize: 12, color: T.muted }}>Page {page} of {totalPages.toLocaleString()}</span>
+          <span style={{ fontSize: FS.sc, color: MUTED }}>Page {page} of {totalPages.toLocaleString()}</span>
           <button
             onClick={() => setPage(p => Math.min(totalPages, p + 1))}
             disabled={page === totalPages}
-            style={{ padding: '7px 16px', borderRadius: 8, fontSize: 13, fontWeight: 500, cursor: page === totalPages ? 'default' : 'pointer', border: `1px solid ${T.border}`, background: T.surface, color: page === totalPages ? T.faint : T.text }}
+            style={{ padding: '7px 16px', borderRadius: 10, fontSize: FS.c, fontWeight: 500, cursor: page === totalPages ? 'default' : 'pointer', border: 'none', background: NEU_SURF, color: page === totalPages ? MUTED : INK, boxShadow: NEU_BTN, fontFamily: FONT }}
           >Next →</button>
         </div>
       )}
@@ -176,105 +179,92 @@ export default function DataWorkflows() {
     fetchDbStats().then(setStats)
   }, [])
 
-  const firms   = stats?.firms
+  const firms     = stats?.firms
   const investors = stats?.investors
-  const loading = !stats
+  const loading   = !stats
 
   return (
-    <div style={{ minHeight: '100vh', fontFamily: T.sans }}>
+    <div style={{ minHeight: '100vh', fontFamily: FONT, background: NEU_BG }}>
       <Nav title="Data Workflows" backTo="/hub" />
       <div style={{ maxWidth: 1200, margin: '0 auto', padding: '40px 48px 80px' }}>
 
         <div style={{ marginBottom: 44 }}>
-          <div style={{ fontSize: 12, fontWeight: 500, background: GRAD, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', marginBottom: 8 }}>Master Database</div>
-          <h1 style={{ fontSize: 40, fontWeight: 500, letterSpacing: '-0.8px', lineHeight: 1.15, margin: '0 0 8px', color: T.text }}>Data Workflows</h1>
-          <div style={{ fontSize: 14, color: T.muted }}>Live counts from the master investor and firm database.</div>
+          <div style={{ fontSize: FS.c, fontWeight: 500, background: GRAD, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', marginBottom: 8 }}>Master Database</div>
+          <h1 style={{ fontSize: FS.h, fontWeight: 600, letterSpacing: '-0.3px', lineHeight: 1.2, margin: '0 0 8px', color: INK }}>Data Workflows</h1>
+          <div style={{ fontSize: FS.c, color: MUTED }}>Live counts from the master investor and firm database.</div>
         </div>
 
-        {/* Firms */}
-        <div style={{ fontSize: 12, fontWeight: 500, color: T.muted, marginBottom: 16 }}>Firms</div>
+        <div style={{ fontSize: FS.sc, fontWeight: 500, color: MUTED, marginBottom: 16, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Firms</div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16, marginBottom: 40 }}>
           <StatCard label="Total Firms"    value={loading ? null : firms?.total}    sub="All firms in database" />
           <StatCard label="Active Firms"   value={loading ? null : firms?.active}   sub="Currently active" />
           <StatCard label="Inactive Firms" value={loading ? null : firms?.inactive} sub="Not yet activated" />
         </div>
 
-        {/* Investors */}
-        <div style={{ fontSize: 12, fontWeight: 500, color: T.muted, marginBottom: 16 }}>Investors</div>
+        <div style={{ fontSize: FS.sc, fontWeight: 500, color: MUTED, marginBottom: 16, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Investors</div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16, marginBottom: 40 }}>
           <StatCard label="Total Investors"    value={loading ? null : investors?.total}    sub="All investors in database" />
           <StatCard label="Active Investors"   value={loading ? null : investors?.active}   sub="Currently active" />
           <StatCard label="Inactive Investors" value={loading ? null : investors?.inactive} sub="Not yet activated" />
         </div>
 
-        {/* Antigravity OpenWeb Enrichment */}
-        <div style={{ fontSize: 12, fontWeight: 500, color: T.muted, marginBottom: 16 }}>Antigravity OpenWeb Enrichment Workflow</div>
-        <div style={{ background: T.surface, borderRadius: 14, border: `1px solid ${T.border}`, marginBottom: 40, overflow: 'hidden' }}>
-          {/* Total enriched banner */}
-          <div style={{ padding: '20px 28px', borderBottom: `1px solid ${T.border}`, display: 'flex', alignItems: 'center', gap: 16 }}>
-            <div style={{ fontSize: 28, fontWeight: 500, color: T.text, letterSpacing: '-0.03em' }}>
+        <div style={{ fontSize: FS.sc, fontWeight: 500, color: MUTED, marginBottom: 16, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Antigravity OpenWeb Enrichment Workflow</div>
+        <div style={{ background: NEU_SURF, borderRadius: 20, boxShadow: NEU_SHADOW, marginBottom: 40, overflow: 'hidden' }}>
+          <div style={{ padding: '20px 28px', borderBottom: `1px solid ${LINE}`, display: 'flex', alignItems: 'center', gap: 16 }}>
+            <div style={{ fontSize: 28, fontWeight: 500, color: INK, letterSpacing: '-0.03em', fontFamily: T.mono }}>
               {loading ? '—' : (stats?.antigravity?.totalEnriched ?? 0).toLocaleString()}
             </div>
-            <div style={{ fontSize: 13, color: T.muted }}>total investors processed through Antigravity enrichment</div>
+            <div style={{ fontSize: FS.c, color: MUTED }}>total investors processed through Antigravity enrichment</div>
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 0 }}>
-            {/* Today */}
-            <div style={{ padding: '24px 28px', borderRight: `1px solid ${T.border}` }}>
-              <div style={{ fontSize: 12, fontWeight: 500, color: T.muted, marginBottom: 16 }}>Today</div>
+            <div style={{ padding: '24px 28px', borderRight: `1px solid ${LINE}` }}>
+              <div style={{ fontSize: FS.sc, fontWeight: 500, color: MUTED, marginBottom: 16 }}>Today</div>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 20 }}>
-                <div>
-                  <div style={{ fontSize: 12, fontWeight: 500, color: T.muted, marginBottom: 4 }}>Processed</div>
-                  <div style={{ fontSize: 24, fontWeight: 500, color: T.text, letterSpacing: '-0.5px' }}>{loading ? '—' : (stats?.antigravity?.today?.total ?? 0).toLocaleString()}</div>
-                </div>
-                <div>
-                  <div style={{ fontSize: 12, fontWeight: 500, color: T.muted, marginBottom: 4 }}>Active Found</div>
-                  <div style={{ fontSize: 24, fontWeight: 500, color: T.green, letterSpacing: '-0.02em' }}>{loading ? '—' : (stats?.antigravity?.today?.active ?? 0).toLocaleString()}</div>
-                </div>
-                <div>
-                  <div style={{ fontSize: 12, fontWeight: 500, color: T.muted, marginBottom: 4 }}>Inactive</div>
-                  <div style={{ fontSize: 24, fontWeight: 500, color: T.muted, letterSpacing: '-0.02em' }}>{loading ? '—' : (stats?.antigravity?.today?.inactive ?? 0).toLocaleString()}</div>
-                </div>
+                {[
+                  { label: 'Processed',    value: stats?.antigravity?.today?.total,    color: INK },
+                  { label: 'Active Found', value: stats?.antigravity?.today?.active,   color: T.green },
+                  { label: 'Inactive',     value: stats?.antigravity?.today?.inactive, color: MUTED },
+                ].map(({ label, value, color }) => (
+                  <div key={label}>
+                    <div style={{ fontSize: FS.sc, fontWeight: 500, color: MUTED, marginBottom: 4 }}>{label}</div>
+                    <div style={{ fontSize: FS.sh, fontWeight: 500, color, letterSpacing: '-0.3px', fontFamily: T.mono }}>{loading ? '—' : (value ?? 0).toLocaleString()}</div>
+                  </div>
+                ))}
               </div>
             </div>
 
-            {/* This week */}
             <div style={{ padding: '24px 28px' }}>
-              <div style={{ fontSize: 12, fontWeight: 500, color: T.muted, marginBottom: 16 }}>This Week</div>
+              <div style={{ fontSize: FS.sc, fontWeight: 500, color: MUTED, marginBottom: 16 }}>This Week</div>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 20 }}>
-                <div>
-                  <div style={{ fontSize: 12, fontWeight: 500, color: T.muted, marginBottom: 4 }}>Processed</div>
-                  <div style={{ fontSize: 24, fontWeight: 500, color: T.text, letterSpacing: '-0.5px' }}>{loading ? '—' : (stats?.antigravity?.week?.total ?? 0).toLocaleString()}</div>
-                </div>
-                <div>
-                  <div style={{ fontSize: 12, fontWeight: 500, color: T.muted, marginBottom: 4 }}>Active Found</div>
-                  <div style={{ fontSize: 24, fontWeight: 500, color: T.green, letterSpacing: '-0.02em' }}>{loading ? '—' : (stats?.antigravity?.week?.active ?? 0).toLocaleString()}</div>
-                </div>
-                <div>
-                  <div style={{ fontSize: 12, fontWeight: 500, color: T.muted, marginBottom: 4 }}>Inactive</div>
-                  <div style={{ fontSize: 24, fontWeight: 500, color: T.muted, letterSpacing: '-0.02em' }}>{loading ? '—' : (stats?.antigravity?.week?.inactive ?? 0).toLocaleString()}</div>
-                </div>
+                {[
+                  { label: 'Processed',    value: stats?.antigravity?.week?.total,    color: INK },
+                  { label: 'Active Found', value: stats?.antigravity?.week?.active,   color: T.green },
+                  { label: 'Inactive',     value: stats?.antigravity?.week?.inactive, color: MUTED },
+                ].map(({ label, value, color }) => (
+                  <div key={label}>
+                    <div style={{ fontSize: FS.sc, fontWeight: 500, color: MUTED, marginBottom: 4 }}>{label}</div>
+                    <div style={{ fontSize: FS.sh, fontWeight: 500, color, letterSpacing: '-0.3px', fontFamily: T.mono }}>{loading ? '—' : (value ?? 0).toLocaleString()}</div>
+                  </div>
+                ))}
               </div>
             </div>
           </div>
 
-          {/* Note */}
-          <div style={{ padding: '14px 28px', borderTop: `1px solid ${T.border}`, background: T.bg, display: 'flex', alignItems: 'flex-start', gap: 8 }}>
-            <span style={{ fontSize: 12, color: '#D97706', fontWeight: 700, flexShrink: 0 }}>Note</span>
-            <span style={{ fontSize: 12, color: T.muted, lineHeight: 1.6 }}>
+          <div style={{ padding: '14px 28px', borderTop: `1px solid ${LINE}`, background: 'rgba(0,0,0,0.02)', display: 'flex', alignItems: 'flex-start', gap: 8 }}>
+            <span style={{ fontSize: FS.sc, color: '#D97706', fontWeight: 600, flexShrink: 0 }}>Note</span>
+            <span style={{ fontSize: FS.sc, color: MUTED, lineHeight: 1.6 }}>
               Inactive does not mean permanently excluded. It means we could not confirm the activity status in this cycle — the investor will be re-checked in the next enrichment run to determine if they are active or not.
             </span>
           </div>
         </div>
 
-        {/* Apollo / PhantomBuster / LinkedIn Discovery */}
-        <div style={{ fontSize: 12, fontWeight: 500, color: T.muted, marginBottom: 16 }}>Apollo / PhantomBuster / LinkedIn Discovery Workflow</div>
-        <div style={{ background: T.surface, borderRadius: 14, padding: 32, border: `1px solid ${T.border}`, marginBottom: 40, display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 120 }}>
-          <div style={{ fontSize: 13, color: T.faint, fontStyle: 'italic' }}>Content coming soon</div>
+        <div style={{ fontSize: FS.sc, fontWeight: 500, color: MUTED, marginBottom: 16, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Apollo / PhantomBuster / LinkedIn Discovery Workflow</div>
+        <div style={{ background: NEU_SURF, borderRadius: 20, boxShadow: NEU_SHADOW, padding: 32, marginBottom: 40, display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 120 }}>
+          <div style={{ fontSize: FS.c, color: MUTED, fontStyle: 'italic' }}>Content coming soon</div>
         </div>
 
-        {/* Data Overview */}
-        <div style={{ fontSize: 12, fontWeight: 500, color: T.muted, marginBottom: 16 }}>Data Overview</div>
+        <div style={{ fontSize: FS.sc, fontWeight: 500, color: MUTED, marginBottom: 16, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Data Overview</div>
         <DataOverview />
 
       </div>
