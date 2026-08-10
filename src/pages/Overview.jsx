@@ -76,6 +76,10 @@ function MailStatusChart({ valid, risky, invalid, unknown, total }) {
         const grad = `linear-gradient(to bottom, ${GRAD_TOP[s.key]}, ${COLORS[s.key]})`
         return (
           <div key={s.key} style={{ flex: s.bars, minWidth: 0, display: 'flex', flexDirection: 'column' }}>
+            <div style={{ textAlign: 'center', marginBottom: 10 }}>
+              <div style={{ fontSize: FS.c, fontWeight: 500, color: INK, fontFamily: FONT }}>{s.value}</div>
+              <div style={{ fontSize: FS.sc, color: MUTED, fontFamily: FONT }}>{LABELS[s.key]}</div>
+            </div>
             <div style={{ display: 'flex', gap: GAP, alignItems: 'flex-end', height: HEIGHTS.valid }}>
               {SOLID.includes(s.key) ? (
                 <div style={{ flex: 1, height: HEIGHTS[s.key], background: grad, borderRadius: 4, boxShadow: NEU_SHADOW }} />
@@ -84,10 +88,6 @@ function MailStatusChart({ valid, risky, invalid, unknown, total }) {
                   <div key={i} style={{ flex: 1, height: HEIGHTS[s.key], background: grad, borderRadius: 3, boxShadow: NEU_SHADOW }} />
                 ))
               )}
-            </div>
-            <div style={{ textAlign: 'center', marginTop: 10 }}>
-              <div style={{ fontSize: FS.c, fontWeight: 500, color: INK, fontFamily: FONT }}>{s.value}</div>
-              <div style={{ fontSize: FS.sc, color: MUTED, fontFamily: FONT }}>{LABELS[s.key]}</div>
             </div>
           </div>
         )
