@@ -1125,32 +1125,39 @@ export default function Analytics() {
                     { label: 'Replied',      value: dashboard.replies,   opacity: 0.75 },
                     { label: 'Conversation', value: dashboard.active,    opacity: 1.00 },
                   ].filter(s => s.value)
-                  const N = stages.length, W = 300, H = 262, STEP = 32, GAP = 3
+                  const N = stages.length, W = 320, H = 262, GAP = 4
                   const sliceH = (H - (N - 1) * GAP) / N
+                  const maxVal = stages[0]?.value || 1
+                  // width of each stage proportional to its value (like ECharts funnel)
+                  const widths = stages.map(s => Math.max(0.12, s.value / maxVal) * W)
                   return (
                     <svg viewBox={`0 0 ${W} ${H}`} style={{ width: '100%', height: H }}>
                       <defs>
-                        {stages.map((_, i) => (
+                        {stages.map((s, i) => (
                           <linearGradient key={i} id={`fg${i}`} x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="0%" stopColor="#E879F9" stopOpacity={stages[i].opacity} />
-                            <stop offset="100%" stopColor="#F97316" stopOpacity={stages[i].opacity} />
+                            <stop offset="0%" stopColor="#E879F9" stopOpacity={s.opacity} />
+                            <stop offset="100%" stopColor="#F97316" stopOpacity={s.opacity} />
                           </linearGradient>
                         ))}
-                        <filter id="neu">
-                          <feDropShadow dx="3" dy="3" stdDeviation="4" floodColor="rgba(0,0,0,0.20)" floodOpacity="1" />
+                        <filter id="neu" x="-10%" y="-10%" width="120%" height="120%">
+                          <feDropShadow dx="3" dy="3" stdDeviation="4" floodColor="rgba(0,0,0,0.18)" />
+                          <feDropShadow dx="-2" dy="-2" stdDeviation="3" floodColor="rgba(255,255,255,0.85)" />
                         </filter>
                       </defs>
                       {stages.map((s, i) => {
                         const y1 = i * (sliceH + GAP)
                         const y2 = y1 + sliceH
-                        const xl1 = i * STEP, xr1 = W - i * STEP
-                        const xl2 = (i + 1) * STEP, xr2 = W - (i + 1) * STEP
+                        // top edge = this stage width, bottom edge = next stage width (or taper to 0.12*W)
+                        const wTop = widths[i]
+                        const wBot = widths[i + 1] ?? (0.12 * W)
+                        const xl1 = (W - wTop) / 2, xr1 = (W + wTop) / 2
+                        const xl2 = (W - wBot) / 2, xr2 = (W + wBot) / 2
                         const cy = y1 + sliceH / 2
                         return (
                           <g key={i} filter="url(#neu)">
                             <polygon points={`${xl1},${y1} ${xr1},${y1} ${xr2},${y2} ${xl2},${y2}`} fill={`url(#fg${i})`} />
-                            <text x={W / 2 - 30} y={cy + 4} textAnchor="middle" fontSize="11" fontWeight="600" fill="white" fontFamily={FONT}>{s.label}</text>
-                            <text x={W / 2 + 50} y={cy + 4} textAnchor="middle" fontSize="11" fontWeight="700" fill="white" fontFamily={MONO}>{s.value.toLocaleString()}</text>
+                            <text x={W / 2 - 28} y={cy + 4} textAnchor="middle" fontSize="11" fontWeight="600" fill="white" fontFamily={FONT}>{s.label}</text>
+                            <text x={W / 2 + 52} y={cy + 4} textAnchor="middle" fontSize="11" fontWeight="700" fill="white" fontFamily={MONO}>{s.value.toLocaleString()}</text>
                           </g>
                         )
                       })}
