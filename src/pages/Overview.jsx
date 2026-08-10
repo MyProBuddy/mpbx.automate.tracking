@@ -64,10 +64,17 @@ function MailStatusChart({ valid, risky, invalid, unknown, total }) {
   const FGRAD_H  = 'linear-gradient(to right, #C026D3, #F43F5E, #F97316)'
   const NEU_SHADOW = '3px 3px 6px rgba(0,0,0,0.18), -2px -2px 5px rgba(255,255,255,0.9)'
 
+  const MIN = 4
   const segments = KEYS.map(k => ({ key: k, value: vals[k] }))
-  const fl = segments.map(s => ({ ...s, bars: Math.floor(s.value / total * N), rem: (s.value / total * N) % 1 }))
+  const nonZero = segments.filter(s => s.value > 0).length
+  const remaining = N - nonZero * MIN
+  const fl = segments.map(s => ({
+    ...s,
+    bars: s.value > 0 ? MIN + Math.floor(s.value / total * remaining) : 0,
+    rem:  s.value > 0 ? (s.value / total * remaining) % 1 : 0,
+  }))
   let r = N - fl.reduce((a, f) => a + f.bars, 0)
-  fl.sort((a, b) => b.rem - a.rem).forEach((s, i) => { if (i < r) s.bars++ })
+  fl.sort((a, b) => b.rem - a.rem).forEach((s, i) => { if (i < r && s.value > 0) s.bars++ })
   fl.sort((a, b) => KEYS.indexOf(a.key) - KEYS.indexOf(b.key))
 
   return (

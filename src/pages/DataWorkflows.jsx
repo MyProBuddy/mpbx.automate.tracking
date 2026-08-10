@@ -32,9 +32,16 @@ function StatsBarChart({ total, inactive, active }) {
     { key: 'active',   label: 'Active',   value: active,   height: 52, solid: true  },
   ]
 
-  const fl = SEGMENTS.map(s => ({ ...s, bars: Math.floor(s.value / sum * N), rem: (s.value / sum * N) % 1 }))
+  const MIN = 4
+  const nonZero = SEGMENTS.filter(s => s.value > 0).length
+  const remaining = N - nonZero * MIN
+  const fl = SEGMENTS.map(s => ({
+    ...s,
+    bars: s.value > 0 ? MIN + Math.floor(s.value / sum * remaining) : 0,
+    rem:  s.value > 0 ? (s.value / sum * remaining) % 1 : 0,
+  }))
   let r = N - fl.reduce((a, f) => a + f.bars, 0)
-  fl.sort((a, b) => b.rem - a.rem).forEach((s, i) => { if (i < r) s.bars++ })
+  fl.sort((a, b) => b.rem - a.rem).forEach((s, i) => { if (i < r && s.value > 0) s.bars++ })
   fl.sort((a, b) => SEGMENTS.findIndex(x => x.key === a.key) - SEGMENTS.findIndex(x => x.key === b.key))
 
   return (
