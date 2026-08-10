@@ -15,7 +15,7 @@ const MUTED = T.muted
 const LINE  = 'rgba(0,0,0,0.08)'
 const MONO  = T.mono
 const FONT  = "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
-const FS    = { h: 22, sh: 15, c: 13, sc: 11 }
+const FS    = { h: 32, sh: 18, c: 14, sc: 12 }
 
 const NEU_BG     = '#F0F0F0'
 const NEU_SURF   = 'linear-gradient(145deg, #f6f6f6, #e8e8e8)'
