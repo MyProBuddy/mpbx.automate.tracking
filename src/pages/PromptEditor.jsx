@@ -1,6 +1,17 @@
 import { useState, useEffect, useMemo } from 'react'
 import { T } from '../constants.js'
 import Nav from '../components/Nav.jsx'
+
+const FONT  = "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
+const FS    = { h: 32, sh: 18, c: 14, sc: 12 }
+const INK   = '#1a1a1a'
+const MUTED = '#626260'
+const LINE  = 'rgba(0,0,0,0.08)'
+
+const NEU_BG     = '#F0F0F0'
+const NEU_SURF   = 'linear-gradient(145deg, #f6f6f6, #e8e8e8)'
+const NEU_SHADOW = '-6px -6px 14px rgba(255,255,255,0.85), 6px 6px 14px rgba(0,0,0,0.12)'
+const NEU_BTN    = '-4px -4px 10px rgba(255,255,255,0.9), 4px 4px 10px rgba(0,0,0,0.10)'
 import { listClientFolders, listFolderFiles, getFileContent, getSheetTabs, getSheetValues, listClientSheets } from '../google.js'
 
 // Simple LCS-based line diff — returns array of {type:'eq'|'del'|'ins', line, oldNo, newNo}
@@ -59,8 +70,8 @@ function DiffModal({ original, updated, promptType, onConfirm, onCancel, saving 
         {/* Modal header */}
         <div style={{ padding: '18px 24px', borderBottom: `1px solid ${T.border}`, display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
           <div>
-            <div style={{ fontSize: 15, fontWeight: 800, color: T.text, letterSpacing: '-0.02em' }}>Review Changes</div>
-            <div style={{ fontSize: 12, color: T.muted, marginTop: 3 }}>
+            <div style={{ fontSize: FS.sh, fontWeight: 600, color: INK }}>Review Changes</div>
+            <div style={{ fontSize: FS.sc, color: MUTED, marginTop: 3 }}>
               {TYPE_LABELS[promptType]} prompt &nbsp;·&nbsp;
               <span style={{ color: '#16a34a', fontWeight: 700 }}>+{added}</span>
               &nbsp;
@@ -256,7 +267,7 @@ function AddClientModal({ onClose, onAdded }) {
   return (
     <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100 }}>
       <div style={{ background: '#fff', borderRadius: 14, padding: 36, width: 440, boxShadow: '0 8px 40px rgba(0,0,0,0.12)' }}>
-        <div style={{ fontSize: 18, fontWeight: 800, color: T.text, letterSpacing: '-0.02em', marginBottom: 24 }}>Add New Client</div>
+        <div style={{ fontSize: FS.sh, fontWeight: 600, color: INK, marginBottom: 24 }}>Add New Client</div>
         <form onSubmit={submit} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
           <div>
             <div style={{ fontSize: 11, fontWeight: 600, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 6 }}>Client Name <span style={{ color: T.accent }}>*</span></div>
@@ -303,8 +314,8 @@ function EditDescriptionModal({ client, onClose, onSaved }) {
   return (
     <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100 }}>
       <div style={{ background: '#fff', borderRadius: 14, padding: 36, width: 440, boxShadow: '0 8px 40px rgba(0,0,0,0.12)' }}>
-        <div style={{ fontSize: 18, fontWeight: 800, color: T.text, letterSpacing: '-0.02em', marginBottom: 6 }}>Edit Description</div>
-        <div style={{ fontSize: 13, color: T.muted, marginBottom: 24 }}>{client.client_name}</div>
+        <div style={{ fontSize: FS.sh, fontWeight: 600, color: INK, marginBottom: 6 }}>Edit Description</div>
+        <div style={{ fontSize: FS.c, color: MUTED, marginBottom: 24 }}>{client.client_name}</div>
         <form onSubmit={submit} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
           <textarea value={description} onChange={e => setDesc(e.target.value)} placeholder="Optional notes about this client…" rows={4} autoFocus
             style={{ width: '100%', padding: '10px 12px', border: `1.5px solid ${T.border}`, borderRadius: 8, fontSize: 13, fontFamily: 'inherit', color: T.text, outline: 'none', resize: 'vertical', boxSizing: 'border-box' }} />
@@ -514,11 +525,11 @@ function PromptBlock({ promptType, data, onSaved, clientEmail }) {
 
   return (
     <>
-    <div style={{ background: '#fff', borderRadius: 12, border: `1.5px solid ${dirty ? T.accent : T.border}`, overflow: 'hidden', transition: 'border-color 0.15s', height: 500, display: 'flex', flexDirection: 'column' }}>
+    <div style={{ background: NEU_SURF, borderRadius: 16, boxShadow: dirty ? `0 0 0 2px ${T.accent}, ${NEU_SHADOW}` : NEU_SHADOW, overflow: 'hidden', transition: 'box-shadow 0.15s', height: 500, display: 'flex', flexDirection: 'column' }}>
 
       {/* Header */}
-      <div style={{ display: 'flex', alignItems: 'center', padding: '14px 20px', borderBottom: `1px solid ${T.border}`, background: T.bg, flexShrink: 0 }}>
-        <div style={{ fontSize: 14, fontWeight: 500, color: T.text }}>{TYPE_LABELS[promptType]}</div>
+      <div style={{ display: 'flex', alignItems: 'center', padding: '14px 20px', borderBottom: `1px solid ${LINE}`, background: 'rgba(0,0,0,0.02)', flexShrink: 0 }}>
+        <div style={{ fontSize: FS.c, fontWeight: 500, color: INK }}>{TYPE_LABELS[promptType]}</div>
       </div>
 
       {/* Test panel */}
@@ -798,31 +809,31 @@ export default function PromptEditor() {
   const activeClient = clients.find(c => c.client_email === selected)
 
   return (
-    <div style={{ minHeight: '100vh', fontFamily: T.sans }}>
+    <div style={{ minHeight: '100vh', fontFamily: FONT, background: NEU_BG }}>
       <Nav title="Prompt Editor" backTo="/tools" />
       <div style={{ maxWidth: 1300, margin: '0 auto', padding: '40px 48px 80px' }}>
 
         <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 36 }}>
           <div>
-            <div style={{ fontSize: 14, fontWeight: 500, color: '#7C3AED', marginBottom: 8 }}>Tools</div>
-            <div style={{ fontSize: 40, fontWeight: 500, letterSpacing: '-0.8px', lineHeight: 1.15, color: T.text, marginBottom: 8 }}>Prompt Editor</div>
-            <div style={{ fontSize: 16, color: T.muted, lineHeight: 1.5 }}>Manage and test AI prompt templates per client.</div>
+            <div style={{ fontSize: FS.c, fontWeight: 500, color: '#7C3AED', marginBottom: 8 }}>Tools</div>
+            <div style={{ fontSize: FS.h, fontWeight: 600, letterSpacing: '-0.3px', lineHeight: 1.2, color: INK, marginBottom: 6 }}>Prompt Editor</div>
+            <div style={{ fontSize: FS.c, color: MUTED, lineHeight: 1.5 }}>Manage and test AI prompt templates per client.</div>
           </div>
-          <button onClick={() => setShowModal(true)} style={{ padding: T.btnPadding, background: T.accent, color: '#fff', border: 'none', borderRadius: T.btnRadius, fontSize: T.btnFontSize, fontWeight: T.btnWeight, cursor: 'pointer', fontFamily: 'inherit', marginTop: 6, lineHeight: 1.2 }}>
+          <button onClick={() => setShowModal(true)} style={{ padding: '10px 20px', background: NEU_SURF, color: INK, border: 'none', borderRadius: 10, fontSize: FS.c, fontWeight: 600, cursor: 'pointer', fontFamily: FONT, marginTop: 6, boxShadow: NEU_BTN }}>
             + Add Client
           </button>
         </div>
 
         {loading
-          ? <div style={{ fontSize: 13, color: T.muted }}>Loading…</div>
+          ? <div style={{ fontSize: FS.c, color: MUTED }}>Loading…</div>
           : clients.length === 0
-            ? <div style={{ fontSize: 13, color: T.muted }}>No clients yet. Add one to get started.</div>
+            ? <div style={{ fontSize: FS.c, color: MUTED }}>No clients yet. Add one to get started.</div>
             : <>
                 <div style={{ marginBottom: 32 }}>
-                  <div style={{ fontSize: 11, fontWeight: 600, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 8 }}>Client</div>
+                  <div style={{ fontSize: FS.sc, fontWeight: 500, color: MUTED, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 8 }}>Client</div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                     <select value={selected} onChange={e => setSelected(e.target.value)}
-                      style={{ padding: '10px 14px', border: `1.5px solid ${T.border}`, borderRadius: 8, fontSize: 13, fontFamily: 'inherit', color: T.text, background: '#fff', outline: 'none', cursor: 'pointer', minWidth: 320 }}>
+                      style={{ padding: '10px 14px', border: `1px solid ${LINE}`, borderRadius: 10, fontSize: FS.c, fontFamily: FONT, color: INK, background: NEU_SURF, outline: 'none', cursor: 'pointer', minWidth: 320, boxShadow: NEU_BTN }}>
                       {clients.map(c => (
                         <option key={c.client_email} value={c.client_email}>
                           {c.client_name || c.client_email}
@@ -830,30 +841,29 @@ export default function PromptEditor() {
                       ))}
                     </select>
 
-                    {/* 3-dot menu for selected client */}
                     <div style={{ position: 'relative' }}>
                       <button
                         onClick={e => { e.stopPropagation(); setOpenMenu(openMenu ? null : 'main') }}
-                        style={{ background: '#fff', border: `1.5px solid ${T.border}`, cursor: 'pointer', padding: '9px 12px', borderRadius: 8, color: T.muted, fontSize: 18, lineHeight: 1, display: 'flex', alignItems: 'center' }}
+                        style={{ background: NEU_SURF, border: 'none', cursor: 'pointer', padding: '9px 12px', borderRadius: 10, color: MUTED, fontSize: 18, lineHeight: 1, display: 'flex', alignItems: 'center', boxShadow: NEU_BTN }}
                       >⋯</button>
                       {openMenu === 'main' && (
-                        <div style={{ position: 'absolute', left: 0, top: '100%', marginTop: 4, background: '#fff', border: `1.5px solid ${T.border}`, borderRadius: 8, boxShadow: '0 4px 20px rgba(0,0,0,0.1)', minWidth: 140, zIndex: 50, overflow: 'hidden' }}>
+                        <div style={{ position: 'absolute', left: 0, top: 'calc(100% + 6px)', background: NEU_SURF, borderRadius: 10, boxShadow: NEU_SHADOW, minWidth: 140, zIndex: 50, overflow: 'hidden' }}>
                           <button
                             onClick={() => { setEditClient(activeClient); setOpenMenu(null) }}
-                            style={{ width: '100%', padding: '10px 14px', background: 'none', border: 'none', textAlign: 'left', fontSize: 13, color: T.text, cursor: 'pointer', fontFamily: 'inherit', display: 'block' }}
-                            onMouseEnter={e => e.currentTarget.style.background = T.bg}
+                            style={{ width: '100%', padding: '10px 14px', background: 'none', border: 'none', textAlign: 'left', fontSize: FS.c, color: INK, cursor: 'pointer', fontFamily: FONT, display: 'block' }}
+                            onMouseEnter={e => e.currentTarget.style.background = 'rgba(0,0,0,0.04)'}
                             onMouseLeave={e => e.currentTarget.style.background = 'none'}
                           >Edit</button>
                           <button
                             disabled
-                            style={{ width: '100%', padding: '10px 14px', background: 'none', border: 'none', textAlign: 'left', fontSize: 13, color: T.faint, cursor: 'default', fontFamily: 'inherit', display: 'block' }}
+                            style={{ width: '100%', padding: '10px 14px', background: 'none', border: 'none', textAlign: 'left', fontSize: FS.c, color: MUTED, cursor: 'default', fontFamily: FONT, display: 'block' }}
                           >Settings</button>
                         </div>
                       )}
                     </div>
                   </div>
                   {activeClient?.client_description && (
-                    <div style={{ fontSize: 12, color: T.muted, marginTop: 8, maxWidth: 400 }}>{activeClient.client_description}</div>
+                    <div style={{ fontSize: FS.sc, color: MUTED, marginTop: 8, maxWidth: 400 }}>{activeClient.client_description}</div>
                   )}
                 </div>
 

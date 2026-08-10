@@ -4,6 +4,18 @@ import Nav from '../components/Nav.jsx'
 import { listClientSheets, getSheetTabs, getSheetValues, initTokenClient, requestToken, syncTokenFromServer } from '../google.js'
 import { useAuth } from '../AuthContext.jsx'
 
+const FONT  = "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
+const FS    = { h: 32, sh: 18, c: 14, sc: 12 }
+const INK   = '#1a1a1a'
+const MUTED = '#626260'
+const LINE  = 'rgba(0,0,0,0.08)'
+const RED   = '#DC2626'
+
+const NEU_BG     = '#F0F0F0'
+const NEU_SURF   = 'linear-gradient(145deg, #f6f6f6, #e8e8e8)'
+const NEU_SHADOW = '-6px -6px 14px rgba(255,255,255,0.85), 6px 6px 14px rgba(0,0,0,0.12)'
+const NEU_BTN    = '-4px -4px 10px rgba(255,255,255,0.9), 4px 4px 10px rgba(0,0,0,0.10)'
+
 const hIdx = (headers, name) => headers.findIndex(h => h.trim().toLowerCase() === name.toLowerCase())
 
 export default function CheckSentMail() {
@@ -149,27 +161,26 @@ export default function CheckSentMail() {
     return [inv.first, inv.last, inv.firm, inv.email].some(v => v.toLowerCase().includes(q))
   })
 
-  const selectStyle = { padding: '10px 14px', border: `1px solid ${T.border}`, borderRadius: T.btnRadius, fontSize: 14, fontFamily: 'inherit', color: T.text, background: T.surface, outline: 'none', cursor: 'pointer', minWidth: 320 }
+  const selectStyle = { padding: '10px 14px', border: `1px solid ${LINE}`, borderRadius: 10, fontSize: FS.c, fontFamily: FONT, color: INK, background: NEU_SURF, outline: 'none', cursor: 'pointer', minWidth: 320, boxShadow: NEU_BTN }
 
   return (
-    <div style={{ minHeight: '100vh', fontFamily: T.sans }}>
+    <div style={{ minHeight: '100vh', fontFamily: FONT, background: NEU_BG }}>
       <Nav title="Check Sent Mail" backTo="/tools" />
       <div style={{ maxWidth: 1200, margin: '0 auto', padding: '40px 48px 80px' }}>
 
         <div style={{ marginBottom: 44 }}>
-          <div style={{ fontSize: 14, fontWeight: 500, color: '#7C3AED', marginBottom: 8 }}>Tools</div>
-          <div style={{ fontSize: 40, fontWeight: 500, letterSpacing: '-0.8px', lineHeight: 1.15, color: T.text, marginBottom: 8 }}>Check Sent Mail</div>
-          <div style={{ fontSize: 16, color: T.muted, lineHeight: 1.5 }}>Review sent emails across your outreach campaigns.</div>
+          <div style={{ fontSize: FS.c, fontWeight: 500, color: '#7C3AED', marginBottom: 8 }}>Tools</div>
+          <div style={{ fontSize: FS.h, fontWeight: 600, letterSpacing: '-0.3px', lineHeight: 1.2, color: INK, marginBottom: 6 }}>Check Sent Mail</div>
+          <div style={{ fontSize: FS.c, color: MUTED, lineHeight: 1.5 }}>Review sent emails across your outreach campaigns.</div>
         </div>
 
-        {/* Google connect */}
         {!googleSyncing && !connected && (
-          <div style={{ background: T.surface, border: `1px solid ${T.border}`, borderRadius: 12, padding: '32px', textAlign: 'center', marginBottom: 32 }}>
-            <div style={{ fontSize: 16, fontWeight: 500, color: T.text, marginBottom: 8 }}>Google not connected</div>
-            <div style={{ fontSize: 14, color: T.muted, lineHeight: 1.5, marginBottom: 20 }}>Connect Google to load your client sheets.</div>
+          <div style={{ background: NEU_SURF, borderRadius: 16, boxShadow: NEU_SHADOW, padding: '32px', textAlign: 'center', marginBottom: 32 }}>
+            <div style={{ fontSize: FS.sh, fontWeight: 600, color: INK, marginBottom: 8 }}>Google not connected</div>
+            <div style={{ fontSize: FS.c, color: MUTED, lineHeight: 1.5, marginBottom: 20 }}>Connect Google to load your client sheets.</div>
             {role === 'superadmin' && (
               <button disabled={!googleReady} onClick={() => { initTokenClient(() => setConnected(true)); requestToken() }}
-                style={{ padding: T.btnPadding, borderRadius: T.btnRadius, border: 'none', background: T.accent, color: '#fff', fontSize: T.btnFontSize, fontWeight: T.btnWeight, cursor: googleReady ? 'pointer' : 'default', fontFamily: 'inherit', lineHeight: 1.2 }}>
+                style={{ padding: '10px 22px', borderRadius: 10, border: 'none', background: NEU_SURF, color: INK, fontSize: FS.c, fontWeight: 600, cursor: googleReady ? 'pointer' : 'default', fontFamily: FONT, boxShadow: NEU_BTN }}>
                 Connect Google
               </button>
             )}
@@ -182,11 +193,11 @@ export default function CheckSentMail() {
             {/* Client selector */}
             <div>
               <div style={{ marginBottom: 8 }}>
-                <div style={{ fontSize: 14, fontWeight: 500, color: T.text }}>Client</div>
+                <div style={{ fontSize: FS.c, fontWeight: 500, color: INK }}>Client</div>
               </div>
-              {sheetsError && <div style={{ fontSize: 12, color: '#DC2626', marginBottom: 8 }}>{sheetsError}</div>}
+              {sheetsError && <div style={{ fontSize: FS.sc, color: RED, marginBottom: 8 }}>{sheetsError}</div>}
               {!sheetsLoading && sheets.length === 0 && !sheetsError && (
-                <div style={{ fontSize: 13, color: T.muted }}>No client sheets found.</div>
+                <div style={{ fontSize: FS.c, color: MUTED }}>No client sheets found.</div>
               )}
               {sheets.length > 0 && (
                 <select value={clientId} onChange={e => setClientId(e.target.value)} style={selectStyle}>
@@ -198,68 +209,63 @@ export default function CheckSentMail() {
             {/* Investor dropdown */}
             {clientId && (
               <div>
-                <div style={{ fontSize: 14, fontWeight: 500, color: T.text, marginBottom: 8 }}>
+                <div style={{ fontSize: FS.c, fontWeight: 500, color: INK, marginBottom: 8 }}>
                   Investor
-                  {investors.length > 0 && <span style={{ fontWeight: 400, marginLeft: 8, fontSize: 14, color: T.muted }}>({investors.length} total)</span>}
+                  {investors.length > 0 && <span style={{ fontWeight: 400, marginLeft: 8, color: MUTED }}>({investors.length} total)</span>}
                 </div>
-                {invLoading && <div style={{ fontSize: 13, color: T.muted }}>Loading investors…</div>}
-                {invError  && <div style={{ fontSize: 13, color: '#DC2626' }}>{invError}</div>}
+                {invLoading && <div style={{ fontSize: FS.c, color: MUTED }}>Loading investors…</div>}
+                {invError  && <div style={{ fontSize: FS.c, color: RED }}>{invError}</div>}
                 {!invLoading && !invError && investors.length === 0 && (
-                  <div style={{ fontSize: 13, color: T.muted }}>No investors found in the Investors tab.</div>
+                  <div style={{ fontSize: FS.c, color: MUTED }}>No investors found in the Investors tab.</div>
                 )}
 
                 {!invLoading && investors.length > 0 && (
                   <div ref={dropRef} style={{ position: 'relative', maxWidth: 560 }}>
-                    {/* Trigger */}
                     <div onClick={() => setDropOpen(o => !o)} style={{
-                      padding: '10px 14px', border: `1.5px solid ${dropOpen ? '#7C3AED' : T.border}`,
-                      borderRadius: 8, background: '#fff', cursor: 'pointer',
+                      padding: '10px 14px', borderRadius: 10, background: NEU_SURF,
+                      boxShadow: dropOpen ? 'inset 3px 3px 8px rgba(0,0,0,0.10), inset -3px -3px 8px rgba(255,255,255,0.80)' : NEU_BTN,
+                      cursor: 'pointer', border: 'none',
                       display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12,
-                      transition: 'border-color 0.15s',
+                      transition: 'box-shadow 0.15s', fontFamily: FONT,
                     }}>
                       {selectedInv ? (
                         <div style={{ flex: 1, minWidth: 0 }}>
-                          <div style={{ fontSize: 13, fontWeight: 700, color: T.text }}>{[selectedInv.first, selectedInv.last].filter(Boolean).join(' ') || '—'}</div>
-                          <div style={{ fontSize: 11, color: T.muted, marginTop: 2 }}>{[selectedInv.firm, selectedInv.email].filter(Boolean).join('  ·  ')}</div>
+                          <div style={{ fontSize: FS.c, fontWeight: 500, color: INK }}>{[selectedInv.first, selectedInv.last].filter(Boolean).join(' ') || '—'}</div>
+                          <div style={{ fontSize: FS.sc, color: MUTED, marginTop: 2 }}>{[selectedInv.firm, selectedInv.email].filter(Boolean).join('  ·  ')}</div>
                         </div>
                       ) : (
-                        <span style={{ fontSize: 13, color: T.faint }}>Select an investor…</span>
+                        <span style={{ fontSize: FS.c, color: MUTED }}>Select an investor…</span>
                       )}
-                      <span style={{ fontSize: 12, color: T.faint, flexShrink: 0 }}>{dropOpen ? '▲' : '▼'}</span>
+                      <span style={{ fontSize: FS.sc, color: MUTED, flexShrink: 0 }}>{dropOpen ? '▲' : '▼'}</span>
                     </div>
 
-                    {/* Dropdown panel */}
                     {dropOpen && (
                       <div style={{
-                        position: 'absolute', top: '100%', left: 0, right: 0, marginTop: 4,
-                        background: '#fff', border: `1.5px solid ${T.border}`, borderRadius: 10,
-                        boxShadow: '0 8px 32px rgba(0,0,0,0.10)', zIndex: 50, overflow: 'hidden',
+                        position: 'absolute', top: 'calc(100% + 8px)', left: 0, right: 0,
+                        background: NEU_SURF, borderRadius: 12,
+                        boxShadow: NEU_SHADOW, zIndex: 50, overflow: 'hidden',
                       }}>
-                        {/* Search */}
-                        <div style={{ padding: '10px 12px', borderBottom: `1px solid ${T.border}` }}>
+                        <div style={{ padding: '10px 12px', borderBottom: `1px solid ${LINE}` }}>
                           <input
-                            autoFocus
-                            value={query}
-                            onChange={e => setQuery(e.target.value)}
+                            autoFocus value={query} onChange={e => setQuery(e.target.value)}
                             placeholder="Search by name, firm or email…"
-                            style={{ width: '100%', border: `1px solid ${T.border}`, borderRadius: 6, padding: '6px 10px', fontSize: 12, fontFamily: 'inherit', color: T.text, outline: 'none', boxSizing: 'border-box' }}
+                            style={{ width: '100%', border: `1px solid ${LINE}`, borderRadius: 8, padding: '6px 10px', fontSize: FS.sc, fontFamily: FONT, color: INK, outline: 'none', boxSizing: 'border-box', background: 'rgba(255,255,255,0.6)' }}
                           />
                         </div>
-                        {/* List */}
                         <div style={{ maxHeight: 320, overflowY: 'auto' }}>
                           {filtered.length === 0 && (
-                            <div style={{ padding: '16px', fontSize: 12, color: T.muted, textAlign: 'center' }}>No results</div>
+                            <div style={{ padding: '16px', fontSize: FS.sc, color: MUTED, textAlign: 'center' }}>No results</div>
                           )}
                           {filtered.map(inv => (
                             <div key={inv.key} onClick={() => { setSelectedInv(inv); setDropOpen(false); setQuery(''); setCheckResult(null); setCheckError('') }}
-                              style={{ padding: '10px 14px', cursor: 'pointer', borderBottom: `1px solid ${T.border}`, transition: 'background 0.1s' }}
-                              onMouseEnter={e => e.currentTarget.style.background = T.bg}
-                              onMouseLeave={e => e.currentTarget.style.background = '#fff'}
+                              style={{ padding: '10px 14px', cursor: 'pointer', borderBottom: `1px solid ${LINE}`, transition: 'background 0.1s' }}
+                              onMouseEnter={e => e.currentTarget.style.background = 'rgba(0,0,0,0.04)'}
+                              onMouseLeave={e => e.currentTarget.style.background = ''}
                             >
-                              <div style={{ fontSize: 13, fontWeight: 700, color: T.text, marginBottom: 3 }}>
+                              <div style={{ fontSize: FS.c, fontWeight: 500, color: INK, marginBottom: 2 }}>
                                 {[inv.first, inv.last].filter(Boolean).join(' ') || '—'}
                               </div>
-                              <div style={{ display: 'flex', gap: 16, fontSize: 11, color: T.muted }}>
+                              <div style={{ display: 'flex', gap: 16, fontSize: FS.sc, color: MUTED }}>
                                 {inv.firm  && <span>{inv.firm}</span>}
                                 {inv.email && <span style={{ fontFamily: T.mono }}>{inv.email}</span>}
                               </div>
@@ -276,7 +282,7 @@ export default function CheckSentMail() {
             {/* n8n account selector */}
             {n8nAccounts.length > 0 && (
               <div>
-                <div style={{ fontSize: 14, fontWeight: 500, color: T.text, marginBottom: 8 }}>Sent From Account</div>
+                <div style={{ fontSize: FS.c, fontWeight: 500, color: INK, marginBottom: 8 }}>Sent From Account</div>
                 <select value={n8nClientId} onChange={e => { setN8nClientId(e.target.value); setCheckResult(null); setCheckError('') }} style={selectStyle}>
                   {n8nAccounts.map(a => <option key={a.clientId} value={a.clientId}>{a.credentialName}</option>)}
                 </select>
@@ -289,16 +295,16 @@ export default function CheckSentMail() {
         {/* Selected investor info */}
         {selectedInv && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-            <div style={{ background: T.surface, border: `1px solid ${T.border}`, borderRadius: 12, padding: '24px 28px' }}>
-              <div style={{ fontSize: 12, fontWeight: 500, color: T.muted, marginBottom: 18 }}>Investor Details</div>
+            <div style={{ background: NEU_SURF, borderRadius: 16, boxShadow: NEU_SHADOW, padding: '24px 28px' }}>
+              <div style={{ fontSize: FS.sc, fontWeight: 500, color: MUTED, marginBottom: 18, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Investor Details</div>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr)', gap: 20 }}>
                 {selectedInv._headers.map((header, i) => {
                   const value = selectedInv._row[i]
                   if (!header) return null
                   return (
                     <div key={i}>
-                      <div style={{ fontSize: 12, fontWeight: 500, color: T.muted, marginBottom: 4 }}>{header}</div>
-                      <div style={{ fontSize: 14, color: value ? T.text : T.faint, fontWeight: value ? 500 : 400, wordBreak: 'break-all', lineHeight: 1.5 }}>{value || '—'}</div>
+                      <div style={{ fontSize: FS.sc, fontWeight: 500, color: MUTED, marginBottom: 4 }}>{header}</div>
+                      <div style={{ fontSize: FS.c, color: value ? INK : MUTED, fontWeight: 400, wordBreak: 'break-all', lineHeight: 1.5 }}>{value || '—'}</div>
                     </div>
                   )
                 })}
@@ -310,15 +316,17 @@ export default function CheckSentMail() {
                 onClick={handleCheckSentMail}
                 disabled={checking}
                 style={{
-                  padding: T.btnPadding, borderRadius: T.btnRadius, border: 'none',
-                  background: checking ? T.faint : T.accent,
-                  color: '#fff', fontSize: T.btnFontSize, fontWeight: T.btnWeight,
-                  cursor: checking ? 'default' : 'pointer', fontFamily: 'inherit', lineHeight: 1.2,
+                  padding: '10px 22px', borderRadius: 10, border: 'none',
+                  background: NEU_SURF, color: INK,
+                  fontSize: FS.c, fontWeight: 600,
+                  cursor: checking ? 'default' : 'pointer', fontFamily: FONT,
+                  boxShadow: checking ? 'inset 3px 3px 8px rgba(0,0,0,0.10), inset -3px -3px 8px rgba(255,255,255,0.80)' : NEU_BTN,
+                  opacity: checking ? 0.6 : 1,
                 }}
               >
                 {checking ? 'Checking…' : 'Check Sent Mail'}
               </button>
-              {checkError && <div style={{ fontSize: 12, color: '#DC2626' }}>{checkError}</div>}
+              {checkError && <div style={{ fontSize: FS.sc, color: RED }}>{checkError}</div>}
             </div>
 
             {checkResult && (() => {
@@ -326,14 +334,14 @@ export default function CheckSentMail() {
               return (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                    <div style={{ fontSize: 12, fontWeight: 500, color: T.muted }}>Sent Mails</div>
-                    <span style={{ fontSize: 11, fontWeight: 700, background: messages.length > 0 ? '#EDE9FE' : T.bg, color: messages.length > 0 ? '#7C3AED' : T.muted, borderRadius: 99, padding: '2px 10px' }}>
+                    <div style={{ fontSize: FS.sc, fontWeight: 500, color: MUTED }}>Sent Mails</div>
+                    <span style={{ fontSize: FS.sc, fontWeight: 500, background: messages.length > 0 ? '#EDE9FE' : 'rgba(0,0,0,0.06)', color: messages.length > 0 ? '#7C3AED' : MUTED, borderRadius: 99, padding: '2px 10px' }}>
                       {messages.length} found
                     </span>
                   </div>
 
                   {messages.length === 0 && (
-                    <div style={{ background: T.surface, border: `1.5px solid ${T.border}`, borderRadius: 12, padding: '24px', textAlign: 'center', fontSize: 13, color: T.muted }}>
+                    <div style={{ background: NEU_SURF, borderRadius: 16, boxShadow: NEU_SHADOW, padding: '24px', textAlign: 'center', fontSize: FS.c, color: MUTED }}>
                       No sent mails found for this investor.
                     </div>
                   )}
@@ -344,25 +352,25 @@ export default function CheckSentMail() {
                     const hasHtml = msg.bodyContentType === 'html' || (msg.body && msg.body.trim().startsWith('<'))
                     const cleanBody = msg.body ? msg.body.replace(/<hr[^>]*>[\s\S]*/i, '</body></html>') : ''
                     return (
-                      <div key={msg.id || i} style={{ background: T.surface, border: `1px solid ${T.border}`, borderRadius: 12, padding: '20px 24px', display: 'flex', flexDirection: 'column', gap: 10 }}>
+                      <div key={msg.id || i} style={{ background: NEU_SURF, borderRadius: 16, boxShadow: NEU_SHADOW, padding: '20px 24px', display: 'flex', flexDirection: 'column', gap: 10 }}>
                         <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16 }}>
-                          <div style={{ fontSize: 16, fontWeight: 500, color: T.text, lineHeight: 1.4 }}>{msg.subject || '(no subject)'}</div>
-                          <div style={{ fontSize: 12, color: T.muted, flexShrink: 0, marginTop: 2 }}>
+                          <div style={{ fontSize: FS.sh, fontWeight: 500, color: INK, lineHeight: 1.4 }}>{msg.subject || '(no subject)'}</div>
+                          <div style={{ fontSize: FS.sc, color: MUTED, flexShrink: 0, marginTop: 2 }}>
                             {msg.sentDateTime ? new Date(msg.sentDateTime).toLocaleString('en-IN', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : ''}
                           </div>
                         </div>
 
-                        <div style={{ display: 'flex', gap: 24, fontSize: 11, color: T.muted }}>
-                          <div><span style={{ fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>To</span>&nbsp;&nbsp;{toList.join(', ')}</div>
-                          {ccList.length > 0 && <div><span style={{ fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>CC</span>&nbsp;&nbsp;{ccList.join(', ')}</div>}
+                        <div style={{ display: 'flex', gap: 24, fontSize: FS.sc, color: MUTED }}>
+                          <div><span style={{ fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>To</span>&nbsp;&nbsp;{toList.join(', ')}</div>
+                          {ccList.length > 0 && <div><span style={{ fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>CC</span>&nbsp;&nbsp;{ccList.join(', ')}</div>}
                         </div>
 
                         {msg.body && (
-                          <div style={{ borderTop: `1px solid ${T.border}`, paddingTop: 10 }}>
+                          <div style={{ borderTop: `1px solid ${LINE}`, paddingTop: 10 }}>
                             {hasHtml
                               ? <iframe srcDoc={cleanBody} style={{ width: '100%', border: 'none', minHeight: 200 }} scrolling="no"
                                   onLoad={e => { e.target.style.height = e.target.contentDocument.body.scrollHeight + 'px' }} />
-                              : <div style={{ fontSize: 13, color: T.text, lineHeight: 1.6, whiteSpace: 'pre-wrap' }}>{cleanBody}</div>
+                              : <div style={{ fontSize: FS.c, color: INK, lineHeight: 1.6, whiteSpace: 'pre-wrap' }}>{cleanBody}</div>
                             }
                           </div>
                         )}
