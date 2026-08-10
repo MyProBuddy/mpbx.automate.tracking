@@ -116,9 +116,9 @@ function DiffModal({ original, updated, promptType, onConfirm, onCancel, saving 
         </div>
 
         {/* Footer */}
-        <div style={{ padding: '16px 24px', borderTop: `1px solid ${T.border}`, display: 'flex', gap: 10, justifyContent: 'flex-end', flexShrink: 0 }}>
-          <button onClick={onCancel} style={{ padding: '9px 20px', borderRadius: 8, border: `1.5px solid ${T.border}`, background: '#fff', fontSize: 13, fontWeight: 600, color: T.muted, cursor: 'pointer', fontFamily: 'inherit' }}>Cancel</button>
-          <button onClick={onConfirm} disabled={saving} style={{ padding: '9px 20px', borderRadius: 8, border: 'none', background: T.accent, fontSize: 13, fontWeight: 700, color: '#fff', cursor: saving ? 'default' : 'pointer', fontFamily: 'inherit' }}>
+        <div style={{ padding: '16px 24px', borderTop: `1px solid ${LINE}`, display: 'flex', gap: 10, justifyContent: 'flex-end', flexShrink: 0 }}>
+          <button onClick={onCancel} style={{ padding: '9px 20px', borderRadius: 10, border: 'none', background: NEU_SURF, fontSize: FS.c, fontWeight: 500, color: MUTED, cursor: 'pointer', fontFamily: FONT, boxShadow: NEU_BTN }}>Cancel</button>
+          <button onClick={onConfirm} disabled={saving} style={{ padding: '9px 20px', borderRadius: 10, border: 'none', background: NEU_SURF, fontSize: FS.c, fontWeight: 600, color: INK, cursor: saving ? 'default' : 'pointer', fontFamily: FONT, boxShadow: saving ? 'inset 3px 3px 8px rgba(0,0,0,0.10), inset -3px -3px 8px rgba(255,255,255,0.80)' : NEU_BTN, opacity: saving ? 0.6 : 1 }}>
             {saving ? 'Saving…' : 'Confirm & Save'}
           </button>
         </div>
@@ -284,8 +284,8 @@ function AddClientModal({ onClose, onAdded }) {
             4 prompt templates will be created: Outreach, Outreach Followup, Reply, Reply Followup.
           </div>
           <div style={{ display: 'flex', gap: 10, marginTop: 8 }}>
-            <button type="button" onClick={onClose} style={{ flex: 1, padding: '10px', borderRadius: 8, border: `1.5px solid ${T.border}`, background: T.surface, fontSize: 13, fontWeight: 600, color: T.muted, cursor: 'pointer', fontFamily: 'inherit' }}>Cancel</button>
-            <button type="submit" disabled={saving} style={{ flex: 1, padding: '10px', borderRadius: 8, border: 'none', background: T.accent, fontSize: 13, fontWeight: 700, color: '#fff', cursor: saving ? 'default' : 'pointer', fontFamily: 'inherit' }}>
+            <button type="button" onClick={onClose} style={{ flex: 1, padding: '10px', borderRadius: 10, border: 'none', background: NEU_SURF, fontSize: FS.c, fontWeight: 500, color: MUTED, cursor: 'pointer', fontFamily: FONT, boxShadow: NEU_BTN }}>Cancel</button>
+            <button type="submit" disabled={saving} style={{ flex: 1, padding: '10px', borderRadius: 10, border: 'none', background: NEU_SURF, fontSize: FS.c, fontWeight: 600, color: INK, cursor: saving ? 'default' : 'pointer', fontFamily: FONT, boxShadow: saving ? 'inset 3px 3px 8px rgba(0,0,0,0.10), inset -3px -3px 8px rgba(255,255,255,0.80)' : NEU_BTN, opacity: saving ? 0.6 : 1 }}>
               {saving ? 'Adding…' : 'Add Client'}
             </button>
           </div>
@@ -320,8 +320,8 @@ function EditDescriptionModal({ client, onClose, onSaved }) {
           <textarea value={description} onChange={e => setDesc(e.target.value)} placeholder="Optional notes about this client…" rows={4} autoFocus
             style={{ width: '100%', padding: '10px 12px', border: `1.5px solid ${T.border}`, borderRadius: 8, fontSize: 13, fontFamily: 'inherit', color: T.text, outline: 'none', resize: 'vertical', boxSizing: 'border-box' }} />
           <div style={{ display: 'flex', gap: 10 }}>
-            <button type="button" onClick={onClose} style={{ flex: 1, padding: '10px', borderRadius: 8, border: `1.5px solid ${T.border}`, background: T.surface, fontSize: 13, fontWeight: 600, color: T.muted, cursor: 'pointer', fontFamily: 'inherit' }}>Cancel</button>
-            <button type="submit" disabled={saving} style={{ flex: 1, padding: '10px', borderRadius: 8, border: 'none', background: T.accent, fontSize: 13, fontWeight: 700, color: '#fff', cursor: saving ? 'default' : 'pointer', fontFamily: 'inherit' }}>
+            <button type="button" onClick={onClose} style={{ flex: 1, padding: '10px', borderRadius: 10, border: 'none', background: NEU_SURF, fontSize: FS.c, fontWeight: 500, color: MUTED, cursor: 'pointer', fontFamily: FONT, boxShadow: NEU_BTN }}>Cancel</button>
+            <button type="submit" disabled={saving} style={{ flex: 1, padding: '10px', borderRadius: 10, border: 'none', background: NEU_SURF, fontSize: FS.c, fontWeight: 600, color: INK, cursor: saving ? 'default' : 'pointer', fontFamily: FONT, boxShadow: saving ? 'inset 3px 3px 8px rgba(0,0,0,0.10), inset -3px -3px 8px rgba(255,255,255,0.80)' : NEU_BTN, opacity: saving ? 0.6 : 1 }}>
               {saving ? 'Saving…' : 'Save'}
             </button>
           </div>
@@ -516,16 +516,17 @@ function PromptBlock({ promptType, data, onSaved, clientEmail }) {
 
   const tabBtn = (id, label) => (
     <button onClick={() => setLeftTab(id)} style={{
-      fontSize: 13, fontWeight: 500, padding: '5px 14px', borderRadius: T.btnRadius, border: 'none',
-      background: leftTab === id ? T.accentLight : 'transparent',
-      color: leftTab === id ? T.accent : T.muted,
-      cursor: 'pointer', fontFamily: 'inherit', lineHeight: 1.2,
+      fontSize: FS.sc, fontWeight: 500, padding: '5px 14px', borderRadius: 8, border: 'none',
+      background: NEU_SURF,
+      color: leftTab === id ? INK : MUTED,
+      boxShadow: leftTab === id ? 'inset 3px 3px 8px rgba(0,0,0,0.10), inset -3px -3px 8px rgba(255,255,255,0.80)' : NEU_BTN,
+      cursor: 'pointer', fontFamily: FONT, lineHeight: 1.2, transition: 'box-shadow 0.15s',
     }}>{label}</button>
   )
 
   return (
     <>
-    <div style={{ background: NEU_SURF, borderRadius: 16, boxShadow: dirty ? `0 0 0 2px ${T.accent}, ${NEU_SHADOW}` : NEU_SHADOW, overflow: 'hidden', transition: 'box-shadow 0.15s', height: 500, display: 'flex', flexDirection: 'column' }}>
+    <div style={{ background: NEU_SURF, borderRadius: 16, boxShadow: dirty ? `0 0 0 2px rgba(0,0,0,0.15), ${NEU_SHADOW}` : NEU_SHADOW, overflow: 'hidden', transition: 'box-shadow 0.15s', height: 500, display: 'flex', flexDirection: 'column' }}>
 
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', padding: '14px 20px', borderBottom: `1px solid ${LINE}`, background: 'rgba(0,0,0,0.02)', flexShrink: 0 }}>
@@ -538,7 +539,7 @@ function PromptBlock({ promptType, data, onSaved, clientEmail }) {
           {/* LEFT — tabs: Prompt | Investor */}
           <div style={{ flex: 1, borderRight: `1px solid ${T.border}`, display: 'flex', flexDirection: 'column', overflow: 'hidden', minHeight: 0 }}>
             {/* Tab bar */}
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 16px', borderBottom: `1px solid ${T.border}`, background: '#FAFAFA', height: 44, flexShrink: 0 }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 16px', borderBottom: `1px solid ${T.border}`, background: 'rgba(0,0,0,0.02)', height: 44, flexShrink: 0 }}>
               <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
                 {tabBtn('prompt', 'Prompt')}
                 {tabBtn('investor', 'Investor Data')}
@@ -550,7 +551,7 @@ function PromptBlock({ promptType, data, onSaved, clientEmail }) {
                 <button
                   onClick={() => dirty && setShowDiff(true)}
                   disabled={!dirty}
-                  style={{ fontSize: 13, fontWeight: 500, padding: '5px 14px', borderRadius: T.btnRadius, border: `1px solid ${dirty ? T.green : T.border}`, background: dirty ? T.greenLight : 'transparent', color: dirty ? T.green : T.faint, cursor: dirty ? 'pointer' : 'default', fontFamily: 'inherit', transition: 'all 0.15s', lineHeight: 1.2 }}
+                  style={{ fontSize: FS.sc, fontWeight: 500, padding: '5px 14px', borderRadius: 8, border: 'none', background: NEU_SURF, color: dirty ? INK : MUTED, cursor: dirty ? 'pointer' : 'default', fontFamily: FONT, transition: 'box-shadow 0.15s', lineHeight: 1.2, boxShadow: dirty ? NEU_BTN : 'none', opacity: dirty ? 1 : 0.4 }}
                 >
                   Save
                 </button>
@@ -618,7 +619,7 @@ function PromptBlock({ promptType, data, onSaved, clientEmail }) {
                   <div>
                     <div style={{ fontSize: 10, fontWeight: 700, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 6 }}>Google Sheet</div>
                     <select value={selectedSheet} onChange={e => setSelectedSheet(e.target.value)}
-                      style={{ width: '100%', padding: '8px 10px', border: `1px solid ${T.border}`, borderRadius: 6, fontSize: 12, fontFamily: 'inherit', color: T.text, background: '#fff', outline: 'none' }}>
+                      style={{ width: '100%', padding: '8px 10px', border: 'none', borderRadius: 8, fontSize: FS.sc, fontFamily: FONT, color: INK, background: NEU_SURF, outline: 'none', boxShadow: NEU_BTN }}>
                       <option value=''>Select sheet…</option>
                       {sheets.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
                     </select>
@@ -640,7 +641,7 @@ function PromptBlock({ promptType, data, onSaved, clientEmail }) {
                   {/* Save button */}
                   {selectedSheet && (
                     <button onClick={saveUpdatesState}
-                      style={{ alignSelf: 'flex-start', padding: T.btnPadding, borderRadius: T.btnRadius, border: 'none', background: updatesSaved ? T.green : T.accent, color: '#fff', fontSize: T.btnFontSize, fontWeight: T.btnWeight, cursor: 'pointer', fontFamily: 'inherit', lineHeight: 1.2 }}>
+                      style={{ alignSelf: 'flex-start', padding: '6px 16px', borderRadius: 8, border: 'none', background: NEU_SURF, color: updatesSaved ? '#16A34A' : INK, fontSize: FS.sc, fontWeight: 600, cursor: 'pointer', fontFamily: FONT, lineHeight: 1.2, boxShadow: NEU_BTN }}>
                       {updatesSaved ? '✓ Saved' : 'Save Selection'}
                     </button>
                   )}
@@ -653,7 +654,7 @@ function PromptBlock({ promptType, data, onSaved, clientEmail }) {
                   <div>
                     <div style={{ fontSize: 10, fontWeight: 700, color: T.muted, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 6 }}>Client Drive Folder</div>
                     <select value={selectedFolder} onChange={e => setSelectedFolder(e.target.value)}
-                      style={{ width: '100%', padding: '8px 10px', border: `1px solid ${T.border}`, borderRadius: 6, fontSize: 12, fontFamily: 'inherit', color: T.text, background: '#fff', outline: 'none' }}>
+                      style={{ width: '100%', padding: '8px 10px', border: 'none', borderRadius: 8, fontSize: FS.sc, fontFamily: FONT, color: INK, background: NEU_SURF, outline: 'none', boxShadow: NEU_BTN }}>
                       <option value=''>Select folder…</option>
                       {folders.map(f => <option key={f.id} value={f.id}>{f.name}</option>)}
                     </select>
@@ -666,7 +667,7 @@ function PromptBlock({ promptType, data, onSaved, clientEmail }) {
                       {filesLoading
                         ? <div style={{ fontSize: 12, color: T.muted }}>Loading files…</div>
                         : <select value={mdFileId} onChange={e => setMdFileId(e.target.value)}
-                            style={{ width: '100%', padding: '8px 10px', border: `1px solid ${T.border}`, borderRadius: 6, fontSize: 12, fontFamily: 'inherit', color: T.text, background: '#fff', outline: 'none' }}>
+                            style={{ width: '100%', padding: '8px 10px', border: 'none', borderRadius: 8, fontSize: FS.sc, fontFamily: FONT, color: INK, background: NEU_SURF, outline: 'none', boxShadow: NEU_BTN }}>
                             <option value=''>Select file…</option>
                             {folderFiles.map(f => <option key={f.id} value={f.id}>{f.name}</option>)}
                           </select>
@@ -678,7 +679,7 @@ function PromptBlock({ promptType, data, onSaved, clientEmail }) {
                   {/* Save button */}
                   {selectedFolder && mdFileId && (
                     <button onClick={saveFilesState}
-                      style={{ alignSelf: 'flex-start', padding: T.btnPadding, borderRadius: T.btnRadius, border: 'none', background: filesSaved ? T.green : T.accent, color: '#fff', fontSize: T.btnFontSize, fontWeight: T.btnWeight, cursor: 'pointer', fontFamily: 'inherit', lineHeight: 1.2 }}>
+                      style={{ alignSelf: 'flex-start', padding: '6px 16px', borderRadius: 8, border: 'none', background: NEU_SURF, color: filesSaved ? '#16A34A' : INK, fontSize: FS.sc, fontWeight: 600, cursor: 'pointer', fontFamily: FONT, lineHeight: 1.2, boxShadow: NEU_BTN }}>
                       {filesSaved ? '✓ Saved' : 'Save Selection'}
                     </button>
                   )}
@@ -689,13 +690,13 @@ function PromptBlock({ promptType, data, onSaved, clientEmail }) {
 
           {/* RIGHT — output */}
           <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', minHeight: 0 }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 16px', borderBottom: `1px solid ${T.border}`, background: '#FAFAFA', height: 44, flexShrink: 0 }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 16px', borderBottom: `1px solid ${T.border}`, background: 'rgba(0,0,0,0.02)', height: 44, flexShrink: 0 }}>
               <span style={{ fontSize: 12, fontWeight: 500, color: T.muted }}>Generated Output</span>
               <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
                 <select
                   value={model}
                   onChange={e => setModel(e.target.value)}
-                  style={{ fontSize: 13, fontWeight: 400, padding: '5px 8px', borderRadius: T.btnRadius, border: `1px solid ${T.border}`, background: '#fff', color: T.text, cursor: 'pointer', fontFamily: 'inherit', outline: 'none' }}
+                  style={{ fontSize: FS.sc, fontWeight: 400, padding: '5px 8px', borderRadius: 8, border: 'none', background: NEU_SURF, color: INK, cursor: 'pointer', fontFamily: FONT, outline: 'none', boxShadow: NEU_BTN }}
                 >
                   {models.map(m => <option key={m.value} value={m.value}>{m.label}</option>)}
                 </select>
@@ -703,7 +704,7 @@ function PromptBlock({ promptType, data, onSaved, clientEmail }) {
                   onClick={runTest}
                   disabled={generating || (promptType === 'outreach_followup' && !prevMail)}
                   title={promptType === 'outreach_followup' && !prevMail ? 'Run the Outreach prompt first' : ''}
-                  style={{ fontSize: T.btnFontSize, fontWeight: T.btnWeight, padding: T.btnPadding, borderRadius: T.btnRadius, border: 'none', background: (generating || (promptType === 'outreach_followup' && !prevMail)) ? T.faint : T.accent, color: '#fff', cursor: (generating || (promptType === 'outreach_followup' && !prevMail)) ? 'default' : 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: 6, lineHeight: 1.2 }}
+                  style={{ fontSize: FS.sc, fontWeight: 600, padding: '5px 14px', borderRadius: 8, border: 'none', background: NEU_SURF, color: (generating || (promptType === 'outreach_followup' && !prevMail)) ? MUTED : INK, cursor: (generating || (promptType === 'outreach_followup' && !prevMail)) ? 'default' : 'pointer', fontFamily: FONT, display: 'flex', alignItems: 'center', gap: 6, lineHeight: 1.2, boxShadow: (generating || (promptType === 'outreach_followup' && !prevMail)) ? 'inset 3px 3px 8px rgba(0,0,0,0.10), inset -3px -3px 8px rgba(255,255,255,0.80)' : NEU_BTN, opacity: (generating || (promptType === 'outreach_followup' && !prevMail)) ? 0.5 : 1 }}
                 >
                   {generating
                     ? <><span style={{ display: 'inline-block', width: 10, height: 10, border: '2px solid rgba(255,255,255,0.5)', borderTopColor: '#fff', borderRadius: '50%', animation: 'spin 0.7s linear infinite' }} /> Generating…</>
@@ -730,7 +731,7 @@ function PromptBlock({ promptType, data, onSaved, clientEmail }) {
 
                 {generating && (
                   <div style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 13, color: T.muted }}>
-                    <span style={{ display: 'inline-block', width: 14, height: 14, border: `2px solid ${T.accent}`, borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 0.7s linear infinite' }} />
+                    <span style={{ display: 'inline-block', width: 14, height: 14, border: `2px solid ${MUTED}`, borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 0.7s linear infinite' }} />
                     Calling Gemini API…
                   </div>
                 )}
