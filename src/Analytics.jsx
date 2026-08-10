@@ -978,7 +978,7 @@ export default function Analytics() {
                           onMouseEnter={e => e.currentTarget.style.background = 'rgba(0,0,0,0.03)'}
                           onMouseLeave={e => e.currentTarget.style.background = ''}>
                           <td style={{ padding: '14px 20px', fontSize: FS.c, color: MUTED, borderBottom: `1px solid ${LINE}`, fontFamily: MONO }}>{i + 1}</td>
-                          <td style={{ padding: '14px 20px', fontSize: 13, color: INK, borderBottom: `1px solid ${LINE}`, fontWeight: 600 }}>{acc.email}</td>
+                          <td style={{ padding: '14px 20px', fontSize: 13, color: INK, borderBottom: `1px solid ${LINE}`, fontWeight: 400 }}>{acc.email}</td>
                           <td style={{ padding: '14px 20px', fontSize: 13, color: MUTED, borderBottom: `1px solid ${LINE}` }}>{acc.credentialName}</td>
                         </tr>
                       ))}
