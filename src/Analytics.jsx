@@ -913,12 +913,12 @@ export default function Analytics() {
                             {r.error && <div style={{ fontSize: 11, color: RED, marginTop: 2 }}>{r.error}</div>}
                           </td>
                           <td style={numS}>{r.error ? '—' : r.total}</td>
-                          <td style={numS}>{r.error ? '—' : pill(r.initialSent, '#5B4AE8')}</td>
-                          <td style={numS}>{r.error ? '—' : pill(r.thisWeek, BLUE)}</td>
-                          <td style={numS}>{r.error ? '—' : pill(r.f1, AMBER)}</td>
-                          <td style={numS}>{r.error ? '—' : pill(r.f2, AMBER)}</td>
-                          <td style={numS}>{r.error ? '—' : pill(r.f3, AMBER)}</td>
-                          <td style={numS}>{r.error ? '—' : pill(r.replies, GREEN)}</td>
+                          <td style={numS}>{r.error ? '—' : r.initialSent}</td>
+                          <td style={numS}>{r.error ? '—' : r.thisWeek}</td>
+                          <td style={numS}>{r.error ? '—' : r.f1}</td>
+                          <td style={numS}>{r.error ? '—' : r.f2}</td>
+                          <td style={numS}>{r.error ? '—' : r.f3}</td>
+                          <td style={numS}>{r.error ? '—' : r.replies}</td>
                         </tr>
                       ))}
                     </tbody>
