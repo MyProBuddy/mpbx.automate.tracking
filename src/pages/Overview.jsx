@@ -61,8 +61,8 @@ function MailStatusChart({ valid, risky, invalid, unknown, total }) {
     if (!wrap) return
     wrap.innerHTML = ''
 
-    const N = 60, GAP = 3
-    const HEIGHTS  = { valid:40, risky:32, invalid:26, unknown:21 }
+    const BAR_W = 7, GAP = 3
+    const HEIGHTS  = { valid:80, risky:64, invalid:52, unknown:42 }
     const COLORS   = { valid:'#16A34A', risky:'#F97316', invalid:'#F43F5E', unknown:'#9CA3AF' }
     const GRAD_TOP = { valid:'#4ADE80', risky:'#FBB174', invalid:'#FB7185', unknown:'#D1D5DB' }
     const LABELS   = { valid:'Valid', risky:'Risky', invalid:'Invalid', unknown:'Unknown' }
@@ -71,16 +71,18 @@ function MailStatusChart({ valid, risky, invalid, unknown, total }) {
     const FONT     = "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
     const vals     = { valid, risky, invalid, unknown }
 
+    const W = wrap.offsetWidth
+    const N = Math.floor((W + GAP) / (BAR_W + GAP))
+    const barW = (W - (N - 1) * GAP) / N
+
     const segments = KEYS.map(k => ({ key: k, value: vals[k] }))
     const fl = segments.map(s => ({ ...s, bars: Math.floor(s.value / total * N), rem: (s.value / total * N) % 1 }))
     let r = N - fl.reduce((a, f) => a + f.bars, 0)
     fl.sort((a, b) => b.rem - a.rem).forEach((s, i) => { if (i < r) s.bars++ })
     fl.sort((a, b) => KEYS.indexOf(a.key) - KEYS.indexOf(b.key))
 
-    const W = wrap.offsetWidth
-    const barW = (W - (N - 1) * GAP) / N
     const maxH = HEIGHTS.valid
-    const LH = 32
+    const LH = 36
 
     const canvas = document.createElement('canvas')
     const dpr = window.devicePixelRatio || 1
@@ -131,10 +133,10 @@ function MailStatusChart({ valid, risky, invalid, unknown, total }) {
       const bw = SOLID.includes(s.key) ? s.bars * barW + (s.bars - 1) * GAP : s.bars * (barW + GAP) - GAP
       const cx = startX + bw / 2
       ctx.shadowColor = 'transparent'; ctx.textAlign = 'center'
-      ctx.fillStyle = '#1a1a1a'; ctx.font = `400 13px ${FONT}`; ctx.textBaseline = 'alphabetic'
-      ctx.fillText(s.value, cx, 12)
-      ctx.fillStyle = '#B0B0B0'; ctx.font = `300 9px ${FONT}`
-      ctx.fillText(LABELS[s.key], cx, 24)
+      ctx.fillStyle = '#1a1a1a'; ctx.font = `500 12px ${FONT}`; ctx.textBaseline = 'alphabetic'
+      ctx.fillText(s.value, cx, 14)
+      ctx.fillStyle = '#B0B0B0'; ctx.font = `400 10px ${FONT}`
+      ctx.fillText(LABELS[s.key], cx, 28)
       idx += s.bars
     })
   }, [valid, risky, invalid, unknown, total])
