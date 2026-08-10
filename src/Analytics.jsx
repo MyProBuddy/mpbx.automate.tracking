@@ -880,8 +880,8 @@ export default function Analytics() {
               const thS = { padding: '12px 20px', textAlign: 'left', fontSize: FS.c, fontWeight: 500, color: MUTED, borderBottom: `1px solid rgba(0,0,0,0.06)`, whiteSpace: 'nowrap', background: 'rgba(0,0,0,0.02)' }
               const tdS = { padding: '16px 20px', fontSize: FS.c, color: INK, borderBottom: `1px solid rgba(0,0,0,0.05)`, whiteSpace: 'nowrap' }
               const numS = { ...tdS, textAlign: 'right', fontVariantNumeric: 'tabular-nums', fontFamily: MONO, fontSize: 13 }
-              const totS = { ...numS, fontWeight: 700, color: INK, background: 'rgba(0,0,0,0.03)', borderTop: `1px solid rgba(0,0,0,0.08)`, borderBottom: 'none' }
-              const totLabelS = { ...tdS, fontWeight: 700, color: INK, background: 'rgba(0,0,0,0.03)', borderTop: `1px solid rgba(0,0,0,0.08)`, borderBottom: 'none' }
+              const totS = { ...numS, fontWeight: 500, color: INK, background: 'rgba(0,0,0,0.03)', borderTop: `1px solid rgba(0,0,0,0.08)`, borderBottom: 'none' }
+              const totLabelS = { ...tdS, fontWeight: 500, color: INK, background: 'rgba(0,0,0,0.03)', borderTop: `1px solid rgba(0,0,0,0.08)`, borderBottom: 'none' }
 
               const pill = (n, color) => (
                 <span style={{ display: 'inline-block', minWidth: 36, textAlign: 'center', padding: '2px 10px', borderRadius: 20, fontSize: FS.c, fontWeight: 600, fontFamily: MONO, background: color + '18', color }}>{n}</span>
