@@ -1118,12 +1118,45 @@ export default function Analytics() {
             {/* Row 1: funnel + area */}
             <div style={grid12('5fr 7fr')}>
               <Card title="Outreach funnel" subtitle="Measured workflow stages">
-                <ReactECharts style={{ height: 262 }} option={buildFunnel([
-                  { name: 'Investors',    value: dashboard.total,     itemStyle: { shadowBlur: 8, shadowColor: 'rgba(0,0,0,0.18)', shadowOffsetX: 4, shadowOffsetY: 4, color: { type: 'linear', x: 0, y: 0, x2: 0, y2: 1, colorStops: [{ offset: 0, color: 'rgba(232,121,249,0.25)' }, { offset: 1, color: 'rgba(249,115,22,0.25)' }] } } },
-                  { name: 'Contacted',   value: dashboard.contacted, itemStyle: { shadowBlur: 8, shadowColor: 'rgba(0,0,0,0.18)', shadowOffsetX: 4, shadowOffsetY: 4, color: { type: 'linear', x: 0, y: 0, x2: 0, y2: 1, colorStops: [{ offset: 0, color: 'rgba(232,121,249,0.50)' }, { offset: 1, color: 'rgba(249,115,22,0.50)' }] } } },
-                  { name: 'Replied',     value: dashboard.replies,   itemStyle: { shadowBlur: 8, shadowColor: 'rgba(0,0,0,0.18)', shadowOffsetX: 4, shadowOffsetY: 4, color: { type: 'linear', x: 0, y: 0, x2: 0, y2: 1, colorStops: [{ offset: 0, color: 'rgba(232,121,249,0.75)' }, { offset: 1, color: 'rgba(249,115,22,0.75)' }] } } },
-                  { name: 'Conversation',value: dashboard.active,    itemStyle: { shadowBlur: 8, shadowColor: 'rgba(0,0,0,0.18)', shadowOffsetX: 4, shadowOffsetY: 4, color: { type: 'linear', x: 0, y: 0, x2: 0, y2: 1, colorStops: [{ offset: 0, color: 'rgba(232,121,249,1)'    }, { offset: 1, color: 'rgba(249,115,22,1)'    }] } } },
-                ].filter(item => item.value))} />
+                {(() => {
+                  const stages = [
+                    { label: 'Investors',    value: dashboard.total,     opacity: 0.25 },
+                    { label: 'Contacted',    value: dashboard.contacted, opacity: 0.50 },
+                    { label: 'Replied',      value: dashboard.replies,   opacity: 0.75 },
+                    { label: 'Conversation', value: dashboard.active,    opacity: 1.00 },
+                  ].filter(s => s.value)
+                  const N = stages.length, W = 300, H = 262, STEP = 32, GAP = 3
+                  const sliceH = (H - (N - 1) * GAP) / N
+                  return (
+                    <svg viewBox={`0 0 ${W} ${H}`} style={{ width: '100%', height: H }}>
+                      <defs>
+                        {stages.map((_, i) => (
+                          <linearGradient key={i} id={`fg${i}`} x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stopColor="#E879F9" stopOpacity={stages[i].opacity} />
+                            <stop offset="100%" stopColor="#F97316" stopOpacity={stages[i].opacity} />
+                          </linearGradient>
+                        ))}
+                        <filter id="neu">
+                          <feDropShadow dx="3" dy="3" stdDeviation="4" floodColor="rgba(0,0,0,0.20)" floodOpacity="1" />
+                        </filter>
+                      </defs>
+                      {stages.map((s, i) => {
+                        const y1 = i * (sliceH + GAP)
+                        const y2 = y1 + sliceH
+                        const xl1 = i * STEP, xr1 = W - i * STEP
+                        const xl2 = (i + 1) * STEP, xr2 = W - (i + 1) * STEP
+                        const cy = y1 + sliceH / 2
+                        return (
+                          <g key={i} filter="url(#neu)">
+                            <polygon points={`${xl1},${y1} ${xr1},${y1} ${xr2},${y2} ${xl2},${y2}`} fill={`url(#fg${i})`} />
+                            <text x={W / 2 - 30} y={cy + 4} textAnchor="middle" fontSize="11" fontWeight="600" fill="white" fontFamily={FONT}>{s.label}</text>
+                            <text x={W / 2 + 50} y={cy + 4} textAnchor="middle" fontSize="11" fontWeight="700" fill="white" fontFamily={MONO}>{s.value.toLocaleString()}</text>
+                          </g>
+                        )
+                      })}
+                    </svg>
+                  )
+                })()}
               </Card>
               <Card title="Daily activity" subtitle="Email and reply volume over the last 14 days" action={<Pill tone={GREEN}>● Live</Pill>}>
                 <ReactECharts style={{ height: 262 }} option={buildArea(dashboard.trend.map(x => x.label), dashboard.trend.map(x => x.sent), dashboard.trend.map(x => x.replies))} />
