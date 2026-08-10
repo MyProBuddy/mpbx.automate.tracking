@@ -3,6 +3,16 @@ import { useNavigate } from 'react-router-dom'
 import { T } from '../constants.js'
 import Nav from '../components/Nav.jsx'
 
+const FONT  = "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
+const FS    = { h: 32, sh: 18, c: 14, sc: 12 }
+const INK   = '#1a1a1a'
+const MUTED = '#626260'
+
+const NEU_BG     = '#F0F0F0'
+const NEU_SURF   = 'linear-gradient(145deg, #f6f6f6, #e8e8e8)'
+const NEU_SHADOW = '-6px -6px 14px rgba(255,255,255,0.85), 6px 6px 14px rgba(0,0,0,0.12)'
+const NEU_INSET  = 'inset 4px 4px 10px rgba(0,0,0,0.12), inset -4px -4px 10px rgba(255,255,255,0.85)'
+
 const TOOLS = [
   {
     path: '/tools/check-sent-mail',
@@ -24,52 +34,56 @@ const TOOLS = [
 
 function ToolCard({ t }) {
   const navigate = useNavigate()
-  const [hov, setHov] = useState(false)
+  const [pressed, setPressed] = useState(false)
   return (
-    <div
+    <button
       onClick={() => !t.disabled && t.path && navigate(t.path)}
-      onMouseEnter={() => setHov(true)}
-      onMouseLeave={() => setHov(false)}
+      onMouseLeave={() => setPressed(false)}
+      onMouseDown={() => setPressed(true)}
+      onMouseUp={() => setPressed(false)}
       style={{
-        background: T.surface, borderRadius: 12, padding: 24,
-        border: `1px solid ${hov && !t.disabled ? t.color : T.border}`,
-        transition: 'border-color 0.15s', display: 'flex', flexDirection: 'column',
+        background: NEU_SURF, borderRadius: 16, padding: 28, textAlign: 'left',
+        border: 'none', fontFamily: FONT,
+        boxShadow: pressed ? NEU_INSET : NEU_SHADOW,
+        transition: 'box-shadow 0.15s ease, transform 0.15s ease',
+        transform: pressed ? 'scale(0.98)' : 'scale(1)',
+        display: 'flex', flexDirection: 'column',
         opacity: t.disabled ? 0.6 : 1, cursor: t.disabled ? 'default' : 'pointer',
       }}
     >
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-        <div style={{ fontSize: 12, fontWeight: 500, color: t.color }}>TOOL</div>
+        <div style={{ fontSize: FS.sc, fontWeight: 500, color: t.color, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Tool</div>
         {t.disabled && (
-          <span style={{ fontSize: 12, fontWeight: 500, color: T.muted, background: T.bg, border: `1px solid ${T.border}`, borderRadius: 999, padding: '3px 10px' }}>
-            BUILD IN PROGRESS
+          <span style={{ fontSize: FS.sc, fontWeight: 500, color: MUTED, background: 'rgba(0,0,0,0.06)', borderRadius: 999, padding: '3px 10px' }}>
+            Build in progress
           </span>
         )}
       </div>
-      <div style={{ fontSize: 22, fontWeight: 500, color: T.text, letterSpacing: '-0.3px', lineHeight: 1.25, marginBottom: 10 }}>{t.title}</div>
-      <div style={{ fontSize: 14, color: T.muted, lineHeight: 1.6, marginBottom: 24 }}>{t.desc}</div>
+      <div style={{ fontSize: FS.sh, fontWeight: 600, color: INK, letterSpacing: '-0.2px', lineHeight: 1.25, marginBottom: 10 }}>{t.title}</div>
+      <div style={{ fontSize: FS.c, color: MUTED, lineHeight: 1.6, marginBottom: 24 }}>{t.desc}</div>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginTop: 'auto' }}>
         {t.items.map((item, i) => (
           <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <div style={{ width: 4, height: 4, borderRadius: '50%', background: t.color, flexShrink: 0 }} />
-            <span style={{ fontSize: 14, color: T.muted }}>{item}</span>
+            <div style={{ width: 5, height: 5, borderRadius: '50%', background: t.color, flexShrink: 0, boxShadow: `0 0 0 2px ${t.color}30` }} />
+            <span style={{ fontSize: FS.sc, color: MUTED }}>{item}</span>
           </div>
         ))}
       </div>
-    </div>
+    </button>
   )
 }
 
 export default function Tools() {
   return (
-    <div style={{ minHeight: '100vh', fontFamily: T.sans }}>
+    <div style={{ minHeight: '100vh', fontFamily: FONT, background: NEU_BG }}>
       <Nav title="Tools" backTo="/hub" />
       <div style={{ maxWidth: 1200, margin: '0 auto', padding: '40px 48px 80px' }}>
         <div style={{ marginBottom: 44 }}>
-          <div style={{ fontSize: 14, fontWeight: 500, color: '#7C3AED', marginBottom: 8 }}>Utilities</div>
-          <div style={{ fontSize: 40, fontWeight: 500, letterSpacing: '-0.8px', lineHeight: 1.15, color: T.text, marginBottom: 8 }}>Tools</div>
-          <div style={{ fontSize: 16, color: T.muted, lineHeight: 1.5 }}>Diagnostic and configuration utilities for your outreach campaigns.</div>
+          <div style={{ fontSize: FS.c, fontWeight: 500, color: '#7C3AED', marginBottom: 8 }}>Utilities</div>
+          <div style={{ fontSize: FS.h, fontWeight: 600, letterSpacing: '-0.3px', lineHeight: 1.2, color: INK, marginBottom: 6 }}>Tools</div>
+          <div style={{ fontSize: FS.c, color: MUTED, lineHeight: 1.5 }}>Diagnostic and configuration utilities for your outreach campaigns.</div>
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 20 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 24 }}>
           {TOOLS.map(t => <ToolCard key={t.title} t={t} />)}
         </div>
       </div>
