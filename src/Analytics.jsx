@@ -78,7 +78,7 @@ function buildFunnel(data) {
     tooltip: { ...tooltip, trigger: 'item' },
     series: [{
       type: 'funnel', left: '8%', right: '8%', top: 2, bottom: 2, gap: 6, minSize: '22%',
-      label: { position: 'inside', color: '#fff', fontWeight: 700, fontSize: 11, fontFamily: FONT, formatter: '{b}  {c}' },
+      label: { position: 'inside', color: '#fff', fontWeight: 700, fontSize: FS.c, fontFamily: FONT, formatter: '{b}  {c}' },
       itemStyle: { borderWidth: 0, borderRadius: 6 },
       data,
     }],
