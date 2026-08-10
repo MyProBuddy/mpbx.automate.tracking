@@ -12,36 +12,30 @@ const GREEN = '#16A34A'
 const BLUE  = '#2563EB'
 const INK   = T.text
 const MUTED = T.muted
-const LINE  = T.border
+const LINE  = 'rgba(0,0,0,0.08)'
 const MONO  = T.mono
-const SANS  = T.sans
+const FONT  = "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
+const FS    = { h: 22, sh: 15, c: 13, sc: 11 }
+
+const NEU_BG     = '#F0F0F0'
+const NEU_SURF   = 'linear-gradient(145deg, #f6f6f6, #e8e8e8)'
+const NEU_SHADOW = '-6px -6px 14px rgba(255,255,255,0.85), 6px 6px 14px rgba(0,0,0,0.12)'
+const NEU_BTN    = '-4px -4px 10px rgba(255,255,255,0.9), 4px 4px 10px rgba(0,0,0,0.10)'
 
 const parseDate = v => { if (!v) return null; const d = new Date(v); return isNaN(d) ? null : d }
 const parseList = v => String(v || '').replace(/^\[/, '').replace(/\]$/, '').split(',').map(s => parseDate(s.trim())).filter(Boolean)
 const asBool = v => ['1','true','yes','pending','escalated','active'].includes(String(v||'').trim().toLowerCase())
 const isToday = d => { if (!d) return false; const t = new Date(); return d.getFullYear()===t.getFullYear() && d.getMonth()===t.getMonth() && d.getDate()===t.getDate() }
 
-function Pill({ n, color }) {
-  return (
-    <span style={{
-      display: 'inline-block', minWidth: 44, textAlign: 'center',
-      padding: '4px 12px', borderRadius: 999,
-      fontSize: 12, fontWeight: 700, fontFamily: MONO,
-      background: color + '15', color,
-      letterSpacing: '0.01em',
-    }}>{n}</span>
-  )
-}
-
 function ReportRow({ icon, iconColor, label, value, detail }) {
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: 16, padding: '14px 22px' }}>
       <div style={{ width: 34, height: 34, borderRadius: 9, background: iconColor + '15', display: 'grid', placeItems: 'center', fontSize: 15, flexShrink: 0 }}>{icon}</div>
       <div style={{ flex: 1, minWidth: 0 }}>
-        <div style={{ fontSize: 12, fontWeight: 500, color: MUTED, marginBottom: 2 }}>{label}</div>
-        <div style={{ fontSize: 13, color: INK, fontFamily: SANS }}>{detail}</div>
+        <div style={{ fontSize: FS.sc, fontWeight: 500, color: MUTED, marginBottom: 2 }}>{label}</div>
+        <div style={{ fontSize: FS.c, color: INK, fontFamily: FONT }}>{detail}</div>
       </div>
-      <div style={{ fontSize: 26, fontWeight: 800, fontFamily: MONO, letterSpacing: '-0.03em', color: value > 0 ? iconColor : MUTED, flexShrink: 0 }}>{value}</div>
+      <div style={{ fontSize: 26, fontWeight: 700, fontFamily: MONO, letterSpacing: '-0.03em', color: value > 0 ? iconColor : MUTED, flexShrink: 0 }}>{value}</div>
     </div>
   )
 }
@@ -49,11 +43,12 @@ function ReportRow({ icon, iconColor, label, value, detail }) {
 function StatCard({ label, value, color }) {
   return (
     <div style={{
-      background: '#fff', borderRadius: 12, border: `1px solid ${LINE}`,
-      padding: '20px 24px', display: 'flex', flexDirection: 'column', gap: 6,
+      background: NEU_SURF, borderRadius: 16, padding: '18px 20px',
+      display: 'flex', flexDirection: 'column', gap: 6,
+      boxShadow: NEU_SHADOW,
     }}>
-      <div style={{ fontSize: 12, fontWeight: 500, color: MUTED }}>{label}</div>
-      <div style={{ fontSize: 30, fontWeight: 500, letterSpacing: '-0.5px', color: color || INK, fontFamily: MONO, lineHeight: 1 }}>{value}</div>
+      <div style={{ fontSize: FS.sc, fontWeight: 500, color: MUTED }}>{label}</div>
+      <div style={{ fontSize: 28, fontWeight: 500, letterSpacing: '-0.5px', color: color || INK, fontFamily: MONO, lineHeight: 1 }}>{value}</div>
     </div>
   )
 }
@@ -67,7 +62,7 @@ export default function Overview() {
   const [loading,   setLoading]     = useState(false)
   const [mailRows,    setMailRows]    = useState([])
   const [mailLoading, setMailLoading] = useState(false)
-  const [mailPopup,   setMailPopup]   = useState(null) // { clientName, rows }
+  const [mailPopup,   setMailPopup]   = useState(null)
   const [newRefreshToken, setNewRefreshToken] = useState('')
 
   useEffect(() => {
@@ -211,57 +206,46 @@ export default function Overview() {
     { key: 'invalid_email', title: 'Invalid Emails', color: RED },
   ]
 
-  // table styles
-  const th = (right) => ({
-    padding: '11px 18px', fontSize: 12, fontWeight: 500, color: MUTED, borderBottom: `1px solid ${LINE}`,
-    textAlign: right ? 'right' : 'left', background: '#FAFAFA', whiteSpace: 'nowrap',
-    fontFamily: SANS,
-  })
-  const td = { padding: '14px 18px', fontSize: 13, color: INK, borderBottom: `1px solid ${LINE}`, fontFamily: SANS }
-  const tdNum = { ...td, textAlign: 'right', fontFamily: MONO, fontSize: 12 }
-  const totTd = { ...tdNum, fontWeight: 700, background: '#F4F4F8', borderTop: `2px solid ${LINE}`, borderBottom: 'none', fontSize: 13 }
-  const totLabel = { ...td, fontWeight: 700, background: '#F4F4F8', borderTop: `2px solid ${LINE}`, borderBottom: 'none' }
-
-  const thA = { ...th(false), background: '#FAFAFA' }
-  const tdA = { ...td, fontSize: 12 }
+  const thS  = { padding: '11px 18px', fontSize: FS.c, fontWeight: 500, color: MUTED, borderBottom: `1px solid ${LINE}`, textAlign: 'left', background: 'rgba(0,0,0,0.02)', whiteSpace: 'nowrap', fontFamily: FONT }
+  const thR  = { ...thS, textAlign: 'right' }
+  const tdS  = { padding: '14px 18px', fontSize: FS.c, color: INK, borderBottom: `1px solid ${LINE}`, fontFamily: FONT }
+  const tdNum = { ...tdS, textAlign: 'right', fontFamily: MONO, fontSize: FS.c }
+  const totTd = { ...tdNum, fontWeight: 500, color: INK, background: 'rgba(0,0,0,0.03)', borderTop: `1px solid rgba(0,0,0,0.08)`, borderBottom: 'none' }
+  const totLabel = { ...tdS, fontWeight: 500, color: INK, background: 'rgba(0,0,0,0.03)', borderTop: `1px solid rgba(0,0,0,0.08)`, borderBottom: 'none' }
 
   const connectButton = !googleSyncing && !connected && role === 'superadmin' && (
     <button disabled={!googleReady} onClick={() => { initTokenClient(() => setConnected(true), (rt) => setNewRefreshToken(rt)); requestToken() }}
-      style={{ height: 36, border: 0, borderRadius: 8, padding: '0 18px', background: INK, color: '#fff', cursor: 'pointer', fontFamily: SANS, fontWeight: 600, fontSize: 13 }}>
+      style={{ height: 36, border: 'none', borderRadius: 10, padding: '0 18px', background: NEU_SURF, color: INK, cursor: 'pointer', fontFamily: FONT, fontWeight: 600, fontSize: FS.c, boxShadow: NEU_BTN }}>
       Connect Google
     </button>
   )
 
   return (
-    <div style={{ minHeight: '100vh', fontFamily: SANS, background: '#fff' }}>
+    <div style={{ minHeight: '100vh', fontFamily: FONT, background: NEU_BG }}>
       <Nav title="Overview" backTo="/hub" extra={connectButton} />
 
       <main style={{ maxWidth: 1280, margin: '0 auto', padding: '40px 48px 100px' }}>
 
-        {/* New Refresh Token display */}
         {newRefreshToken && (
-          <div style={{ padding: '16px 20px', background: '#F0FDF4', border: `1px solid ${GREEN}30`, borderRadius: 10, fontSize: 13, color: GREEN, fontWeight: 500, marginBottom: 32 }}>
+          <div style={{ padding: '16px 20px', background: NEU_SURF, borderRadius: 12, fontSize: FS.c, color: GREEN, fontWeight: 500, marginBottom: 32, boxShadow: NEU_SHADOW }}>
             ✓ Google Account connected permanently. The authorization has been securely stored in your Gist and is now active for all users and browsers!
           </div>
         )}
 
-        {/* Page title */}
         <div style={{ marginBottom: 32 }}>
-          <div style={{ fontSize: 14, fontWeight: 500, color: A, marginBottom: 8 }}>All Clients</div>
-          <h1 style={{ fontSize: 40, fontWeight: 500, letterSpacing: '-0.8px', lineHeight: 1.15, margin: '0 0 8px', color: INK }}>Outreach at a glance</h1>
-          <p style={{ fontSize: 13, color: MUTED, margin: 0, lineHeight: 1.6 }}>Live summary across every client campaign. Click a row to drill into Analytics.</p>
+          <div style={{ fontSize: FS.c, fontWeight: 500, color: A, marginBottom: 8 }}>All Clients</div>
+          <h1 style={{ fontSize: FS.h, fontWeight: 600, letterSpacing: '-0.3px', lineHeight: 1.2, margin: '0 0 8px', color: INK }}>Outreach at a glance</h1>
+          <p style={{ fontSize: FS.c, color: MUTED, margin: 0, lineHeight: 1.6 }}>Live summary across every client campaign. Click a row to drill into Analytics.</p>
         </div>
 
-        {/* Not connected */}
         {!connected && role !== 'superadmin' && (
-          <div style={{ padding: '16px 20px', background: '#FEF2F2', border: `1px solid ${RED}30`, borderRadius: 10, fontSize: 13, color: RED, fontWeight: 500, marginBottom: 32 }}>
+          <div style={{ padding: '16px 20px', background: NEU_SURF, borderRadius: 12, fontSize: FS.c, color: RED, fontWeight: 500, marginBottom: 32, boxShadow: NEU_SHADOW }}>
             Google not connected — ask your Super Admin to connect Google first.
           </div>
         )}
 
-        {/* Loading */}
         {loading && (
-          <div style={{ padding: '80px 0', textAlign: 'center', color: MUTED, fontSize: 13 }}>
+          <div style={{ padding: '80px 0', textAlign: 'center', color: MUTED, fontSize: FS.c }}>
             Scanning all client sheets…
           </div>
         )}
@@ -269,7 +253,7 @@ export default function Overview() {
         {!loading && overview.length > 0 && (
           <>
             {/* Stat summary row */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 12, marginBottom: 28 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 14, marginBottom: 28 }}>
               <StatCard label="Total"        value={totals.total}       />
               <StatCard label="Initial Sent" value={totals.initialSent} color="#5B4AE8" />
               <StatCard label="This Week"    value={totals.thisWeek}    color={BLUE} />
@@ -280,74 +264,59 @@ export default function Overview() {
             </div>
 
             {/* Today's Report */}
-            <div style={{ background: '#fff', borderRadius: 14, border: `1px solid ${LINE}`, overflow: 'hidden', boxShadow: '0 1px 6px rgba(0,0,0,0.05)', marginBottom: 28 }}>
-              <div style={{ padding: '14px 22px', borderBottom: `1px solid ${LINE}`, display: 'flex', alignItems: 'center', gap: 10, background: '#FAFAFA' }}>
+            <div style={{ background: NEU_SURF, borderRadius: 20, boxShadow: NEU_SHADOW, overflow: 'hidden', marginBottom: 28 }}>
+              <div style={{ padding: '14px 22px', borderBottom: `1px solid ${LINE}`, display: 'flex', alignItems: 'center', gap: 10, background: 'rgba(0,0,0,0.02)' }}>
                 <div style={{ width: 8, height: 8, borderRadius: '50%', background: GREEN, boxShadow: `0 0 0 3px ${GREEN}30` }} />
-                <span style={{ fontSize: 12, fontWeight: 500, color: MUTED, fontFamily: SANS }}>Today's Report</span>
-                <span style={{ fontSize: 11, color: MUTED, fontFamily: MONO, marginLeft: 'auto' }}>
+                <span style={{ fontSize: FS.sc, fontWeight: 500, color: MUTED, fontFamily: FONT }}>Today's Report</span>
+                <span style={{ fontSize: FS.sc, color: MUTED, fontFamily: MONO, marginLeft: 'auto' }}>
                   {new Date().toLocaleDateString('en-GB', { weekday: 'long', day: '2-digit', month: 'short', year: 'numeric' })}
                 </span>
               </div>
               <div style={{ padding: '6px 0' }}>
-                <ReportRow
-                  icon="✉"
-                  iconColor="#5B4AE8"
-                  label="New mail outreached"
-                  value={totals.todayInitial}
-                  detail={totals.todayInitial === 0 ? 'No initial emails sent today' : `${totals.todayInitial} sent today across ${todayClientsInitial} client${todayClientsInitial !== 1 ? 's' : ''}`}
-                />
+                <ReportRow icon="✉" iconColor="#5B4AE8" label="New mail outreached" value={totals.todayInitial}
+                  detail={totals.todayInitial === 0 ? 'No initial emails sent today' : `${totals.todayInitial} sent today across ${todayClientsInitial} client${todayClientsInitial !== 1 ? 's' : ''}`} />
                 <div style={{ height: 1, background: LINE, margin: '0 22px' }} />
-                <ReportRow
-                  icon="↩"
-                  iconColor={AMBER}
-                  label="Followups sent"
-                  value={totals.todayFollowup}
-                  detail={totals.todayFollowup === 0 ? 'No followups sent today' : `${totals.todayFollowup} sent today across ${todayClientsFollowup} client${todayClientsFollowup !== 1 ? 's' : ''}`}
-                />
+                <ReportRow icon="↩" iconColor={AMBER} label="Followups sent" value={totals.todayFollowup}
+                  detail={totals.todayFollowup === 0 ? 'No followups sent today' : `${totals.todayFollowup} sent today across ${todayClientsFollowup} client${todayClientsFollowup !== 1 ? 's' : ''}`} />
                 <div style={{ height: 1, background: LINE, margin: '0 22px' }} />
-                <ReportRow
-                  icon="💬"
-                  iconColor={GREEN}
-                  label="Replies detected"
-                  value={totals.todayReplies}
-                  detail={totals.todayReplies === 0 ? 'No new replies today' : `${totals.todayReplies} new repl${totals.todayReplies !== 1 ? 'ies' : 'y'} received today`}
-                />
+                <ReportRow icon="💬" iconColor={GREEN} label="Replies detected" value={totals.todayReplies}
+                  detail={totals.todayReplies === 0 ? 'No new replies today' : `${totals.todayReplies} new repl${totals.todayReplies !== 1 ? 'ies' : 'y'} received today`} />
               </div>
             </div>
 
             {/* Clients table */}
-            <div style={{ background: '#fff', borderRadius: 14, border: `1px solid ${LINE}`, overflow: 'hidden', boxShadow: '0 1px 6px rgba(0,0,0,0.05)', marginBottom: 40 }}>
+            <div style={{ background: NEU_SURF, borderRadius: 20, boxShadow: NEU_SHADOW, overflow: 'hidden', marginBottom: 40 }}>
               <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                 <thead>
                   <tr>
-                    <th style={th(false)}>Client</th>
-                    <th style={th(true)}>Total</th>
-                    <th style={th(true)}>Initial Sent</th>
-                    <th style={th(true)}>This Week</th>
-                    <th style={th(true)}>Followup 1</th>
-                    <th style={th(true)}>Followup 2</th>
-                    <th style={th(true)}>Followup 3</th>
-                    <th style={th(true)}>Replies</th>
+                    <th style={thS}>Client</th>
+                    <th style={thR}>Total</th>
+                    <th style={thR}>Initial Sent</th>
+                    <th style={thR}>This Week</th>
+                    <th style={thR}>Followup 1</th>
+                    <th style={thR}>Followup 2</th>
+                    <th style={thR}>Followup 3</th>
+                    <th style={thR}>Replies</th>
                   </tr>
                 </thead>
                 <tbody>
                   {overview.map(r => (
                     <tr key={r.id}
                       onClick={() => navigate('/analytics')}
-                      onMouseEnter={e => e.currentTarget.style.background = '#F6F5FF'}
+                      onMouseEnter={e => e.currentTarget.style.background = 'rgba(0,0,0,0.03)'}
                       onMouseLeave={e => e.currentTarget.style.background = ''}
                       style={{ cursor: 'pointer', transition: 'background 0.1s' }}>
-                      <td style={td}>
-                        <span style={{ fontWeight: 600, color: A }}>{r.name}</span>
-                        {r.error && <span style={{ fontSize: 11, color: RED, marginLeft: 8, fontWeight: 500 }}>{r.error}</span>}
+                      <td style={tdS}>
+                        <div style={{ fontWeight: 400, color: INK }}>{r.name}</div>
+                        {r.error && <span style={{ fontSize: FS.sc, color: RED, marginLeft: 8, fontWeight: 500 }}>{r.error}</span>}
                       </td>
                       <td style={tdNum}>{r.error ? '—' : r.total}</td>
-                      <td style={tdNum}>{r.error ? '—' : <Pill n={r.initialSent} color="#5B4AE8" />}</td>
-                      <td style={tdNum}>{r.error ? '—' : <Pill n={r.thisWeek}    color={BLUE} />}</td>
-                      <td style={tdNum}>{r.error ? '—' : <Pill n={r.f1}          color={AMBER} />}</td>
-                      <td style={tdNum}>{r.error ? '—' : <Pill n={r.f2}          color={AMBER} />}</td>
-                      <td style={tdNum}>{r.error ? '—' : <Pill n={r.f3}          color={AMBER} />}</td>
-                      <td style={tdNum}>{r.error ? '—' : <Pill n={r.replies}     color={GREEN} />}</td>
+                      <td style={tdNum}>{r.error ? '—' : r.initialSent}</td>
+                      <td style={tdNum}>{r.error ? '—' : r.thisWeek}</td>
+                      <td style={tdNum}>{r.error ? '—' : r.f1}</td>
+                      <td style={tdNum}>{r.error ? '—' : r.f2}</td>
+                      <td style={tdNum}>{r.error ? '—' : r.f3}</td>
+                      <td style={tdNum}>{r.error ? '—' : r.replies}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -367,19 +336,19 @@ export default function Overview() {
             </div>
 
             {/* Needs Attention */}
-            <div style={{ marginBottom: 8 }}>
-              <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: '.1em', textTransform: 'uppercase', color: RED, marginBottom: 6 }}>Needs Attention</div>
-              <h2 style={{ fontSize: 18, fontWeight: 700, letterSpacing: '-0.02em', margin: '0 0 20px', color: INK }}>
+            <div style={{ marginBottom: 16 }}>
+              <div style={{ fontSize: FS.c, fontWeight: 500, color: RED, marginBottom: 6 }}>Needs Attention</div>
+              <h2 style={{ fontSize: FS.sh, fontWeight: 600, letterSpacing: '-0.02em', margin: '0 0 20px', color: INK }}>
                 {alerts.length === 0 ? 'Everything looks good' : `${alerts.length} item${alerts.length !== 1 ? 's' : ''} need review`}
               </h2>
             </div>
 
             {alerts.length === 0 ? (
-              <div style={{ background: '#fff', borderRadius: 12, border: `1px solid ${LINE}`, padding: '32px 24px', display: 'flex', alignItems: 'center', gap: 16 }}>
+              <div style={{ background: NEU_SURF, borderRadius: 20, boxShadow: NEU_SHADOW, padding: '28px 24px', display: 'flex', alignItems: 'center', gap: 16 }}>
                 <div style={{ width: 36, height: 36, borderRadius: '50%', background: GREEN + '18', display: 'grid', placeItems: 'center', color: GREEN, fontSize: 18, flexShrink: 0 }}>✓</div>
                 <div>
-                  <div style={{ fontSize: 14, fontWeight: 600, color: INK, marginBottom: 2 }}>All clear</div>
-                  <div style={{ fontSize: 13, color: MUTED }}>No escalations, invalid emails, or overdue followups found.</div>
+                  <div style={{ fontSize: FS.c, fontWeight: 500, color: INK, marginBottom: 2 }}>All clear</div>
+                  <div style={{ fontSize: FS.sc, color: MUTED }}>No escalations, invalid emails, or overdue followups found.</div>
                 </div>
               </div>
             ) : (
@@ -387,38 +356,38 @@ export default function Overview() {
                 {alertSections.map(sec => {
                   const rows = grouped[sec.key]
                   if (!rows?.length) return (
-                    <div key={sec.key} style={{ background: '#fff', borderRadius: 12, border: `1px solid ${LINE}`, padding: '20px 18px', display: 'flex', alignItems: 'center', gap: 10 }}>
+                    <div key={sec.key} style={{ background: NEU_SURF, borderRadius: 20, boxShadow: NEU_SHADOW, padding: '20px 18px', display: 'flex', alignItems: 'center', gap: 10 }}>
                       <div style={{ width: 28, height: 28, borderRadius: '50%', background: GREEN + '15', display: 'grid', placeItems: 'center', color: GREEN, fontSize: 14, flexShrink: 0 }}>✓</div>
                       <div>
-                        <div style={{ fontSize: 12, fontWeight: 700, color: INK }}>{sec.title}</div>
-                        <div style={{ fontSize: 11, color: MUTED, marginTop: 2 }}>None found</div>
+                        <div style={{ fontSize: FS.c, fontWeight: 500, color: INK }}>{sec.title}</div>
+                        <div style={{ fontSize: FS.sc, color: MUTED, marginTop: 2 }}>None found</div>
                       </div>
                     </div>
                   )
                   return (
-                    <div key={sec.key} style={{ background: '#fff', borderRadius: 12, border: `1px solid ${LINE}`, overflow: 'hidden' }}>
-                      <div style={{ padding: '13px 18px', display: 'flex', alignItems: 'center', gap: 8, borderBottom: `1px solid ${LINE}`, background: sec.color + '08' }}>
-                        <span style={{ fontSize: 13, fontWeight: 700, color: sec.color, fontFamily: SANS }}>{sec.title}</span>
-                        <span style={{ background: sec.color + '18', color: sec.color, fontSize: 11, fontWeight: 700, padding: '2px 9px', borderRadius: 999, fontFamily: MONO }}>{rows.length}</span>
+                    <div key={sec.key} style={{ background: NEU_SURF, borderRadius: 20, boxShadow: NEU_SHADOW, overflow: 'hidden' }}>
+                      <div style={{ padding: '13px 18px', display: 'flex', alignItems: 'center', gap: 8, borderBottom: `1px solid ${LINE}`, background: 'rgba(0,0,0,0.02)' }}>
+                        <span style={{ fontSize: FS.c, fontWeight: 500, color: sec.color, fontFamily: FONT }}>{sec.title}</span>
+                        <span style={{ background: sec.color + '18', color: sec.color, fontSize: FS.sc, fontWeight: 500, padding: '2px 9px', borderRadius: 999, fontFamily: MONO }}>{rows.length}</span>
                       </div>
                       <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                         <thead>
                           <tr>
-                            <th style={thA}>Client</th>
-                            <th style={thA}>ID</th>
-                            <th style={thA}>Detail</th>
+                            <th style={thS}>Client</th>
+                            <th style={thS}>ID</th>
+                            <th style={thS}>Detail</th>
                           </tr>
                         </thead>
                         <tbody>
                           {rows.slice(0, 8).map((r, i) => (
                             <tr key={i}>
-                              <td style={{ ...tdA, fontWeight: 600, color: A }}>{r.client}</td>
-                              <td style={{ ...tdA, fontFamily: MONO, fontSize: 11, color: MUTED }}>{r.id || '—'}</td>
-                              <td style={{ ...tdA, color: sec.color, fontWeight: 500 }}>{r.detail}</td>
+                              <td style={{ ...tdS, fontSize: FS.sc }}>{r.client}</td>
+                              <td style={{ ...tdS, fontFamily: MONO, fontSize: FS.sc, color: MUTED }}>{r.id || '—'}</td>
+                              <td style={{ ...tdS, fontSize: FS.sc, color: sec.color }}>{r.detail}</td>
                             </tr>
                           ))}
                           {rows.length > 8 && (
-                            <tr><td colSpan={3} style={{ ...tdA, color: MUTED, fontSize: 11, fontStyle: 'italic' }}>+{rows.length - 8} more</td></tr>
+                            <tr><td colSpan={3} style={{ ...tdS, color: MUTED, fontSize: FS.sc, fontStyle: 'italic' }}>+{rows.length - 8} more</td></tr>
                           )}
                         </tbody>
                       </table>
@@ -427,61 +396,46 @@ export default function Overview() {
                 })}
               </div>
             )}
-            {/* Mail Validation & Bounce Check */}
+
+            {/* Mail Validation */}
             {(() => {
               const safe    = mailRows.filter(r => r.status === 'safe')
               const risky   = mailRows.filter(r => r.status === 'risky')
               const invalid = mailRows.filter(r => r.status === 'invalid')
               const unknown = mailRows.filter(r => !['safe','risky','invalid'].includes(r.status))
-              const statusColor = s => s === 'safe' ? GREEN : s === 'risky' ? AMBER : s === 'invalid' ? RED : MUTED
-              const statusLabel = s => s === 'safe' ? 'Safe' : s === 'risky' ? 'Risky' : s === 'invalid' ? 'Invalid' : 'Unknown'
               return (
                 <div style={{ marginTop: 48 }}>
                   <div style={{ marginBottom: 20 }}>
-                    <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: '.1em', textTransform: 'uppercase', color: BLUE, marginBottom: 6 }}>Email Health</div>
-                    <h2 style={{ fontSize: 18, fontWeight: 700, letterSpacing: '-0.02em', margin: '0 0 4px', color: INK }}>Mail Validation & Bounce Check</h2>
-                    <p style={{ fontSize: 13, color: MUTED, margin: '0 0 16px' }}>Validity status of investor emails across all campaigns.</p>
+                    <div style={{ fontSize: FS.c, fontWeight: 500, color: BLUE, marginBottom: 6 }}>Email Health</div>
+                    <h2 style={{ fontSize: FS.sh, fontWeight: 600, letterSpacing: '-0.02em', margin: '0 0 4px', color: INK }}>Mail Validation & Bounce Check</h2>
+                    <p style={{ fontSize: FS.c, color: MUTED, margin: '0 0 16px' }}>Validity status of investor emails across all campaigns.</p>
                     <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
                       {[
-                        {
-                          status: 'Valid', color: GREEN,
-                          desc: 'Email address is deliverable — domain exists, mailbox is active, and our outreach tool confirmed it can receive mail safely.',
-                        },
-                        {
-                          status: 'Risky', color: AMBER,
-                          desc: 'Deliverable but flagged — typically a catch-all domain (accepts all mail), role-based address (info@, contact@), or a domain with low sender reputation. May bounce or go unread.',
-                        },
-                        {
-                          status: 'Invalid', color: RED,
-                          desc: 'Not deliverable — domain does not exist, mailbox is inactive or rejected, or the address failed SMTP verification. Sending to these will hard-bounce.',
-                        },
-                        {
-                          status: 'Unknown', color: MUTED,
-                          desc: "Reacher couldn't determine deliverability — usually due to a timeout, greylisting, or the server not responding to SMTP checks. Treat with caution; may or may not deliver.",
-                        },
+                        { status: 'Valid',   color: GREEN, desc: 'Email address is deliverable — domain exists, mailbox is active, and our outreach tool confirmed it can receive mail safely.' },
+                        { status: 'Risky',   color: AMBER, desc: 'Deliverable but flagged — typically a catch-all domain, role-based address (info@, contact@), or a domain with low sender reputation. May bounce or go unread.' },
+                        { status: 'Invalid', color: RED,   desc: 'Not deliverable — domain does not exist, mailbox is inactive or rejected, or the address failed SMTP verification. Sending to these will hard-bounce.' },
+                        { status: 'Unknown', color: MUTED, desc: "Reacher couldn't determine deliverability — usually due to a timeout, greylisting, or the server not responding to SMTP checks. Treat with caution." },
                       ].map(({ status, color, desc }) => (
-                        <div key={status} style={{ flex: '1 1 200px', background: color + '08', border: `1px solid ${color}25`, borderRadius: 10, padding: '12px 16px', display: 'flex', gap: 10, alignItems: 'flex-start' }}>
-                          <span style={{ display: 'inline-block', marginTop: 1, padding: '2px 10px', borderRadius: 999, fontSize: 10, fontWeight: 700, fontFamily: MONO, background: color + '20', color, flexShrink: 0 }}>{status}</span>
-                          <span style={{ fontSize: 12, color: MUTED, lineHeight: 1.5 }}>{desc}</span>
+                        <div key={status} style={{ flex: '1 1 200px', background: NEU_SURF, borderRadius: 14, padding: '12px 16px', display: 'flex', gap: 10, alignItems: 'flex-start', boxShadow: NEU_SHADOW }}>
+                          <span style={{ display: 'inline-block', marginTop: 1, padding: '2px 10px', borderRadius: 999, fontSize: FS.sc, fontWeight: 500, fontFamily: MONO, background: color + '20', color, flexShrink: 0 }}>{status}</span>
+                          <span style={{ fontSize: FS.sc, color: MUTED, lineHeight: 1.5 }}>{desc}</span>
                         </div>
                       ))}
                     </div>
-                    {/* Reacher accuracy note */}
-                    <div style={{ marginTop: 14, padding: '10px 16px', background: '#F8F7FF', border: `1px solid ${A}20`, borderRadius: 8, fontSize: 12, color: MUTED, lineHeight: 1.6 }}>
-                      <span style={{ fontWeight: 700, color: A }}>About Reacher accuracy — </span>
-                      Our self-hosted <span style={{ fontWeight: 600, color: INK }}>Reacher</span> uses real-time SMTP handshakes for verification, similar to <span style={{ fontWeight: 600, color: INK }}>Hunter.io</span>. Hunter is a mature commercial product with a larger data set and domain reputation database, making it generally more reliable — especially on catch-all and role-based addresses. Reacher's advantage is privacy (no data leaves our infrastructure) and no per-lookup cost. The <em>unknown</em> results you see here are cases where the target mail server timed out or blocked the SMTP probe — Hunter may classify some of these as valid using its historical data, which can lead to different results between the two tools.
+                    <div style={{ marginTop: 14, padding: '10px 16px', background: NEU_SURF, borderRadius: 10, fontSize: FS.sc, color: MUTED, lineHeight: 1.6, boxShadow: NEU_SHADOW }}>
+                      <span style={{ fontWeight: 600, color: A }}>About Reacher accuracy — </span>
+                      Our self-hosted <span style={{ fontWeight: 600, color: INK }}>Reacher</span> uses real-time SMTP handshakes for verification, similar to <span style={{ fontWeight: 600, color: INK }}>Hunter.io</span>. Hunter is a mature commercial product with a larger data set and domain reputation database, making it generally more reliable — especially on catch-all and role-based addresses. Reacher's advantage is privacy (no data leaves our infrastructure) and no per-lookup cost. The <em>unknown</em> results you see here are cases where the target mail server timed out or blocked the SMTP probe.
                     </div>
                   </div>
 
                   {mailLoading ? (
-                    <div style={{ padding: '40px 0', textAlign: 'center', color: MUTED, fontSize: 13 }}>Loading mail validation data…</div>
+                    <div style={{ padding: '40px 0', textAlign: 'center', color: MUTED, fontSize: FS.c }}>Loading mail validation data…</div>
                   ) : mailRows.length === 0 ? (
-                    <div style={{ background: '#fff', borderRadius: 12, border: `1px solid ${LINE}`, padding: '32px 24px', color: MUTED, fontSize: 13, textAlign: 'center' }}>
+                    <div style={{ background: NEU_SURF, borderRadius: 20, boxShadow: NEU_SHADOW, padding: '32px 24px', color: MUTED, fontSize: FS.c, textAlign: 'center' }}>
                       No validation data found.
                     </div>
                   ) : (
                     <>
-                      {/* Summary cards */}
                       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 14, marginBottom: 24 }}>
                         {[
                           { label: 'Total Checked', value: mailRows.length, color: INK },
@@ -490,15 +444,14 @@ export default function Overview() {
                           { label: 'Invalid',       value: invalid.length,  color: RED },
                           { label: 'Unknown',       value: unknown.length,  color: MUTED },
                         ].map(({ label, value, color }) => (
-                          <div key={label} style={{ background: '#fff', borderRadius: 12, border: `1px solid ${LINE}`, padding: '18px 22px', borderTop: `3px solid ${color}` }}>
-                            <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase', color: MUTED, marginBottom: 6 }}>{label}</div>
-                            <div style={{ fontSize: 28, fontWeight: 800, letterSpacing: '-0.03em', color, fontFamily: MONO, lineHeight: 1 }}>{value}</div>
-                            {mailRows.length > 0 && <div style={{ fontSize: 11, color: MUTED, marginTop: 4 }}>{Math.round(value / mailRows.length * 100)}% of total</div>}
+                          <div key={label} style={{ background: NEU_SURF, borderRadius: 16, boxShadow: NEU_SHADOW, padding: '18px 20px' }}>
+                            <div style={{ fontSize: FS.sc, fontWeight: 500, color: MUTED, marginBottom: 6 }}>{label}</div>
+                            <div style={{ fontSize: 26, fontWeight: 500, letterSpacing: '-0.03em', color, fontFamily: MONO, lineHeight: 1 }}>{value}</div>
+                            {mailRows.length > 0 && <div style={{ fontSize: FS.sc, color: MUTED, marginTop: 4 }}>{Math.round(value / mailRows.length * 100)}% of total</div>}
                           </div>
                         ))}
                       </div>
 
-                      {/* Grouped by client table */}
                       {(() => {
                         const bySheet = {}
                         mailRows.forEach(r => {
@@ -524,33 +477,33 @@ export default function Overview() {
                         const totUnknown = clientRows.reduce((s, r) => s + r.unknown, 0)
                         const totTotal   = clientRows.reduce((s, r) => s + r.total,   0)
                         return (
-                          <div style={{ background: '#fff', borderRadius: 14, border: `1px solid ${LINE}`, overflow: 'hidden', boxShadow: '0 1px 6px rgba(0,0,0,0.05)' }}>
+                          <div style={{ background: NEU_SURF, borderRadius: 20, boxShadow: NEU_SHADOW, overflow: 'hidden' }}>
                             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                               <thead>
                                 <tr>
-                                  <th style={th(false)}>Client</th>
-                                  <th style={th(true)}>Total</th>
-                                  <th style={th(true)}>Valid</th>
-                                  <th style={th(true)}>Risky</th>
-                                  <th style={th(true)}>Invalid</th>
-                                  <th style={th(true)}>Unknown</th>
-                                  <th style={th(false)}></th>
+                                  <th style={thS}>Client</th>
+                                  <th style={thR}>Total</th>
+                                  <th style={thR}>Valid</th>
+                                  <th style={thR}>Risky</th>
+                                  <th style={thR}>Invalid</th>
+                                  <th style={thR}>Unknown</th>
+                                  <th style={thS}></th>
                                 </tr>
                               </thead>
                               <tbody>
                                 {clientRows.map((r, i) => (
                                   <tr key={i}
-                                    onMouseEnter={e => e.currentTarget.style.background = '#F6F5FF'}
+                                    onMouseEnter={e => e.currentTarget.style.background = 'rgba(0,0,0,0.03)'}
                                     onMouseLeave={e => e.currentTarget.style.background = ''}>
-                                    <td style={{ ...td, fontWeight: 600, color: A }}>{r.name}</td>
+                                    <td style={{ ...tdS, fontWeight: 400, color: INK }}>{r.name}</td>
                                     <td style={tdNum}>{r.total}</td>
-                                    <td style={tdNum}><Pill n={r.valid}   color={GREEN} /></td>
-                                    <td style={tdNum}><Pill n={r.risky}   color={AMBER} /></td>
-                                    <td style={tdNum}><Pill n={r.invalid} color={RED}   /></td>
-                                    <td style={tdNum}><Pill n={r.unknown} color={MUTED} /></td>
-                                    <td style={{ ...td, textAlign: 'right' }}>
+                                    <td style={tdNum}>{r.valid}</td>
+                                    <td style={tdNum}>{r.risky}</td>
+                                    <td style={tdNum}>{r.invalid}</td>
+                                    <td style={tdNum}>{r.unknown}</td>
+                                    <td style={{ ...tdS, textAlign: 'right' }}>
                                       <button onClick={() => setMailPopup({ clientName: r.name, rows: r.rows })}
-                                        style={{ fontSize: 12, fontWeight: 600, color: A, background: A + '12', border: 'none', borderRadius: 6, padding: '5px 14px', cursor: 'pointer', fontFamily: SANS }}>
+                                        style={{ fontSize: FS.sc, fontWeight: 500, color: A, background: A + '12', border: 'none', borderRadius: 6, padding: '5px 14px', cursor: 'pointer', fontFamily: FONT }}>
                                         View all
                                       </button>
                                     </td>
@@ -565,7 +518,7 @@ export default function Overview() {
                                   <td style={totTd}>{totRisky}</td>
                                   <td style={totTd}>{totInvalid}</td>
                                   <td style={totTd}>{totUnknown}</td>
-                                  <td style={{ ...totTd, background: '#F4F4F8' }}></td>
+                                  <td style={{ ...totTd }}></td>
                                 </tr>
                               </tfoot>
                             </table>
@@ -588,37 +541,35 @@ export default function Overview() {
           display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000,
         }}>
           <div onClick={e => e.stopPropagation()} style={{
-            background: '#fff', borderRadius: 16, width: '90%', maxWidth: 560,
+            background: NEU_SURF, borderRadius: 20, width: '90%', maxWidth: 560,
             maxHeight: '80vh', display: 'flex', flexDirection: 'column',
             boxShadow: '0 24px 64px rgba(0,0,0,0.22)',
           }}>
-            {/* Header */}
             <div style={{ padding: '18px 24px', borderBottom: `1px solid ${LINE}`, display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
               <div>
-                <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase', color: MUTED, marginBottom: 2 }}>Mail Validation</div>
-                <div style={{ fontSize: 15, fontWeight: 700, color: INK }}>{mailPopup.clientName}</div>
+                <div style={{ fontSize: FS.sc, fontWeight: 500, color: MUTED, marginBottom: 2 }}>Mail Validation</div>
+                <div style={{ fontSize: FS.sh, fontWeight: 600, color: INK }}>{mailPopup.clientName}</div>
               </div>
-              <button onClick={() => setMailPopup(null)} style={{ border: 'none', background: '#F3F4F6', borderRadius: 8, width: 32, height: 32, cursor: 'pointer', fontSize: 16, color: MUTED, display: 'grid', placeItems: 'center' }}>✕</button>
+              <button onClick={() => setMailPopup(null)} style={{ border: 'none', background: NEU_SURF, borderRadius: 8, width: 32, height: 32, cursor: 'pointer', fontSize: 16, color: MUTED, display: 'grid', placeItems: 'center', boxShadow: NEU_BTN }}>✕</button>
             </div>
-            {/* Scrollable list */}
             <div style={{ overflowY: 'auto', flex: 1 }}>
               <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                 <thead style={{ position: 'sticky', top: 0 }}>
                   <tr>
-                    <th style={th(false)}>ID</th>
-                    <th style={th(false)}>Email</th>
-                    <th style={th(false)}>Status</th>
+                    <th style={thS}>ID</th>
+                    <th style={thS}>Email</th>
+                    <th style={thS}>Status</th>
                   </tr>
                 </thead>
                 <tbody>
                   {mailPopup.rows.map((r, i) => {
                     const c = r.status === 'safe' ? GREEN : r.status === 'risky' ? AMBER : RED
                     return (
-                      <tr key={i} onMouseEnter={e => e.currentTarget.style.background = '#FAFAFA'} onMouseLeave={e => e.currentTarget.style.background = ''}>
-                        <td style={{ ...tdA, fontFamily: MONO, fontSize: 11, color: MUTED }}>{r.id || '—'}</td>
-                        <td style={{ ...tdA, fontSize: 12 }}>{r.email || '—'}</td>
-                        <td style={tdA}>
-                          <span style={{ display: 'inline-block', padding: '3px 11px', borderRadius: 999, fontSize: 11, fontWeight: 700, fontFamily: MONO, background: c + '18', color: c, textTransform: 'capitalize' }}>
+                      <tr key={i} onMouseEnter={e => e.currentTarget.style.background = 'rgba(0,0,0,0.03)'} onMouseLeave={e => e.currentTarget.style.background = ''}>
+                        <td style={{ ...tdS, fontFamily: MONO, fontSize: FS.sc, color: MUTED }}>{r.id || '—'}</td>
+                        <td style={{ ...tdS, fontSize: FS.c }}>{r.email || '—'}</td>
+                        <td style={tdS}>
+                          <span style={{ display: 'inline-block', padding: '3px 11px', borderRadius: 999, fontSize: FS.sc, fontWeight: 500, fontFamily: MONO, background: c + '18', color: c, textTransform: 'capitalize' }}>
                             {r.status || '—'}
                           </span>
                         </td>
@@ -628,7 +579,7 @@ export default function Overview() {
                 </tbody>
               </table>
             </div>
-            <div style={{ padding: '12px 24px', borderTop: `1px solid ${LINE}`, fontSize: 12, color: MUTED, flexShrink: 0 }}>
+            <div style={{ padding: '12px 24px', borderTop: `1px solid ${LINE}`, fontSize: FS.sc, color: MUTED, flexShrink: 0 }}>
               {mailPopup.rows.length} emails total
             </div>
           </div>
