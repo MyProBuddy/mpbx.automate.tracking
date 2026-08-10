@@ -1119,10 +1119,10 @@ export default function Analytics() {
             <div style={grid12('5fr 7fr')}>
               <Card title="Outreach funnel" subtitle="Measured workflow stages">
                 <ReactECharts style={{ height: 262 }} option={buildFunnel([
-                  { name: 'Investors',    value: dashboard.total,     itemStyle: { color: { type: 'linear', x: 0, y: 0, x2: 1, y2: 0, colorStops: [{ offset: 0, color: 'rgba(192,38,211,0.25)' }, { offset: 1, color: 'rgba(212,40,140,0.25)' }] } } },
-                  { name: 'Contacted',   value: dashboard.contacted, itemStyle: { color: { type: 'linear', x: 0, y: 0, x2: 1, y2: 0, colorStops: [{ offset: 0, color: 'rgba(212,40,140,0.50)' }, { offset: 1, color: 'rgba(244,63,94,0.50)'  }] } } },
-                  { name: 'Replied',     value: dashboard.replies,   itemStyle: { color: { type: 'linear', x: 0, y: 0, x2: 1, y2: 0, colorStops: [{ offset: 0, color: 'rgba(244,63,94,0.75)'  }, { offset: 1, color: 'rgba(249,115,22,0.75)' }] } } },
-                  { name: 'Conversation',value: dashboard.active,    itemStyle: { color: { type: 'linear', x: 0, y: 0, x2: 1, y2: 0, colorStops: [{ offset: 0, color: 'rgba(249,115,22,1)'    }, { offset: 1, color: 'rgba(251,191,36,1)'    }] } } },
+                  { name: 'Investors',    value: dashboard.total,     itemStyle: { shadowBlur: 8, shadowColor: 'rgba(0,0,0,0.18)', shadowOffsetX: 4, shadowOffsetY: 4, color: { type: 'linear', x: 0, y: 0, x2: 0, y2: 1, colorStops: [{ offset: 0, color: 'rgba(232,121,249,0.25)' }, { offset: 1, color: 'rgba(249,115,22,0.25)' }] } } },
+                  { name: 'Contacted',   value: dashboard.contacted, itemStyle: { shadowBlur: 8, shadowColor: 'rgba(0,0,0,0.18)', shadowOffsetX: 4, shadowOffsetY: 4, color: { type: 'linear', x: 0, y: 0, x2: 0, y2: 1, colorStops: [{ offset: 0, color: 'rgba(232,121,249,0.50)' }, { offset: 1, color: 'rgba(249,115,22,0.50)' }] } } },
+                  { name: 'Replied',     value: dashboard.replies,   itemStyle: { shadowBlur: 8, shadowColor: 'rgba(0,0,0,0.18)', shadowOffsetX: 4, shadowOffsetY: 4, color: { type: 'linear', x: 0, y: 0, x2: 0, y2: 1, colorStops: [{ offset: 0, color: 'rgba(232,121,249,0.75)' }, { offset: 1, color: 'rgba(249,115,22,0.75)' }] } } },
+                  { name: 'Conversation',value: dashboard.active,    itemStyle: { shadowBlur: 8, shadowColor: 'rgba(0,0,0,0.18)', shadowOffsetX: 4, shadowOffsetY: 4, color: { type: 'linear', x: 0, y: 0, x2: 0, y2: 1, colorStops: [{ offset: 0, color: 'rgba(232,121,249,1)'    }, { offset: 1, color: 'rgba(249,115,22,1)'    }] } } },
                 ].filter(item => item.value))} />
               </Card>
               <Card title="Daily activity" subtitle="Email and reply volume over the last 14 days" action={<Pill tone={GREEN}>● Live</Pill>}>
