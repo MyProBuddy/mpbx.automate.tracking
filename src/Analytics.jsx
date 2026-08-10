@@ -19,7 +19,7 @@ const FONT  = "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
 
 // ── 4-size type scale ───────────────────────────────────────────────────────
 // H=heading  SH=subheading  C=content  SC=sub-content
-const FS = { h: 22, sh: 15, c: 13, sc: 11 }
+const FS = { h: 32, sh: 18, c: 14, sc: 12 }
 
 // ── neumorphic tokens ───────────────────────────────────────────────────────
 const NEU_BG     = '#F0F0F0'
