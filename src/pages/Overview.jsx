@@ -54,7 +54,7 @@ function StatCard({ label, value, color }) {
 }
 
 function MailStatusChart({ valid, risky, invalid, unknown, total }) {
-  const GAP = 3, N = 60
+  const GAP = 3, N = 120
   const HEIGHTS  = { valid: 80, risky: 64, invalid: 52, unknown: 42 }
   const COLORS   = { valid: '#16A34A', risky: '#F97316', invalid: '#F43F5E', unknown: '#9CA3AF' }
   const GRAD_TOP = { valid: '#4ADE80', risky: '#FBB174', invalid: '#FB7185', unknown: '#D1D5DB' }
