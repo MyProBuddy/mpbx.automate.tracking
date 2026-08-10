@@ -496,35 +496,27 @@ export default function Overview() {
                               <div style={{ fontSize: FS.sh, fontWeight: 600, color: INK, letterSpacing: '-0.2px' }}>Email Status</div>
                               <div style={{ fontSize: FS.sc, color: MUTED, fontFamily: MONO }}>{mailRows.length.toLocaleString()} checked</div>
                             </div>
-                            {/* Segmented bar — all statuses in one row */}
-                            {(() => {
-                              const TOTAL_SEGS = 50
-                              const segments = mailStages.flatMap(s => {
-                                const count = Math.round((s.value / mailMax) * TOTAL_SEGS)
-                                return Array(count).fill(s.color)
-                              })
-                              const empty = TOTAL_SEGS - segments.length
-                              return (
-                                <div style={{ display: 'flex', gap: 3, marginBottom: 20 }}>
-                                  {segments.map((color, i) => (
-                                    <div key={i} style={{ flex: 1, height: 36, borderRadius: 3, background: color, opacity: 0.85 }} />
-                                  ))}
-                                  {Array(empty).fill(null).map((_, i) => (
-                                    <div key={`e${i}`} style={{ flex: 1, height: 36, borderRadius: 3, background: 'rgba(0,0,0,0.08)' }} />
-                                  ))}
-                                </div>
-                              )
-                            })()}
-                            {/* Legend */}
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                               {mailStages.map((s) => {
-                                const pct = Math.round(s.value / mailMax * 100)
+                                const pct = s.value / mailMax * 100
                                 return (
-                                  <div key={s.label} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                                    <div style={{ width: 10, height: 10, borderRadius: 2, background: s.color, flexShrink: 0 }} />
-                                    <div style={{ width: 56, fontSize: FS.sc, fontWeight: 500, color: MUTED }}>{s.label}</div>
-                                    <div style={{ fontSize: FS.sc, fontFamily: MONO, fontWeight: 600, color: INK }}>{s.value.toLocaleString()}</div>
-                                    <div style={{ fontSize: FS.sc, color: MUTED, marginLeft: 4 }}>{pct}%</div>
+                                  <div key={s.label} style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+                                    <div style={{ width: 90, fontSize: FS.sc, fontWeight: 500, color: MUTED, textAlign: 'right', flexShrink: 0 }}>{s.label}</div>
+                                    <div style={{ flex: 1, height: 32, background: 'rgba(0,0,0,0.06)', borderRadius: 8, overflow: 'hidden', boxShadow: 'inset 2px 2px 5px rgba(0,0,0,0.08), inset -2px -2px 5px rgba(255,255,255,0.7)' }}>
+                                      <div style={{
+                                        height: '100%', width: `${pct}%`, background: s.color,
+                                        borderRadius: 8, transition: 'width 0.6s ease',
+                                        display: 'flex', alignItems: 'center', paddingLeft: 10, boxSizing: 'border-box',
+                                      }}>
+                                        {pct > 12 && <span style={{ fontSize: FS.sc, fontWeight: 700, color: '#fff', fontFamily: MONO }}>{s.value.toLocaleString()}</span>}
+                                      </div>
+                                    </div>
+                                    <div style={{ width: 44, fontSize: FS.sc, fontFamily: MONO, fontWeight: 500, color: INK, flexShrink: 0 }}>
+                                      {pct <= 12 ? s.value.toLocaleString() : ''}
+                                    </div>
+                                    <div style={{ width: 44, fontSize: FS.sc, color: MUTED, flexShrink: 0 }}>
+                                      {Math.round(pct)}%
+                                    </div>
                                   </div>
                                 )
                               })}
