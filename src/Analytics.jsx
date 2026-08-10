@@ -1118,12 +1118,38 @@ export default function Analytics() {
             {/* Row 1: funnel + area */}
             <div style={grid12('5fr 7fr')}>
               <Card title="Outreach funnel" subtitle="Measured workflow stages">
-                <ReactECharts style={{ height: 262 }} option={buildFunnel([
-                  { name: 'Investors',   value: dashboard.total,     itemStyle: { color: { type: 'linear', x: 0, y: 0, x2: 1, y2: 0, colorStops: [{ offset: 0, color: '#C026D3' }, { offset: 1, color: '#D4288C' }] } } },
-                  { name: 'Contacted',   value: dashboard.contacted, itemStyle: { color: { type: 'linear', x: 0, y: 0, x2: 1, y2: 0, colorStops: [{ offset: 0, color: '#D4288C' }, { offset: 1, color: '#F43F5E' }] } } },
-                  { name: 'Replied',     value: dashboard.replies,   itemStyle: { color: { type: 'linear', x: 0, y: 0, x2: 1, y2: 0, colorStops: [{ offset: 0, color: '#F43F5E' }, { offset: 1, color: '#F97316' }] } } },
-                  { name: 'Conversation',value: dashboard.active,    itemStyle: { color: { type: 'linear', x: 0, y: 0, x2: 1, y2: 0, colorStops: [{ offset: 0, color: '#F97316' }, { offset: 1, color: '#FBBF24' }] } } },
-                ].filter(item => item.value))} />
+                {(() => {
+                  const FGRAD = 'linear-gradient(90deg, #C026D3, #F43F5E, #F97316)'
+                  const NEU_INSET = 'inset 2px 2px 5px rgba(0,0,0,0.08), inset -2px -2px 5px rgba(255,255,255,0.7)'
+                  const stages = [
+                    { label: 'Investors',    value: dashboard.total     },
+                    { label: 'Contacted',    value: dashboard.contacted },
+                    { label: 'Replied',      value: dashboard.replies   },
+                    { label: 'Conversation', value: dashboard.active    },
+                  ]
+                  const max = Math.max(1, stages[0].value)
+                  return (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 8, paddingTop: 4 }}>
+                      {stages.map((s, i) => {
+                        const pct = s.value / max * 100
+                        return (
+                          <div key={s.label} style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                            <div style={{ width: 82, fontSize: FS.sc, fontWeight: 500, color: MUTED, textAlign: 'right', flexShrink: 0 }}>{s.label}</div>
+                            <div style={{ flex: 1, height: 30, background: 'rgba(0,0,0,0.06)', borderRadius: 8, overflow: 'hidden', boxShadow: NEU_INSET }}>
+                              <div style={{ position: 'relative', height: '100%', width: `${pct}%`, borderRadius: 8, transition: 'width 0.6s ease', display: 'flex', alignItems: 'center', paddingLeft: 10, boxSizing: 'border-box' }}>
+                                <div style={{ position: 'absolute', inset: 0, borderRadius: 8, background: FGRAD, opacity: (i + 1) / stages.length }} />
+                                {pct > 12 && <span style={{ position: 'relative', fontSize: FS.sc, fontWeight: 700, color: '#fff', fontFamily: MONO }}>{s.value.toLocaleString()}</span>}
+                              </div>
+                            </div>
+                            <div style={{ width: 36, fontSize: FS.sc, fontFamily: MONO, fontWeight: 500, color: INK, flexShrink: 0 }}>
+                              {pct <= 12 ? s.value.toLocaleString() : ''}
+                            </div>
+                          </div>
+                        )
+                      })}
+                    </div>
+                  )
+                })()}
               </Card>
               <Card title="Daily activity" subtitle="Email and reply volume over the last 14 days" action={<Pill tone={GREEN}>● Live</Pill>}>
                 <ReactECharts style={{ height: 262 }} option={buildArea(dashboard.trend.map(x => x.label), dashboard.trend.map(x => x.sent), dashboard.trend.map(x => x.replies))} />
