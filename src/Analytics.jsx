@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import ReactECharts from 'echarts-for-react'
 import { listClientSheets, getSheetTabs, getSheetValues, isConnected, initTokenClient, requestToken, syncTokenFromServer } from './google.js'
@@ -428,6 +428,58 @@ function RecentConversations({ convByInvestor, investorMap, query, setQuery }) {
 }
 
 // ── main ───────────────────────────────────────────────────────────────────────
+function SheetPicker({ value, sheets, onChange }) {
+  const [open, setOpen] = useState(false)
+  const ref = useRef(null)
+  useEffect(() => {
+    const handler = e => { if (ref.current && !ref.current.contains(e.target)) setOpen(false) }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [])
+  const options = [{ id: '', name: 'Overview' }, ...sheets]
+  const selected = options.find(o => o.id === value)?.name || 'Overview'
+  return (
+    <div ref={ref} style={{ position: 'relative' }}>
+      <button onClick={() => setOpen(o => !o)} style={{
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12,
+        height: 40, padding: '0 14px', minWidth: 240,
+        background: NEU_SURF, border: 'none', borderRadius: 14,
+        fontFamily: FONT, fontSize: FS.c, fontWeight: 500, color: INK,
+        cursor: 'pointer',
+        boxShadow: open ? NEU_INSET : NEU_SHADOW,
+        transition: 'box-shadow 0.15s',
+      }}>
+        <span>{selected}</span>
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <polyline points={open ? '18 15 12 9 6 15' : '6 9 12 15 18 9'} />
+        </svg>
+      </button>
+      {open && (
+        <div style={{
+          position: 'absolute', top: 'calc(100% + 8px)', left: 0,
+          minWidth: '100%', zIndex: 50,
+          background: 'linear-gradient(145deg, #f6f6f6, #e8e8e8)',
+          borderRadius: 14, boxShadow: NEU_SHADOW, overflow: 'hidden',
+        }}>
+          {options.map(opt => (
+            <div key={opt.id} onClick={() => { onChange(opt.id); setOpen(false) }}
+              style={{
+                padding: '10px 14px', fontSize: FS.c, cursor: 'pointer',
+                fontWeight: opt.id === value ? 600 : 400,
+                color: opt.id === value ? A : INK,
+                background: opt.id === value ? `${A}10` : 'transparent',
+                transition: 'background 0.1s',
+              }}
+              onMouseEnter={e => { if (opt.id !== value) e.currentTarget.style.background = 'rgba(0,0,0,0.05)' }}
+              onMouseLeave={e => { e.currentTarget.style.background = opt.id === value ? `${A}10` : 'transparent' }}
+            >{opt.name}</div>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
 export default function Analytics() {
   const { role, logout } = useAuth()
   const navigate = useNavigate()
@@ -784,15 +836,7 @@ export default function Analytics() {
           {!googleSyncing && !connected && role !== 'superadmin' && (
             <span style={{ fontSize: FS.c, color: '#DC2626', background: '#FEF2F2', borderRadius: 6, padding: '4px 10px', fontWeight: 600 }}>Google not connected</span>
           )}
-          <div style={{ position: 'relative', display: 'inline-flex', alignItems: 'center' }}>
-            <select style={selectS} value={sheetId} onChange={e => { const v = e.target.value; setSheetId(v); if (v) loadSheet(v); else setBook(null) }}>
-              <option value="">Overview</option>
-              {sheets.map(sheet => <option key={sheet.id} value={sheet.id}>{sheet.name}</option>)}
-            </select>
-            <svg style={{ position: 'absolute', right: 12, pointerEvents: 'none', color: MUTED }} width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <polyline points="6 9 12 15 18 9" />
-            </svg>
-          </div>
+          <SheetPicker value={sheetId} sheets={sheets} onChange={v => { setSheetId(v); if (v) loadSheet(v); else setBook(null) }} />
         </div>
       } />
 
