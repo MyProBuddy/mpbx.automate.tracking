@@ -170,8 +170,8 @@ export default function Overview() {
             const replyDate = parseDate(replyVal)
 
             if (stage >= 1) initialSent++
-            if (stage === 2) f1++
-            if (stage === 3) f2++
+            if (stage >= 2) f1++
+            if (stage >= 3) f2++
             if (stage >= 4) f3++
             if (hasReply) replies++
             if (sentDates.some(d => d >= oneWeekAgo)) thisWeek++
