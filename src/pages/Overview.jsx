@@ -56,12 +56,11 @@ function StatCard({ label, value, color }) {
 function MailStatusChart({ valid, risky, invalid, unknown, total }) {
   const GAP = 3, N = 90
   const HEIGHTS  = { valid: 80, risky: 64, invalid: 52, unknown: 42 }
-  const COLORS   = { valid: '#16A34A', risky: '#F97316', invalid: '#F43F5E', unknown: '#9CA3AF' }
-  const GRAD_TOP = { valid: '#4ADE80', risky: '#FBB174', invalid: '#FB7185', unknown: '#D1D5DB' }
   const LABELS   = { valid: 'Valid', risky: 'Risky', invalid: 'Invalid', unknown: 'Unknown' }
   const SOLID    = ['invalid', 'unknown']
   const KEYS     = ['valid', 'risky', 'invalid', 'unknown']
   const vals     = { valid, risky, invalid, unknown }
+  const FGRAD    = 'linear-gradient(to bottom, #E879F9, #F97316)'
   const NEU_SHADOW = '3px 3px 6px rgba(0,0,0,0.18), -2px -2px 5px rgba(255,255,255,0.9)'
 
   const segments = KEYS.map(k => ({ key: k, value: vals[k] }))
@@ -72,8 +71,8 @@ function MailStatusChart({ valid, risky, invalid, unknown, total }) {
 
   return (
     <div style={{ display: 'flex', gap: GAP }}>
-      {fl.map(s => {
-        const grad = `linear-gradient(to bottom, ${GRAD_TOP[s.key]}, ${COLORS[s.key]})`
+      {fl.map((s, gi) => {
+        const opacity = (gi + 1) / KEYS.length
         return (
           <div key={s.key} style={{ flex: s.bars, minWidth: 0, display: 'flex', flexDirection: 'column' }}>
             <div style={{ textAlign: 'center', marginBottom: 10 }}>
@@ -82,10 +81,14 @@ function MailStatusChart({ valid, risky, invalid, unknown, total }) {
             </div>
             <div style={{ display: 'flex', gap: GAP, alignItems: 'flex-end', height: HEIGHTS.valid }}>
               {SOLID.includes(s.key) ? (
-                <div style={{ flex: 1, height: HEIGHTS[s.key], background: grad, borderRadius: 4, boxShadow: NEU_SHADOW }} />
+                <div style={{ position: 'relative', flex: 1, height: HEIGHTS[s.key], borderRadius: 4, boxShadow: NEU_SHADOW, overflow: 'hidden' }}>
+                  <div style={{ position: 'absolute', inset: 0, background: FGRAD, opacity }} />
+                </div>
               ) : (
                 Array.from({ length: s.bars }, (_, i) => (
-                  <div key={i} style={{ flex: 1, height: HEIGHTS[s.key], background: grad, borderRadius: 3, boxShadow: NEU_SHADOW }} />
+                  <div key={i} style={{ position: 'relative', flex: 1, height: HEIGHTS[s.key], borderRadius: 3, boxShadow: NEU_SHADOW, overflow: 'hidden' }}>
+                    <div style={{ position: 'absolute', inset: 0, background: FGRAD, opacity }} />
+                  </div>
                 ))
               )}
             </div>
