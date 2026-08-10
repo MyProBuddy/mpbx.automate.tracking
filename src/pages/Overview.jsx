@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { T } from '../constants.js'
 import Nav from '../components/Nav.jsx'
@@ -54,94 +54,53 @@ function StatCard({ label, value, color }) {
 }
 
 function MailStatusChart({ valid, risky, invalid, unknown, total }) {
-  const wrapRef = useRef(null)
+  const N = 60, GAP = 3
+  const HEIGHTS  = { valid: 80, risky: 64, invalid: 52, unknown: 42 }
+  const COLORS   = { valid: '#16A34A', risky: '#F97316', invalid: '#F43F5E', unknown: '#9CA3AF' }
+  const GRAD_TOP = { valid: '#4ADE80', risky: '#FBB174', invalid: '#FB7185', unknown: '#D1D5DB' }
+  const LABELS   = { valid: 'Valid', risky: 'Risky', invalid: 'Invalid', unknown: 'Unknown' }
+  const SOLID    = ['invalid', 'unknown']
+  const KEYS     = ['valid', 'risky', 'invalid', 'unknown']
+  const vals     = { valid, risky, invalid, unknown }
+  const NEU_SHADOW = '3px 3px 6px rgba(0,0,0,0.18), -2px -2px 5px rgba(255,255,255,0.9)'
 
-  useEffect(() => {
-    const wrap = wrapRef.current
-    if (!wrap) return
-    wrap.innerHTML = ''
+  const segments = KEYS.map(k => ({ key: k, value: vals[k] }))
+  const fl = segments.map(s => ({ ...s, bars: Math.floor(s.value / total * N), rem: (s.value / total * N) % 1 }))
+  let r = N - fl.reduce((a, f) => a + f.bars, 0)
+  fl.sort((a, b) => b.rem - a.rem).forEach((s, i) => { if (i < r) s.bars++ })
+  fl.sort((a, b) => KEYS.indexOf(a.key) - KEYS.indexOf(b.key))
 
-    const BAR_W = 7, GAP = 3
-    const HEIGHTS  = { valid:80, risky:64, invalid:52, unknown:42 }
-    const COLORS   = { valid:'#16A34A', risky:'#F97316', invalid:'#F43F5E', unknown:'#9CA3AF' }
-    const GRAD_TOP = { valid:'#4ADE80', risky:'#FBB174', invalid:'#FB7185', unknown:'#D1D5DB' }
-    const LABELS   = { valid:'Valid', risky:'Risky', invalid:'Invalid', unknown:'Unknown' }
-    const SOLID    = ['invalid','unknown']
-    const KEYS     = ['valid','risky','invalid','unknown']
-    const FONT     = "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
-    const vals     = { valid, risky, invalid, unknown }
-
-    const W = wrap.offsetWidth
-    const N = Math.floor((W + GAP) / (BAR_W + GAP))
-    const barW = (W - (N - 1) * GAP) / N
-
-    const segments = KEYS.map(k => ({ key: k, value: vals[k] }))
-    const fl = segments.map(s => ({ ...s, bars: Math.floor(s.value / total * N), rem: (s.value / total * N) % 1 }))
-    let r = N - fl.reduce((a, f) => a + f.bars, 0)
-    fl.sort((a, b) => b.rem - a.rem).forEach((s, i) => { if (i < r) s.bars++ })
-    fl.sort((a, b) => KEYS.indexOf(a.key) - KEYS.indexOf(b.key))
-
-    const maxH = HEIGHTS.valid
-    const LH = 36
-
-    const canvas = document.createElement('canvas')
-    const dpr = window.devicePixelRatio || 1
-    canvas.width  = W * dpr
-    canvas.height = (maxH + LH) * dpr
-    canvas.style.cssText = `display:block;width:${W}px;height:${maxH + LH}px;`
-    wrap.appendChild(canvas)
-
-    const ctx = canvas.getContext('2d')
-    ctx.scale(dpr, dpr)
-
-    function makeGrad(x, y, h, key) {
-      const g = ctx.createLinearGradient(x, y, x, y + h)
-      g.addColorStop(0, GRAD_TOP[key])
-      g.addColorStop(1, COLORS[key])
-      return g
-    }
-
-    let idx = 0
-    fl.forEach(s => {
-      const h = HEIGHTS[s.key]
-      const y = LH + maxH - h
-
-      if (SOLID.includes(s.key)) {
-        const x  = idx * (barW + GAP)
-        const bw = s.bars * barW + (s.bars - 1) * GAP
-        ctx.shadowColor = 'rgba(0,0,0,0.18)'; ctx.shadowBlur = 6; ctx.shadowOffsetX = 3; ctx.shadowOffsetY = 3
-        ctx.fillStyle = makeGrad(x, y, h, s.key); ctx.beginPath(); ctx.roundRect(x, y, bw, h, 4); ctx.fill()
-        ctx.shadowColor = 'rgba(255,255,255,0.9)'; ctx.shadowBlur = 5; ctx.shadowOffsetX = -2; ctx.shadowOffsetY = -2
-        ctx.fillStyle = makeGrad(x, y, h, s.key); ctx.beginPath(); ctx.roundRect(x, y, bw, h, 4); ctx.fill()
-        ctx.shadowColor = 'transparent'
-      } else {
-        for (let i = 0; i < s.bars; i++) {
-          const x = (idx + i) * (barW + GAP)
-          ctx.shadowColor = 'rgba(0,0,0,0.28)'; ctx.shadowBlur = 6; ctx.shadowOffsetX = 3; ctx.shadowOffsetY = 3
-          ctx.fillStyle = makeGrad(x, y, h, s.key); ctx.beginPath(); ctx.roundRect(x, y, barW, h, 3); ctx.fill()
-          ctx.shadowColor = 'rgba(255,255,255,0.95)'; ctx.shadowBlur = 5; ctx.shadowOffsetX = -2; ctx.shadowOffsetY = -2
-          ctx.fillStyle = makeGrad(x, y, h, s.key); ctx.beginPath(); ctx.roundRect(x, y, barW, h, 3); ctx.fill()
-          ctx.shadowColor = 'transparent'
-        }
+  const bars = []
+  fl.forEach(s => {
+    const grad = `linear-gradient(to bottom, ${GRAD_TOP[s.key]}, ${COLORS[s.key]})`
+    if (SOLID.includes(s.key)) {
+      bars.push(
+        <div key={s.key} style={{ flex: s.bars, height: HEIGHTS[s.key], background: grad, borderRadius: 4, boxShadow: NEU_SHADOW, alignSelf: 'flex-end' }} />
+      )
+    } else {
+      for (let i = 0; i < s.bars; i++) {
+        bars.push(
+          <div key={`${s.key}-${i}`} style={{ flex: 1, height: HEIGHTS[s.key], background: grad, borderRadius: 3, boxShadow: NEU_SHADOW, alignSelf: 'flex-end' }} />
+        )
       }
-      idx += s.bars
-    })
+    }
+  })
 
-    idx = 0
-    fl.forEach(s => {
-      const startX = idx * (barW + GAP)
-      const bw = SOLID.includes(s.key) ? s.bars * barW + (s.bars - 1) * GAP : s.bars * (barW + GAP) - GAP
-      const cx = startX + bw / 2
-      ctx.shadowColor = 'transparent'; ctx.textAlign = 'center'
-      ctx.fillStyle = '#1a1a1a'; ctx.font = `500 14px ${FONT}`; ctx.textBaseline = 'alphabetic'
-      ctx.fillText(s.value, cx, 16)
-      ctx.fillStyle = '#B0B0B0'; ctx.font = `400 12px ${FONT}`
-      ctx.fillText(LABELS[s.key], cx, 30)
-      idx += s.bars
-    })
-  }, [valid, risky, invalid, unknown, total])
-
-  return <div ref={wrapRef} style={{ width: '100%' }} />
+  return (
+    <div>
+      <div style={{ display: 'flex', gap: GAP, alignItems: 'flex-end', height: HEIGHTS.valid }}>
+        {bars}
+      </div>
+      <div style={{ display: 'flex', marginTop: 10 }}>
+        {fl.map(s => (
+          <div key={s.key} style={{ flex: s.bars, textAlign: 'center' }}>
+            <div style={{ fontSize: FS.c, fontWeight: 500, color: INK, fontFamily: FONT }}>{s.value}</div>
+            <div style={{ fontSize: FS.sc, color: MUTED, fontFamily: FONT }}>{LABELS[s.key]}</div>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
 }
 
 export default function Overview() {
