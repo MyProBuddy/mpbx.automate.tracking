@@ -54,7 +54,7 @@ function StatCard({ label, value, color }) {
 }
 
 function MailStatusChart({ valid, risky, invalid, unknown, total }) {
-  const N = 60, GAP = 3
+  const BAR_W = 7, GAP = 3, N = 60
   const HEIGHTS  = { valid: 80, risky: 64, invalid: 52, unknown: 42 }
   const COLORS   = { valid: '#16A34A', risky: '#F97316', invalid: '#F43F5E', unknown: '#9CA3AF' }
   const GRAD_TOP = { valid: '#4ADE80', risky: '#FBB174', invalid: '#FB7185', unknown: '#D1D5DB' }
@@ -75,12 +75,12 @@ function MailStatusChart({ valid, risky, invalid, unknown, total }) {
     const grad = `linear-gradient(to bottom, ${GRAD_TOP[s.key]}, ${COLORS[s.key]})`
     if (SOLID.includes(s.key)) {
       bars.push(
-        <div key={s.key} style={{ flex: s.bars, height: HEIGHTS[s.key], background: grad, borderRadius: 4, boxShadow: NEU_SHADOW, alignSelf: 'flex-end' }} />
+        <div key={s.key} style={{ width: s.bars * BAR_W + (s.bars - 1) * GAP, flexShrink: 0, height: HEIGHTS[s.key], background: grad, borderRadius: 4, boxShadow: NEU_SHADOW, alignSelf: 'flex-end' }} />
       )
     } else {
       for (let i = 0; i < s.bars; i++) {
         bars.push(
-          <div key={`${s.key}-${i}`} style={{ flex: 1, height: HEIGHTS[s.key], background: grad, borderRadius: 3, boxShadow: NEU_SHADOW, alignSelf: 'flex-end' }} />
+          <div key={`${s.key}-${i}`} style={{ width: BAR_W, flexShrink: 0, height: HEIGHTS[s.key], background: grad, borderRadius: 3, boxShadow: NEU_SHADOW, alignSelf: 'flex-end' }} />
         )
       }
     }
