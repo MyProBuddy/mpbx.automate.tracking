@@ -17,6 +17,56 @@ const NEU_INSET  = 'inset 3px 3px 8px rgba(0,0,0,0.10), inset -3px -3px 8px rgba
 
 const GRAD = 'linear-gradient(90deg, #C026D3, #F43F5E, #F97316)'
 
+const FGRAD_V = 'linear-gradient(to bottom, #E879F9, #F97316)'
+const FGRAD_H = 'linear-gradient(to right, #C026D3, #F43F5E, #F97316)'
+const NEU_BAR = '3px 3px 6px rgba(0,0,0,0.18), -2px -2px 5px rgba(255,255,255,0.9)'
+
+function StatsBarChart({ total, inactive, active }) {
+  const GAP = 3, N = 90
+  const sum = total + inactive + active
+  if (!sum) return null
+
+  const SEGMENTS = [
+    { key: 'total',    label: 'Total',    value: total,    height: 80, solid: false },
+    { key: 'inactive', label: 'Inactive', value: inactive, height: 64, solid: false },
+    { key: 'active',   label: 'Active',   value: active,   height: 52, solid: true  },
+  ]
+
+  const fl = SEGMENTS.map(s => ({ ...s, bars: Math.floor(s.value / sum * N), rem: (s.value / sum * N) % 1 }))
+  let r = N - fl.reduce((a, f) => a + f.bars, 0)
+  fl.sort((a, b) => b.rem - a.rem).forEach((s, i) => { if (i < r) s.bars++ })
+  fl.sort((a, b) => SEGMENTS.findIndex(x => x.key === a.key) - SEGMENTS.findIndex(x => x.key === b.key))
+
+  return (
+    <div style={{ display: 'flex', gap: GAP, marginTop: 16 }}>
+      {fl.map((s, gi) => {
+        const opacity = (gi + 1) / SEGMENTS.length
+        return (
+          <div key={s.key} style={{ flex: s.bars, minWidth: 0, display: 'flex', flexDirection: 'column' }}>
+            <div style={{ textAlign: 'center', marginBottom: 10 }}>
+              <div style={{ fontSize: FS.c, fontWeight: 500, color: INK, fontFamily: FONT }}>{s.value.toLocaleString()}</div>
+              <div style={{ fontSize: FS.sc, color: MUTED, fontFamily: FONT }}>{s.label}</div>
+            </div>
+            <div style={{ display: 'flex', gap: GAP, alignItems: 'flex-end', height: 80 }}>
+              {s.solid ? (
+                <div style={{ position: 'relative', flex: 1, height: s.height, borderRadius: 4, boxShadow: NEU_BAR, overflow: 'hidden' }}>
+                  <div style={{ position: 'absolute', inset: 0, background: FGRAD_H, opacity }} />
+                </div>
+              ) : (
+                Array.from({ length: s.bars }, (_, i) => (
+                  <div key={i} style={{ position: 'relative', flex: 1, height: s.height, borderRadius: 3, boxShadow: NEU_BAR, overflow: 'hidden' }}>
+                    <div style={{ position: 'absolute', inset: 0, background: FGRAD_V, opacity }} />
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+        )
+      })}
+    </div>
+  )
+}
+
 function StatCard({ label, value, sub }) {
   return (
     <div style={{ background: NEU_SURF, borderRadius: 16, padding: '24px 28px', boxShadow: NEU_SHADOW }}>
@@ -195,17 +245,23 @@ export default function DataWorkflows() {
         </div>
 
         <div style={{ fontSize: FS.sc, fontWeight: 500, color: MUTED, marginBottom: 16, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Firms</div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16, marginBottom: 40 }}>
-          <StatCard label="Total Firms"    value={loading ? null : firms?.total}    sub="All firms in database" />
-          <StatCard label="Active Firms"   value={loading ? null : firms?.active}   sub="Currently active" />
-          <StatCard label="Inactive Firms" value={loading ? null : firms?.inactive} sub="Not yet activated" />
+        <div style={{ background: NEU_SURF, borderRadius: 20, boxShadow: NEU_SHADOW, padding: '24px 28px', marginBottom: 40 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16 }}>
+            <StatCard label="Total Firms"    value={loading ? null : firms?.total}    sub="All firms in database" />
+            <StatCard label="Active Firms"   value={loading ? null : firms?.active}   sub="Currently active" />
+            <StatCard label="Inactive Firms" value={loading ? null : firms?.inactive} sub="Not yet activated" />
+          </div>
+          {!loading && firms && <StatsBarChart total={firms.total} inactive={firms.inactive} active={firms.active} />}
         </div>
 
         <div style={{ fontSize: FS.sc, fontWeight: 500, color: MUTED, marginBottom: 16, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Investors</div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16, marginBottom: 40 }}>
-          <StatCard label="Total Investors"    value={loading ? null : investors?.total}    sub="All investors in database" />
-          <StatCard label="Active Investors"   value={loading ? null : investors?.active}   sub="Currently active" />
-          <StatCard label="Inactive Investors" value={loading ? null : investors?.inactive} sub="Not yet activated" />
+        <div style={{ background: NEU_SURF, borderRadius: 20, boxShadow: NEU_SHADOW, padding: '24px 28px', marginBottom: 40 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16 }}>
+            <StatCard label="Total Investors"    value={loading ? null : investors?.total}    sub="All investors in database" />
+            <StatCard label="Active Investors"   value={loading ? null : investors?.active}   sub="Currently active" />
+            <StatCard label="Inactive Investors" value={loading ? null : investors?.inactive} sub="Not yet activated" />
+          </div>
+          {!loading && investors && <StatsBarChart total={investors.total} inactive={investors.inactive} active={investors.active} />}
         </div>
 
         <div style={{ fontSize: FS.sc, fontWeight: 500, color: MUTED, marginBottom: 16, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Antigravity OpenWeb Enrichment Workflow</div>
