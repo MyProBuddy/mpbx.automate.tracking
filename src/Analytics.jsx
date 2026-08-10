@@ -1125,11 +1125,11 @@ export default function Analytics() {
                     { label: 'Replied',      value: dashboard.replies,   grad: 'linear-gradient(90deg, #F43F5E, #F97316)', opacity: 0.75 },
                     { label: 'Conversation', value: dashboard.active,    grad: 'linear-gradient(90deg, #F97316, #FBBF24)', opacity: 1.00 },
                   ].filter(s => s.value)
-                  const max = Math.max(1, stages[0]?.value ?? 1)
+                  const total = stages.length
                   return (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 6, padding: '8px 0' }}>
                       {stages.map((s, i) => {
-                        const widthPct = Math.max(20, s.value / max * 100)
+                        const widthPct = 100 - (i * (60 / (total - 1)))
                         return (
                           <div key={s.label} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
                             <div style={{ width: `${widthPct}%`, position: 'relative', height: 44, borderRadius: 8, overflow: 'hidden', boxShadow: '3px 3px 8px rgba(0,0,0,0.15), -2px -2px 6px rgba(255,255,255,0.9)' }}>
