@@ -54,7 +54,7 @@ function StatCard({ label, value, color }) {
 }
 
 function MailStatusChart({ valid, risky, invalid, unknown, total }) {
-  const GAP = 3, N = 120
+  const GAP = 3, N = 90
   const HEIGHTS  = { valid: 80, risky: 64, invalid: 52, unknown: 42 }
   const COLORS   = { valid: '#16A34A', risky: '#F97316', invalid: '#F43F5E', unknown: '#9CA3AF' }
   const GRAD_TOP = { valid: '#4ADE80', risky: '#FBB174', invalid: '#FB7185', unknown: '#D1D5DB' }
@@ -70,35 +70,28 @@ function MailStatusChart({ valid, risky, invalid, unknown, total }) {
   fl.sort((a, b) => b.rem - a.rem).forEach((s, i) => { if (i < r) s.bars++ })
   fl.sort((a, b) => KEYS.indexOf(a.key) - KEYS.indexOf(b.key))
 
-  const bars = []
-  fl.forEach(s => {
-    const grad = `linear-gradient(to bottom, ${GRAD_TOP[s.key]}, ${COLORS[s.key]})`
-    if (SOLID.includes(s.key)) {
-      bars.push(
-        <div key={s.key} style={{ flex: s.bars, height: HEIGHTS[s.key], background: grad, borderRadius: 4, boxShadow: NEU_SHADOW, alignSelf: 'flex-end' }} />
-      )
-    } else {
-      for (let i = 0; i < s.bars; i++) {
-        bars.push(
-          <div key={`${s.key}-${i}`} style={{ flex: 1, height: HEIGHTS[s.key], background: grad, borderRadius: 3, boxShadow: NEU_SHADOW, alignSelf: 'flex-end' }} />
-        )
-      }
-    }
-  })
-
   return (
-    <div>
-      <div style={{ display: 'flex', gap: GAP, alignItems: 'flex-end', height: HEIGHTS.valid }}>
-        {bars}
-      </div>
-      <div style={{ display: 'flex', gap: GAP, marginTop: 10 }}>
-        {fl.map(s => (
-          <div key={s.key} style={{ flex: s.bars, textAlign: 'center', minWidth: 0 }}>
-            <div style={{ fontSize: FS.c, fontWeight: 500, color: INK, fontFamily: FONT }}>{s.value}</div>
-            <div style={{ fontSize: FS.sc, color: MUTED, fontFamily: FONT }}>{LABELS[s.key]}</div>
+    <div style={{ display: 'flex', gap: GAP }}>
+      {fl.map(s => {
+        const grad = `linear-gradient(to bottom, ${GRAD_TOP[s.key]}, ${COLORS[s.key]})`
+        return (
+          <div key={s.key} style={{ flex: s.bars, minWidth: 0, display: 'flex', flexDirection: 'column' }}>
+            <div style={{ display: 'flex', gap: GAP, alignItems: 'flex-end', height: HEIGHTS.valid }}>
+              {SOLID.includes(s.key) ? (
+                <div style={{ flex: 1, height: HEIGHTS[s.key], background: grad, borderRadius: 4, boxShadow: NEU_SHADOW }} />
+              ) : (
+                Array.from({ length: s.bars }, (_, i) => (
+                  <div key={i} style={{ flex: 1, height: HEIGHTS[s.key], background: grad, borderRadius: 3, boxShadow: NEU_SHADOW }} />
+                ))
+              )}
+            </div>
+            <div style={{ textAlign: 'center', marginTop: 10 }}>
+              <div style={{ fontSize: FS.c, fontWeight: 500, color: INK, fontFamily: FONT }}>{s.value}</div>
+              <div style={{ fontSize: FS.sc, color: MUTED, fontFamily: FONT }}>{LABELS[s.key]}</div>
+            </div>
           </div>
-        ))}
-      </div>
+        )
+      })}
     </div>
   )
 }
