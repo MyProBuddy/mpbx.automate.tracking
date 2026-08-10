@@ -591,7 +591,7 @@ export default function Overview() {
                             />
 
                             {/* Total label bar */}
-                            <div style={{ background: 'rgba(0,0,0,0.06)', borderRadius: 6, padding: '7px 20px', marginTop: 6, fontSize: FS.sc, color: MUTED, textAlign: 'center', boxShadow: 'inset 2px 2px 5px rgba(0,0,0,0.08), inset -2px -2px 5px rgba(255,255,255,0.7)' }}>
+                            <div style={{ background: 'rgba(0,0,0,0.06)', borderRadius: 8, padding: '14px 20px', marginTop: 6, fontSize: FS.c, color: MUTED, textAlign: 'center', fontWeight: 500, fontFamily: FONT, boxShadow: 'inset 2px 2px 5px rgba(0,0,0,0.08), inset -2px -2px 5px rgba(255,255,255,0.7)' }}>
                               {mailRows.length} total checked
                             </div>
                           </div>
