@@ -1156,8 +1156,8 @@ export default function Analytics() {
                         return (
                           <g key={i} filter="url(#neu)">
                             <polygon points={`${xl1},${y1} ${xr1},${y1} ${xr2},${y2} ${xl2},${y2}`} fill={`url(#fg${i})`} />
-                            <text x={W / 2 - 28} y={cy + 4} textAnchor="middle" fontSize="11" fontWeight="600" fill="white" fontFamily={FONT}>{s.label}</text>
-                            <text x={W / 2 + 52} y={cy + 4} textAnchor="middle" fontSize="11" fontWeight="700" fill="white" fontFamily={MONO}>{s.value.toLocaleString()}</text>
+                            <text x={W / 2 - 32} y={cy + 5} textAnchor="middle" fontSize={FS.c} fontWeight="600" fill="white" fontFamily={FONT}>{s.label}</text>
+                            <text x={W / 2 + 60} y={cy + 5} textAnchor="middle" fontSize={FS.c} fontWeight="700" fill="white" fontFamily={MONO}>{s.value.toLocaleString()}</text>
                           </g>
                         )
                       })}
