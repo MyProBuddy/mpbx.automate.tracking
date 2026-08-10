@@ -27,26 +27,6 @@ const parseList = v => String(v || '').replace(/^\[/, '').replace(/\]$/, '').spl
 const asBool = v => ['1','true','yes','pending','escalated','active'].includes(String(v||'').trim().toLowerCase())
 const isToday = d => { if (!d) return false; const t = new Date(); return d.getFullYear()===t.getFullYear() && d.getMonth()===t.getMonth() && d.getDate()===t.getDate() }
 
-const SEGMENTS = 30
-
-function SegmentBar({ value, max, color }) {
-  const filled = Math.round((value / Math.max(1, max)) * SEGMENTS)
-  return (
-    <div style={{ display: 'flex', gap: 3, flex: 1 }}>
-      {Array.from({ length: SEGMENTS }).map((_, i) => (
-        <div key={i} style={{
-          flex: 1, height: 28, borderRadius: 4,
-          background: i < filled ? color : 'rgba(0,0,0,0.07)',
-          boxShadow: i < filled
-            ? `inset -1px -1px 2px rgba(0,0,0,0.15), inset 1px 1px 2px rgba(255,255,255,0.3)`
-            : 'inset 1px 1px 3px rgba(0,0,0,0.08), inset -1px -1px 3px rgba(255,255,255,0.7)',
-          transition: 'background 0.3s ease',
-        }} />
-      ))}
-    </div>
-  )
-}
-
 function ReportRow({ icon, iconColor, label, value, detail }) {
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: 16, padding: '14px 22px' }}>
@@ -292,16 +272,30 @@ export default function Overview() {
                       {totals.initialSent > 0 ? `${Math.round(totals.replies / totals.initialSent * 100)}% reply rate` : '—'}
                     </div>
                   </div>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                     {stages.map((s, i) => {
+                      const pct = s.value / max * 100
                       const prev = i > 0 ? stages[i - 1].value : s.value
                       const dropPct = prev > 0 ? Math.round(s.value / prev * 100) : null
                       return (
                         <div key={s.label} style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
                           <div style={{ width: 90, fontSize: FS.sc, fontWeight: 500, color: MUTED, textAlign: 'right', flexShrink: 0 }}>{s.label}</div>
-                          <SegmentBar value={s.value} max={max} color={s.color} />
-                          <div style={{ width: 38, fontSize: FS.sc, fontFamily: MONO, fontWeight: 600, color: INK, flexShrink: 0, textAlign: 'right' }}>{s.value.toLocaleString()}</div>
-                          <div style={{ width: 40, fontSize: FS.sc, color: i === 0 ? 'transparent' : MUTED, flexShrink: 0, textAlign: 'right' }}>
+                          <div style={{ flex: 1, height: 32, background: 'rgba(0,0,0,0.06)', borderRadius: 8, overflow: 'hidden', boxShadow: 'inset 2px 2px 5px rgba(0,0,0,0.08), inset -2px -2px 5px rgba(255,255,255,0.7)' }}>
+                            <div style={{
+                              height: '100%',
+                              width: `${pct}%`,
+                              background: i === stages.length - 1 ? `${GREEN}` : GRAD,
+                              borderRadius: 8,
+                              transition: 'width 0.6s ease',
+                              display: 'flex', alignItems: 'center', paddingLeft: 10, boxSizing: 'border-box',
+                            }}>
+                              {pct > 12 && <span style={{ fontSize: FS.sc, fontWeight: 700, color: '#fff', fontFamily: MONO }}>{s.value.toLocaleString()}</span>}
+                            </div>
+                          </div>
+                          <div style={{ width: 44, fontSize: FS.sc, fontFamily: MONO, fontWeight: 500, color: INK, flexShrink: 0 }}>
+                            {pct <= 12 ? s.value.toLocaleString() : ''}
+                          </div>
+                          <div style={{ width: 44, fontSize: FS.sc, color: i === 0 ? 'transparent' : MUTED, flexShrink: 0 }}>
                             {i > 0 && dropPct !== null ? `${dropPct}%` : ''}
                           </div>
                         </div>
@@ -502,15 +496,27 @@ export default function Overview() {
                               <div style={{ fontSize: FS.sh, fontWeight: 600, color: INK, letterSpacing: '-0.2px' }}>Email Status</div>
                               <div style={{ fontSize: FS.sc, color: MUTED, fontFamily: MONO }}>{mailRows.length.toLocaleString()} checked</div>
                             </div>
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                               {mailStages.map((s) => {
-                                const pct = mailMax > 0 ? Math.round(s.value / mailMax * 100) : 0
+                                const pct = s.value / mailMax * 100
                                 return (
                                   <div key={s.label} style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
                                     <div style={{ width: 90, fontSize: FS.sc, fontWeight: 500, color: MUTED, textAlign: 'right', flexShrink: 0 }}>{s.label}</div>
-                                    <SegmentBar value={s.value} max={mailMax} color={s.color} />
-                                    <div style={{ width: 38, fontSize: FS.sc, fontFamily: MONO, fontWeight: 600, color: INK, flexShrink: 0, textAlign: 'right' }}>{s.value.toLocaleString()}</div>
-                                    <div style={{ width: 40, fontSize: FS.sc, color: MUTED, flexShrink: 0, textAlign: 'right' }}>{pct}%</div>
+                                    <div style={{ flex: 1, height: 32, background: 'rgba(0,0,0,0.06)', borderRadius: 8, overflow: 'hidden', boxShadow: 'inset 2px 2px 5px rgba(0,0,0,0.08), inset -2px -2px 5px rgba(255,255,255,0.7)' }}>
+                                      <div style={{
+                                        height: '100%', width: `${pct}%`, background: s.color,
+                                        borderRadius: 8, transition: 'width 0.6s ease',
+                                        display: 'flex', alignItems: 'center', paddingLeft: 10, boxSizing: 'border-box',
+                                      }}>
+                                        {pct > 12 && <span style={{ fontSize: FS.sc, fontWeight: 700, color: '#fff', fontFamily: MONO }}>{s.value.toLocaleString()}</span>}
+                                      </div>
+                                    </div>
+                                    <div style={{ width: 44, fontSize: FS.sc, fontFamily: MONO, fontWeight: 500, color: INK, flexShrink: 0 }}>
+                                      {pct <= 12 ? s.value.toLocaleString() : ''}
+                                    </div>
+                                    <div style={{ width: 44, fontSize: FS.sc, color: MUTED, flexShrink: 0 }}>
+                                      {Math.round(pct)}%
+                                    </div>
                                   </div>
                                 )
                               })}
