@@ -1118,33 +1118,12 @@ export default function Analytics() {
             {/* Row 1: funnel + area */}
             <div style={grid12('5fr 7fr')}>
               <Card title="Outreach funnel" subtitle="Measured workflow stages">
-                {(() => {
-                  const stages = [
-                    { label: 'Investors',    value: dashboard.total,     grad: 'linear-gradient(90deg, #C026D3, #D4288C)', opacity: 0.25 },
-                    { label: 'Contacted',    value: dashboard.contacted, grad: 'linear-gradient(90deg, #D4288C, #F43F5E)', opacity: 0.50 },
-                    { label: 'Replied',      value: dashboard.replies,   grad: 'linear-gradient(90deg, #F43F5E, #F97316)', opacity: 0.75 },
-                    { label: 'Conversation', value: dashboard.active,    grad: 'linear-gradient(90deg, #F97316, #FBBF24)', opacity: 1.00 },
-                  ].filter(s => s.value)
-                  const total = stages.length
-                  return (
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 6, padding: '8px 0' }}>
-                      {stages.map((s, i) => {
-                        const widthPct = 100 - (i * (60 / (total - 1)))
-                        return (
-                          <div key={s.label} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
-                            <div style={{ width: `${widthPct}%`, position: 'relative', height: 44, borderRadius: 8, overflow: 'hidden', boxShadow: '3px 3px 8px rgba(0,0,0,0.15), -2px -2px 6px rgba(255,255,255,0.9)' }}>
-                              <div style={{ position: 'absolute', inset: 0, background: s.grad, opacity: s.opacity }} />
-                              <div style={{ position: 'relative', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 14px' }}>
-                                <span style={{ fontSize: FS.sc, fontWeight: 600, color: '#fff' }}>{s.label}</span>
-                                <span style={{ fontSize: FS.sc, fontWeight: 700, color: '#fff', fontFamily: MONO }}>{s.value.toLocaleString()}</span>
-                              </div>
-                            </div>
-                          </div>
-                        )
-                      })}
-                    </div>
-                  )
-                })()}
+                <ReactECharts style={{ height: 262 }} option={buildFunnel([
+                  { name: 'Investors',    value: dashboard.total,     itemStyle: { color: { type: 'linear', x: 0, y: 0, x2: 1, y2: 0, colorStops: [{ offset: 0, color: 'rgba(192,38,211,0.25)' }, { offset: 1, color: 'rgba(212,40,140,0.25)' }] } } },
+                  { name: 'Contacted',   value: dashboard.contacted, itemStyle: { color: { type: 'linear', x: 0, y: 0, x2: 1, y2: 0, colorStops: [{ offset: 0, color: 'rgba(212,40,140,0.50)' }, { offset: 1, color: 'rgba(244,63,94,0.50)'  }] } } },
+                  { name: 'Replied',     value: dashboard.replies,   itemStyle: { color: { type: 'linear', x: 0, y: 0, x2: 1, y2: 0, colorStops: [{ offset: 0, color: 'rgba(244,63,94,0.75)'  }, { offset: 1, color: 'rgba(249,115,22,0.75)' }] } } },
+                  { name: 'Conversation',value: dashboard.active,    itemStyle: { color: { type: 'linear', x: 0, y: 0, x2: 1, y2: 0, colorStops: [{ offset: 0, color: 'rgba(249,115,22,1)'    }, { offset: 1, color: 'rgba(251,191,36,1)'    }] } } },
+                ].filter(item => item.value))} />
               </Card>
               <Card title="Daily activity" subtitle="Email and reply volume over the last 14 days" action={<Pill tone={GREEN}>● Live</Pill>}>
                 <ReactECharts style={{ height: 262 }} option={buildArea(dashboard.trend.map(x => x.label), dashboard.trend.map(x => x.sent), dashboard.trend.map(x => x.replies))} />
