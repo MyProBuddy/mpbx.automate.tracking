@@ -270,8 +270,8 @@ export default function DataWorkflows() {
             <div style={{ fontSize: FS.c, color: MUTED }}>total investors processed through Antigravity enrichment</div>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 0 }}>
-            <div style={{ padding: '24px 28px', borderRight: `1px solid ${LINE}`, gridColumn: '1' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 0 }}>
+            <div style={{ padding: '24px 28px', borderRight: `1px solid ${LINE}` }}>
               <div style={{ fontSize: FS.sc, fontWeight: 500, color: MUTED, marginBottom: 16 }}>Today</div>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 20 }}>
                 {[
@@ -303,49 +303,43 @@ export default function DataWorkflows() {
               </div>
             </div>
 
-            <div style={{ padding: '24px 28px' }}>
-              <div style={{ fontSize: FS.sc, fontWeight: 500, color: MUTED, marginBottom: 16 }}>All Time</div>
-              {(() => {
-                const processed = stats?.antigravity?.totalEnriched ?? 0
-                const active    = stats?.antigravity?.allTime?.active ?? 0
-                const inactive  = stats?.antigravity?.allTime?.inactive ?? 0
-                const max = Math.max(1, processed)
-                const stages = [
-                  { label: 'Processed',                  value: processed, color: GRAD },
-                  { label: 'Inactive / Not found',       value: inactive,  color: GRAD },
-                  { label: 'Active / Found in cycle',    value: active,    color: '#16A34A' },
-                ]
-                return (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                    {stages.map((s, i) => {
-                      const pct = s.value / max * 100
-                      return (
-                        <div key={s.label} style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                          <div style={{ width: 110, fontSize: FS.sc, fontWeight: 500, color: MUTED, textAlign: 'right', flexShrink: 0 }}>{s.label}</div>
-                          <div style={{ flex: 1, height: 28, background: 'rgba(0,0,0,0.06)', borderRadius: 7, overflow: 'hidden', boxShadow: 'inset 2px 2px 5px rgba(0,0,0,0.08), inset -2px -2px 5px rgba(255,255,255,0.7)' }}>
-                            <div style={{
-                              position: 'relative', height: '100%', width: `${pct}%`,
-                              borderRadius: 7, transition: 'width 0.6s ease',
-                              display: 'flex', alignItems: 'center', paddingLeft: 8, boxSizing: 'border-box',
-                            }}>
-                              <div style={{
-                                position: 'absolute', inset: 0, borderRadius: 7,
-                                background: s.color,
-                                opacity: i === 2 ? 1 : (i + 1) / stages.length,
-                              }} />
-                              {pct > 15 && <span style={{ position: 'relative', fontSize: FS.sc, fontWeight: 600, color: i < 1 ? '#C026D3' : '#fff', fontFamily: T.mono }}>{s.value.toLocaleString()}</span>}
-                            </div>
-                          </div>
-                          <div style={{ width: 48, fontSize: FS.sc, fontFamily: T.mono, fontWeight: 500, color: INK, flexShrink: 0 }}>
-                            {pct <= 15 ? s.value.toLocaleString() : ''}
+          </div>
+
+          {/* All Time — full width row */}
+          <div style={{ borderTop: `1px solid ${LINE}`, padding: '24px 28px' }}>
+            <div style={{ fontSize: FS.sc, fontWeight: 500, color: MUTED, marginBottom: 16 }}>All Time</div>
+            {(() => {
+              const processed = stats?.antigravity?.totalEnriched ?? 0
+              const inactive  = stats?.antigravity?.allTime?.inactive ?? 0
+              const active    = stats?.antigravity?.allTime?.active ?? 0
+              const max = Math.max(1, processed)
+              const stages = [
+                { label: 'Processed',             value: processed },
+                { label: 'Inactive / Not found',  value: inactive  },
+                { label: 'Active / Found in cycle', value: active  },
+              ]
+              return (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  {stages.map((s, i) => {
+                    const pct = s.value / max * 100
+                    return (
+                      <div key={s.label} style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+                        <div style={{ width: 140, fontSize: FS.sc, fontWeight: 500, color: MUTED, textAlign: 'right', flexShrink: 0 }}>{s.label}</div>
+                        <div style={{ flex: 1, height: 32, background: 'rgba(0,0,0,0.06)', borderRadius: 8, overflow: 'hidden', boxShadow: 'inset 2px 2px 5px rgba(0,0,0,0.08), inset -2px -2px 5px rgba(255,255,255,0.7)' }}>
+                          <div style={{ position: 'relative', height: '100%', width: `${pct}%`, borderRadius: 8, transition: 'width 0.6s ease', display: 'flex', alignItems: 'center', paddingLeft: 10, boxSizing: 'border-box' }}>
+                            <div style={{ position: 'absolute', inset: 0, borderRadius: 8, background: GRAD, opacity: (i + 1) / stages.length }} />
+                            {pct > 12 && <span style={{ position: 'relative', fontSize: FS.sc, fontWeight: 700, color: i === 0 ? '#fff' : '#C026D3', fontFamily: T.mono }}>{s.value.toLocaleString()}</span>}
                           </div>
                         </div>
-                      )
-                    })}
-                  </div>
-                )
-              })()}
-            </div>
+                        <div style={{ width: 44, fontSize: FS.sc, fontFamily: T.mono, fontWeight: 500, color: INK, flexShrink: 0 }}>
+                          {pct <= 12 ? s.value.toLocaleString() : ''}
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+              )
+            })()}
           </div>
 
           <div style={{ padding: '14px 28px', borderTop: `1px solid ${LINE}`, background: 'rgba(0,0,0,0.02)', display: 'flex', alignItems: 'flex-start', gap: 8 }}>
