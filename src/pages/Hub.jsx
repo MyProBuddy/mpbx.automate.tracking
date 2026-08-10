@@ -4,7 +4,7 @@ import { T } from '../constants.js'
 import Nav from '../components/Nav.jsx'
 
 const FONT = "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
-const FS   = { h: 22, sh: 15, c: 13, sc: 11 }
+const FS   = { h: 32, sh: 18, c: 14, sc: 12 }
 const INK  = '#1a1a1a'
 const MUTED = '#626260'
 
