@@ -253,21 +253,11 @@ export default function DataWorkflows() {
 
         <div style={{ fontSize: FS.sc, fontWeight: 500, color: MUTED, marginBottom: 16, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Firms</div>
         <div style={{ background: NEU_SURF, borderRadius: 20, boxShadow: NEU_SHADOW, padding: '24px 28px', marginBottom: 40 }}>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16 }}>
-            <StatCard label="Total Firms"    value={loading ? null : firms?.total}    sub="All firms in database" />
-            <StatCard label="Active Firms"   value={loading ? null : firms?.active}   sub="Currently active" />
-            <StatCard label="Inactive Firms" value={loading ? null : firms?.inactive} sub="Not yet activated" />
-          </div>
           {!loading && firms && <StatsBarChart total={firms.total} inactive={firms.inactive} active={firms.active} />}
         </div>
 
         <div style={{ fontSize: FS.sc, fontWeight: 500, color: MUTED, marginBottom: 16, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Investors</div>
         <div style={{ background: NEU_SURF, borderRadius: 20, boxShadow: NEU_SHADOW, padding: '24px 28px', marginBottom: 40 }}>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16 }}>
-            <StatCard label="Total Investors"    value={loading ? null : investors?.total}    sub="All investors in database" />
-            <StatCard label="Active Investors"   value={loading ? null : investors?.active}   sub="Currently active" />
-            <StatCard label="Inactive Investors" value={loading ? null : investors?.inactive} sub="Not yet activated" />
-          </div>
           {!loading && investors && <StatsBarChart total={investors.total} inactive={investors.inactive} active={investors.active} />}
         </div>
 
@@ -280,8 +270,8 @@ export default function DataWorkflows() {
             <div style={{ fontSize: FS.c, color: MUTED }}>total investors processed through Antigravity enrichment</div>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 0 }}>
-            <div style={{ padding: '24px 28px', borderRight: `1px solid ${LINE}` }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 0 }}>
+            <div style={{ padding: '24px 28px', borderRight: `1px solid ${LINE}`, gridColumn: '1' }}>
               <div style={{ fontSize: FS.sc, fontWeight: 500, color: MUTED, marginBottom: 16 }}>Today</div>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 20 }}>
                 {[
@@ -297,7 +287,7 @@ export default function DataWorkflows() {
               </div>
             </div>
 
-            <div style={{ padding: '24px 28px' }}>
+            <div style={{ padding: '24px 28px', borderRight: `1px solid ${LINE}` }}>
               <div style={{ fontSize: FS.sc, fontWeight: 500, color: MUTED, marginBottom: 16 }}>This Week</div>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 20 }}>
                 {[
@@ -311,6 +301,50 @@ export default function DataWorkflows() {
                   </div>
                 ))}
               </div>
+            </div>
+
+            <div style={{ padding: '24px 28px' }}>
+              <div style={{ fontSize: FS.sc, fontWeight: 500, color: MUTED, marginBottom: 16 }}>All Time</div>
+              {(() => {
+                const processed = stats?.antigravity?.totalEnriched ?? 0
+                const active    = stats?.antigravity?.allTime?.active ?? 0
+                const inactive  = stats?.antigravity?.allTime?.inactive ?? 0
+                const max = Math.max(1, processed)
+                const stages = [
+                  { label: 'Processed',                  value: processed, color: GRAD },
+                  { label: 'Inactive / Not found',       value: inactive,  color: GRAD },
+                  { label: 'Active / Found in cycle',    value: active,    color: '#16A34A' },
+                ]
+                return (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                    {stages.map((s, i) => {
+                      const pct = s.value / max * 100
+                      return (
+                        <div key={s.label} style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                          <div style={{ width: 110, fontSize: FS.sc, fontWeight: 500, color: MUTED, textAlign: 'right', flexShrink: 0 }}>{s.label}</div>
+                          <div style={{ flex: 1, height: 28, background: 'rgba(0,0,0,0.06)', borderRadius: 7, overflow: 'hidden', boxShadow: 'inset 2px 2px 5px rgba(0,0,0,0.08), inset -2px -2px 5px rgba(255,255,255,0.7)' }}>
+                            <div style={{
+                              position: 'relative', height: '100%', width: `${pct}%`,
+                              borderRadius: 7, transition: 'width 0.6s ease',
+                              display: 'flex', alignItems: 'center', paddingLeft: 8, boxSizing: 'border-box',
+                            }}>
+                              <div style={{
+                                position: 'absolute', inset: 0, borderRadius: 7,
+                                background: s.color,
+                                opacity: i === 2 ? 1 : (i + 1) / stages.length,
+                              }} />
+                              {pct > 15 && <span style={{ position: 'relative', fontSize: FS.sc, fontWeight: 600, color: i < 1 ? '#C026D3' : '#fff', fontFamily: T.mono }}>{s.value.toLocaleString()}</span>}
+                            </div>
+                          </div>
+                          <div style={{ width: 48, fontSize: FS.sc, fontFamily: T.mono, fontWeight: 500, color: INK, flexShrink: 0 }}>
+                            {pct <= 15 ? s.value.toLocaleString() : ''}
+                          </div>
+                        </div>
+                      )
+                    })}
+                  </div>
+                )
+              })()}
             </div>
           </div>
 
