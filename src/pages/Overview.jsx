@@ -60,7 +60,7 @@ function MailStatusChart({ valid, risky, invalid, unknown, total }) {
   const SOLID    = ['invalid', 'unknown']
   const KEYS     = ['valid', 'risky', 'invalid', 'unknown']
   const vals     = { valid, risky, invalid, unknown }
-  const FGRAD    = 'linear-gradient(to bottom, #E879F9, #F97316)'
+  const FGRAD    = 'linear-gradient(to right, #C026D3, #F43F5E, #F97316)'
   const NEU_SHADOW = '3px 3px 6px rgba(0,0,0,0.18), -2px -2px 5px rgba(255,255,255,0.9)'
 
   const segments = KEYS.map(k => ({ key: k, value: vals[k] }))
