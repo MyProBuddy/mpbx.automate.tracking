@@ -91,9 +91,9 @@ function MailStatusChart({ valid, risky, invalid, unknown, total }) {
       <div style={{ display: 'flex', gap: GAP, alignItems: 'flex-end', height: HEIGHTS.valid }}>
         {bars}
       </div>
-      <div style={{ display: 'flex', marginTop: 10 }}>
+      <div style={{ display: 'flex', gap: GAP, marginTop: 10 }}>
         {fl.map(s => (
-          <div key={s.key} style={{ flex: s.bars, textAlign: 'center' }}>
+          <div key={s.key} style={{ flex: s.bars, textAlign: 'center', minWidth: 0 }}>
             <div style={{ fontSize: FS.c, fontWeight: 500, color: INK, fontFamily: FONT }}>{s.value}</div>
             <div style={{ fontSize: FS.sc, color: MUTED, fontFamily: FONT }}>{LABELS[s.key]}</div>
           </div>
