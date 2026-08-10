@@ -328,7 +328,7 @@ export default function DataWorkflows() {
                         <div style={{ flex: 1, height: 32, background: 'rgba(0,0,0,0.06)', borderRadius: 8, overflow: 'hidden', boxShadow: 'inset 2px 2px 5px rgba(0,0,0,0.08), inset -2px -2px 5px rgba(255,255,255,0.7)' }}>
                           <div style={{ position: 'relative', height: '100%', width: `${pct}%`, borderRadius: 8, transition: 'width 0.6s ease', display: 'flex', alignItems: 'center', paddingLeft: 10, boxSizing: 'border-box' }}>
                             <div style={{ position: 'absolute', inset: 0, borderRadius: 8, background: GRAD, opacity: (i + 1) / stages.length }} />
-                            {pct > 12 && <span style={{ position: 'relative', fontSize: FS.sc, fontWeight: 700, color: i === 0 ? '#fff' : '#C026D3', fontFamily: T.mono }}>{s.value.toLocaleString()}</span>}
+                            {pct > 12 && <span style={{ position: 'relative', fontSize: FS.sc, fontWeight: 700, color: '#fff', fontFamily: T.mono }}>{s.value.toLocaleString()}</span>}
                           </div>
                         </div>
                         <div style={{ width: 44, fontSize: FS.sc, fontFamily: T.mono, fontWeight: 500, color: INK, flexShrink: 0 }}>
