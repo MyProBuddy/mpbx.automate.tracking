@@ -252,16 +252,65 @@ export default function Overview() {
 
         {!loading && overview.length > 0 && (
           <>
-            {/* Stat summary row */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 14, marginBottom: 28 }}>
-              <StatCard label="Total"        value={totals.total}       />
-              <StatCard label="Initial Sent" value={totals.initialSent} color="#5B4AE8" />
-              <StatCard label="This Week"    value={totals.thisWeek}    color={BLUE} />
-              <StatCard label="Followup 1"   value={totals.f1}          color={AMBER} />
-              <StatCard label="Followup 2"   value={totals.f2}          color={AMBER} />
-              <StatCard label="Followup 3"   value={totals.f3}          color={AMBER} />
-              <StatCard label="Replies"      value={totals.replies}     color={GREEN} />
-            </div>
+            {/* Outreach Funnel */}
+            {(() => {
+              const GRAD = 'linear-gradient(90deg, #C026D3, #F43F5E, #F97316)'
+              const stages = [
+                { label: 'Total',        value: totals.total,       color: '#C026D3' },
+                { label: 'Initial Sent', value: totals.initialSent, color: '#D4288C' },
+                { label: 'Followup 1',   value: totals.f1,          color: '#F43F5E' },
+                { label: 'Followup 2',   value: totals.f2,          color: '#F97316' },
+                { label: 'Followup 3',   value: totals.f3,          color: '#FBBF24' },
+                { label: 'Replies',      value: totals.replies,     color: GREEN },
+              ]
+              const max = Math.max(1, stages[0].value)
+              return (
+                <div style={{ background: NEU_SURF, borderRadius: 20, boxShadow: NEU_SHADOW, padding: '24px 28px', marginBottom: 28 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
+                    <div>
+                      <div style={{ fontSize: FS.c, fontWeight: 500, color: MUTED, marginBottom: 2 }}>Campaign pipeline</div>
+                      <div style={{ fontSize: FS.sh, fontWeight: 600, color: INK, letterSpacing: '-0.2px' }}>Outreach Funnel</div>
+                    </div>
+                    <div style={{ fontSize: FS.sc, color: MUTED }}>
+                      {totals.initialSent > 0 ? `${Math.round(totals.replies / totals.initialSent * 100)}% reply rate` : '—'}
+                    </div>
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                    {stages.map((s, i) => {
+                      const pct = s.value / max * 100
+                      const prev = i > 0 ? stages[i - 1].value : s.value
+                      const dropPct = prev > 0 ? Math.round(s.value / prev * 100) : null
+                      return (
+                        <div key={s.label} style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+                          <div style={{ width: 90, fontSize: FS.sc, fontWeight: 500, color: MUTED, textAlign: 'right', flexShrink: 0 }}>{s.label}</div>
+                          <div style={{ flex: 1, height: 32, background: 'rgba(0,0,0,0.06)', borderRadius: 8, overflow: 'hidden', boxShadow: 'inset 2px 2px 5px rgba(0,0,0,0.08), inset -2px -2px 5px rgba(255,255,255,0.7)' }}>
+                            <div style={{
+                              height: '100%',
+                              width: `${pct}%`,
+                              background: i === stages.length - 1 ? `${GREEN}` : GRAD,
+                              borderRadius: 8,
+                              transition: 'width 0.6s ease',
+                              display: 'flex', alignItems: 'center', paddingLeft: 10, boxSizing: 'border-box',
+                            }}>
+                              {pct > 12 && <span style={{ fontSize: FS.sc, fontWeight: 700, color: '#fff', fontFamily: MONO }}>{s.value.toLocaleString()}</span>}
+                            </div>
+                          </div>
+                          <div style={{ width: 44, fontSize: FS.sc, fontFamily: MONO, fontWeight: 500, color: INK, flexShrink: 0 }}>
+                            {pct <= 12 ? s.value.toLocaleString() : ''}
+                          </div>
+                          <div style={{ width: 44, fontSize: FS.sc, color: i === 0 ? 'transparent' : MUTED, flexShrink: 0 }}>
+                            {i > 0 && dropPct !== null ? `${dropPct}%` : ''}
+                          </div>
+                        </div>
+                      )
+                    })}
+                  </div>
+                  <div style={{ display: 'flex', gap: 10, marginTop: 16, paddingTop: 16, borderTop: `1px solid ${LINE}` }}>
+                    <div style={{ fontSize: FS.sc, color: MUTED }}>This week: <span style={{ fontFamily: MONO, fontWeight: 500, color: INK }}>{totals.thisWeek}</span> emails sent</div>
+                  </div>
+                </div>
+              )
+            })()}
 
             {/* Today's Report */}
             <div style={{ background: NEU_SURF, borderRadius: 20, boxShadow: NEU_SHADOW, overflow: 'hidden', marginBottom: 28 }}>
