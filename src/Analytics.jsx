@@ -757,7 +757,7 @@ export default function Analytics() {
     height: 40,
     border: 'none',
     borderRadius: 14,
-    background: NEU_SURF,
+    background: '#ebebeb',
     padding: '0 36px 0 14px',
     color: INK,
     fontFamily: FONT,
