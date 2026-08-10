@@ -133,10 +133,10 @@ function MailStatusChart({ valid, risky, invalid, unknown, total }) {
       const bw = SOLID.includes(s.key) ? s.bars * barW + (s.bars - 1) * GAP : s.bars * (barW + GAP) - GAP
       const cx = startX + bw / 2
       ctx.shadowColor = 'transparent'; ctx.textAlign = 'center'
-      ctx.fillStyle = '#1a1a1a'; ctx.font = `500 12px ${FONT}`; ctx.textBaseline = 'alphabetic'
-      ctx.fillText(s.value, cx, 14)
-      ctx.fillStyle = '#B0B0B0'; ctx.font = `400 10px ${FONT}`
-      ctx.fillText(LABELS[s.key], cx, 28)
+      ctx.fillStyle = '#1a1a1a'; ctx.font = `500 14px ${FONT}`; ctx.textBaseline = 'alphabetic'
+      ctx.fillText(s.value, cx, 16)
+      ctx.fillStyle = '#B0B0B0'; ctx.font = `400 12px ${FONT}`
+      ctx.fillText(LABELS[s.key], cx, 30)
       idx += s.bars
     })
   }, [valid, risky, invalid, unknown, total])
