@@ -267,10 +267,7 @@ export default function Overview() {
               return (
                 <div style={{ background: NEU_SURF, borderRadius: 20, boxShadow: NEU_SHADOW, padding: '24px 28px', marginBottom: 28 }}>
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
-                    <div>
-                      <div style={{ fontSize: FS.c, fontWeight: 500, color: MUTED, marginBottom: 2 }}>Campaign pipeline</div>
-                      <div style={{ fontSize: FS.sh, fontWeight: 600, color: INK, letterSpacing: '-0.2px' }}>Outreach Funnel</div>
-                    </div>
+                    <div style={{ fontSize: FS.sh, fontWeight: 600, color: INK, letterSpacing: '-0.2px' }}>Outreach Status</div>
                     <div style={{ fontSize: FS.sc, color: MUTED }}>
                       {totals.initialSent > 0 ? `${Math.round(totals.replies / totals.initialSent * 100)}% reply rate` : '—'}
                     </div>
@@ -485,48 +482,48 @@ export default function Overview() {
                     </div>
                   ) : (
                     <>
-                      <div style={{ background: NEU_SURF, borderRadius: 20, boxShadow: NEU_SHADOW, padding: '24px 28px', marginBottom: 24 }}>
-                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
-                          <div>
-                            <div style={{ fontSize: FS.c, fontWeight: 500, color: MUTED, marginBottom: 2 }}>Email deliverability</div>
-                            <div style={{ fontSize: FS.sh, fontWeight: 600, color: INK, letterSpacing: '-0.2px' }}>Mail Validation Breakdown</div>
+                      {(() => {
+                        const mailStages = [
+                          { label: 'Valid',   value: safe.length,    color: GREEN },
+                          { label: 'Risky',   value: risky.length,   color: AMBER },
+                          { label: 'Invalid', value: invalid.length, color: RED },
+                          { label: 'Unknown', value: unknown.length, color: '#9CA3AF' },
+                        ]
+                        const mailMax = Math.max(1, mailRows.length)
+                        return (
+                          <div style={{ background: NEU_SURF, borderRadius: 20, boxShadow: NEU_SHADOW, padding: '24px 28px', marginBottom: 24 }}>
+                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
+                              <div style={{ fontSize: FS.sh, fontWeight: 600, color: INK, letterSpacing: '-0.2px' }}>Email Status</div>
+                              <div style={{ fontSize: FS.sc, color: MUTED, fontFamily: MONO }}>{mailRows.length.toLocaleString()} checked</div>
+                            </div>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                              {mailStages.map((s) => {
+                                const pct = s.value / mailMax * 100
+                                return (
+                                  <div key={s.label} style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+                                    <div style={{ width: 90, fontSize: FS.sc, fontWeight: 500, color: MUTED, textAlign: 'right', flexShrink: 0 }}>{s.label}</div>
+                                    <div style={{ flex: 1, height: 32, background: 'rgba(0,0,0,0.06)', borderRadius: 8, overflow: 'hidden', boxShadow: 'inset 2px 2px 5px rgba(0,0,0,0.08), inset -2px -2px 5px rgba(255,255,255,0.7)' }}>
+                                      <div style={{
+                                        height: '100%', width: `${pct}%`, background: s.color,
+                                        borderRadius: 8, transition: 'width 0.6s ease',
+                                        display: 'flex', alignItems: 'center', paddingLeft: 10, boxSizing: 'border-box',
+                                      }}>
+                                        {pct > 12 && <span style={{ fontSize: FS.sc, fontWeight: 700, color: '#fff', fontFamily: MONO }}>{s.value.toLocaleString()}</span>}
+                                      </div>
+                                    </div>
+                                    <div style={{ width: 44, fontSize: FS.sc, fontFamily: MONO, fontWeight: 500, color: INK, flexShrink: 0 }}>
+                                      {pct <= 12 ? s.value.toLocaleString() : ''}
+                                    </div>
+                                    <div style={{ width: 44, fontSize: FS.sc, color: MUTED, flexShrink: 0 }}>
+                                      {Math.round(pct)}%
+                                    </div>
+                                  </div>
+                                )
+                              })}
+                            </div>
                           </div>
-                          <div style={{ fontSize: FS.sc, color: MUTED, fontFamily: MONO }}>{mailRows.length.toLocaleString()} checked</div>
-                        </div>
-                        {/* Stacked bar */}
-                        <div style={{ height: 20, borderRadius: 10, overflow: 'hidden', display: 'flex', marginBottom: 20, boxShadow: 'inset 2px 2px 5px rgba(0,0,0,0.08), inset -2px -2px 5px rgba(255,255,255,0.7)' }}>
-                          {[
-                            { value: safe.length,    color: GREEN },
-                            { value: risky.length,   color: AMBER },
-                            { value: invalid.length, color: RED },
-                            { value: unknown.length, color: '#9CA3AF' },
-                          ].filter(s => s.value > 0).map((s, i) => (
-                            <div key={i} style={{ width: `${s.value / mailRows.length * 100}%`, background: s.color, transition: 'width 0.6s ease' }} />
-                          ))}
-                        </div>
-                        {/* Legend rows */}
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                          {[
-                            { label: 'Valid',   value: safe.length,    color: GREEN },
-                            { label: 'Risky',   value: risky.length,   color: AMBER },
-                            { label: 'Invalid', value: invalid.length, color: RED },
-                            { label: 'Unknown', value: unknown.length, color: '#9CA3AF' },
-                          ].map(s => {
-                            const pct = mailRows.length > 0 ? Math.round(s.value / mailRows.length * 100) : 0
-                            return (
-                              <div key={s.label} style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                                <div style={{ width: 8, height: 8, borderRadius: '50%', background: s.color, flexShrink: 0 }} />
-                                <div style={{ width: 56, fontSize: FS.sc, fontWeight: 500, color: MUTED }}>{s.label}</div>
-                                <div style={{ flex: 1, height: 6, background: 'rgba(0,0,0,0.06)', borderRadius: 99, overflow: 'hidden', boxShadow: 'inset 1px 1px 3px rgba(0,0,0,0.08)' }}>
-                                  <div style={{ height: '100%', width: `${pct}%`, background: s.color, borderRadius: 99, transition: 'width 0.6s ease' }} />
-                                </div>
-                                <div style={{ width: 32, fontSize: FS.sc, fontFamily: MONO, fontWeight: 600, color: s.color, textAlign: 'right', flexShrink: 0 }}>{s.value}</div>
-                                <div style={{ width: 36, fontSize: FS.sc, color: MUTED, textAlign: 'right', flexShrink: 0 }}>{pct}%</div>
-                              </div>
-                            )
-                          })}
-                        </div>
-                      </div>
+                        )
+                      })()}
 
                       {(() => {
                         const bySheet = {}
