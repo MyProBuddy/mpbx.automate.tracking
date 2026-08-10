@@ -327,12 +327,12 @@ export default function Overview() {
                             <div style={{
                               height: '100%',
                               width: `${pct}%`,
-                              background: i === 0 ? GRAD : i === stages.length - 1 ? GREEN : 'rgba(192,38,211,0.18)',
+                              background: i === stages.length - 1 ? `${GREEN}` : GRAD,
                               borderRadius: 8,
                               transition: 'width 0.6s ease',
                               display: 'flex', alignItems: 'center', paddingLeft: 10, boxSizing: 'border-box',
                             }}>
-                              {pct > 12 && <span style={{ fontSize: FS.sc, fontWeight: 700, color: i === 0 || i === stages.length - 1 ? '#fff' : '#C026D3', fontFamily: MONO }}>{s.value.toLocaleString()}</span>}
+                              {pct > 12 && <span style={{ fontSize: FS.sc, fontWeight: 700, color: '#fff', fontFamily: MONO }}>{s.value.toLocaleString()}</span>}
                             </div>
                           </div>
                           <div style={{ width: 44, fontSize: FS.sc, fontFamily: MONO, fontWeight: 500, color: INK, flexShrink: 0 }}>
