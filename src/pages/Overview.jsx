@@ -530,7 +530,10 @@ export default function Overview() {
                           <div style={{ background: NEU_SURF, borderRadius: 20, boxShadow: NEU_SHADOW, padding: '24px 28px', marginBottom: 24 }}>
                             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
                               <div style={{ fontSize: FS.sh, fontWeight: 600, color: INK, letterSpacing: '-0.2px' }}>Email Status</div>
-                              <div style={{ fontSize: FS.sc, color: MUTED, fontFamily: MONO }}>{mailRows.length.toLocaleString()} checked</div>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                                <div style={{ width: 7, height: 7, borderRadius: '50%', background: GREEN, boxShadow: `0 0 0 3px ${GREEN}30` }} />
+                                <span style={{ fontSize: FS.sc, color: GREEN, fontWeight: 500, fontFamily: FONT }}>Live</span>
+                              </div>
                             </div>
 
                             {/* Mail status canvas chart */}
