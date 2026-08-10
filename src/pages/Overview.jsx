@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { T } from '../constants.js'
 import Nav from '../components/Nav.jsx'
@@ -51,6 +51,95 @@ function StatCard({ label, value, color }) {
       <div style={{ fontSize: 28, fontWeight: 500, letterSpacing: '-0.5px', color: color || INK, fontFamily: MONO, lineHeight: 1 }}>{value}</div>
     </div>
   )
+}
+
+function MailStatusChart({ valid, risky, invalid, unknown, total }) {
+  const wrapRef = useRef(null)
+
+  useEffect(() => {
+    const wrap = wrapRef.current
+    if (!wrap) return
+    wrap.innerHTML = ''
+
+    const N = 60, GAP = 3
+    const HEIGHTS  = { valid:40, risky:32, invalid:26, unknown:21 }
+    const COLORS   = { valid:'#16A34A', risky:'#F97316', invalid:'#F43F5E', unknown:'#9CA3AF' }
+    const GRAD_TOP = { valid:'#4ADE80', risky:'#FBB174', invalid:'#FB7185', unknown:'#D1D5DB' }
+    const LABELS   = { valid:'Valid', risky:'Risky', invalid:'Invalid', unknown:'Unknown' }
+    const SOLID    = ['invalid','unknown']
+    const KEYS     = ['valid','risky','invalid','unknown']
+    const FONT     = "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
+    const vals     = { valid, risky, invalid, unknown }
+
+    const segments = KEYS.map(k => ({ key: k, value: vals[k] }))
+    const fl = segments.map(s => ({ ...s, bars: Math.floor(s.value / total * N), rem: (s.value / total * N) % 1 }))
+    let r = N - fl.reduce((a, f) => a + f.bars, 0)
+    fl.sort((a, b) => b.rem - a.rem).forEach((s, i) => { if (i < r) s.bars++ })
+    fl.sort((a, b) => KEYS.indexOf(a.key) - KEYS.indexOf(b.key))
+
+    const W = wrap.offsetWidth
+    const barW = (W - (N - 1) * GAP) / N
+    const maxH = HEIGHTS.valid
+    const LH = 32
+
+    const canvas = document.createElement('canvas')
+    const dpr = window.devicePixelRatio || 1
+    canvas.width  = W * dpr
+    canvas.height = (maxH + LH) * dpr
+    canvas.style.cssText = `display:block;width:${W}px;height:${maxH + LH}px;`
+    wrap.appendChild(canvas)
+
+    const ctx = canvas.getContext('2d')
+    ctx.scale(dpr, dpr)
+
+    function makeGrad(x, y, h, key) {
+      const g = ctx.createLinearGradient(x, y, x, y + h)
+      g.addColorStop(0, GRAD_TOP[key])
+      g.addColorStop(1, COLORS[key])
+      return g
+    }
+
+    let idx = 0
+    fl.forEach(s => {
+      const h = HEIGHTS[s.key]
+      const y = LH + maxH - h
+
+      if (SOLID.includes(s.key)) {
+        const x  = idx * (barW + GAP)
+        const bw = s.bars * barW + (s.bars - 1) * GAP
+        ctx.shadowColor = 'rgba(0,0,0,0.18)'; ctx.shadowBlur = 6; ctx.shadowOffsetX = 3; ctx.shadowOffsetY = 3
+        ctx.fillStyle = makeGrad(x, y, h, s.key); ctx.beginPath(); ctx.roundRect(x, y, bw, h, 4); ctx.fill()
+        ctx.shadowColor = 'rgba(255,255,255,0.9)'; ctx.shadowBlur = 5; ctx.shadowOffsetX = -2; ctx.shadowOffsetY = -2
+        ctx.fillStyle = makeGrad(x, y, h, s.key); ctx.beginPath(); ctx.roundRect(x, y, bw, h, 4); ctx.fill()
+        ctx.shadowColor = 'transparent'
+      } else {
+        for (let i = 0; i < s.bars; i++) {
+          const x = (idx + i) * (barW + GAP)
+          ctx.shadowColor = 'rgba(0,0,0,0.28)'; ctx.shadowBlur = 6; ctx.shadowOffsetX = 3; ctx.shadowOffsetY = 3
+          ctx.fillStyle = makeGrad(x, y, h, s.key); ctx.beginPath(); ctx.roundRect(x, y, barW, h, 3); ctx.fill()
+          ctx.shadowColor = 'rgba(255,255,255,0.95)'; ctx.shadowBlur = 5; ctx.shadowOffsetX = -2; ctx.shadowOffsetY = -2
+          ctx.fillStyle = makeGrad(x, y, h, s.key); ctx.beginPath(); ctx.roundRect(x, y, barW, h, 3); ctx.fill()
+          ctx.shadowColor = 'transparent'
+        }
+      }
+      idx += s.bars
+    })
+
+    idx = 0
+    fl.forEach(s => {
+      const startX = idx * (barW + GAP)
+      const bw = SOLID.includes(s.key) ? s.bars * barW + (s.bars - 1) * GAP : s.bars * (barW + GAP) - GAP
+      const cx = startX + bw / 2
+      ctx.shadowColor = 'transparent'; ctx.textAlign = 'center'
+      ctx.fillStyle = '#1a1a1a'; ctx.font = `400 13px ${FONT}`; ctx.textBaseline = 'alphabetic'
+      ctx.fillText(s.value, cx, 12)
+      ctx.fillStyle = '#B0B0B0'; ctx.font = `300 9px ${FONT}`
+      ctx.fillText(LABELS[s.key], cx, 24)
+      idx += s.bars
+    })
+  }, [valid, risky, invalid, unknown, total])
+
+  return <div ref={wrapRef} style={{ width: '100%' }} />
 }
 
 export default function Overview() {
@@ -483,18 +572,6 @@ export default function Overview() {
                   ) : (
                     <>
                       {(() => {
-                        const mailStages = [
-                          { label: 'Valid',   value: safe.length,    color: GREEN,      colorLight: GREEN + '40' },
-                          { label: 'Risky',   value: risky.length,   color: AMBER,      colorLight: AMBER + '40' },
-                          { label: 'Invalid', value: invalid.length, color: RED,        colorLight: RED + '40' },
-                          { label: 'Unknown', value: unknown.length, color: '#9CA3AF',  colorLight: 'rgba(0,0,0,0.10)' },
-                        ]
-                        // Build one bar per email, grouped by status, each with a random-ish height for organic look
-                        const seed = (i) => 0.45 + (((i * 7 + 13) % 17) / 17) * 0.55
-                        const bars = mailStages.flatMap(({ value, color, colorLight }) =>
-                          Array.from({ length: value }, (_, i) => ({ color, colorLight, h: seed(i) }))
-                        )
-                        const CHART_H = 56
                         return (
                           <div style={{ background: NEU_SURF, borderRadius: 20, boxShadow: NEU_SHADOW, padding: '24px 28px', marginBottom: 24 }}>
                             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
@@ -502,33 +579,18 @@ export default function Overview() {
                               <div style={{ fontSize: FS.sc, color: MUTED, fontFamily: MONO }}>{mailRows.length.toLocaleString()} checked</div>
                             </div>
 
-                            {/* Bar chart — one thin bar per email */}
-                            <div style={{ display: 'flex', alignItems: 'flex-end', gap: 2, height: CHART_H, marginBottom: 12, overflow: 'hidden' }}>
-                              {bars.map((b, i) => (
-                                <div key={i} style={{
-                                  flex: '0 0 auto', width: 4, borderRadius: '2px 2px 0 0',
-                                  height: `${Math.round(b.h * CHART_H)}px`,
-                                  background: b.color,
-                                  opacity: 0.8,
-                                }} />
-                              ))}
-                            </div>
+                            {/* Mail status canvas chart */}
+                            <MailStatusChart
+                              valid={safe.length}
+                              risky={risky.length}
+                              invalid={invalid.length}
+                              unknown={unknown.length}
+                              total={mailRows.length}
+                            />
 
                             {/* Total label bar */}
-                            <div style={{ background: 'rgba(0,0,0,0.05)', borderRadius: 6, padding: '6px 12px', marginBottom: 16, fontSize: FS.sc, color: MUTED, textAlign: 'center', fontFamily: MONO }}>
+                            <div style={{ background: 'rgba(0,0,0,0.06)', borderRadius: 6, padding: '7px 20px', marginTop: 6, fontSize: FS.sc, color: MUTED, textAlign: 'center', boxShadow: 'inset 2px 2px 5px rgba(0,0,0,0.08), inset -2px -2px 5px rgba(255,255,255,0.7)' }}>
                               {mailRows.length} total checked
-                            </div>
-
-                            {/* Legend */}
-                            <div style={{ display: 'flex', gap: 20, flexWrap: 'wrap' }}>
-                              {mailStages.map(s => (
-                                <div key={s.label} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                                  <div style={{ width: 10, height: 10, borderRadius: 2, background: s.color }} />
-                                  <span style={{ fontSize: FS.sc, color: MUTED }}>{s.label}</span>
-                                  <span style={{ fontSize: FS.sc, fontFamily: MONO, fontWeight: 600, color: INK }}>{s.value}</span>
-                                  <span style={{ fontSize: FS.sc, color: MUTED }}>{Math.round(s.value / Math.max(1, mailRows.length) * 100)}%</span>
-                                </div>
-                              ))}
                             </div>
                           </div>
                         )
