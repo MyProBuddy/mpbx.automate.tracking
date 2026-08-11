@@ -38,11 +38,23 @@ const Icon = {
   Report:     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>,
 }
 
+const CardIcons = {
+  data:      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/><line x1="12" y1="11" x2="12" y2="17"/><line x1="9" y1="14" x2="15" y2="14"/></svg>,
+  workflow:  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="5" height="5" rx="1"/><rect x="16" y="3" width="5" height="5" rx="1"/><rect x="16" y="16" width="5" height="5" rx="1"/><rect x="3" y="16" width="5" height="5" rx="1"/><path d="M8 5.5h8M5.5 8v8M18.5 8v8M8 18.5h8"/></svg>,
+  analytics: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/><line x1="2" y1="20" x2="22" y2="20"/></svg>,
+  intel:     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96-.46 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24 2.5 2.5 0 0 1 4.44-1.14z"/><path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96-.46 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0-1.32-4.24 2.5 2.5 0 0 0-4.44-1.14z"/></svg>,
+  overview:  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>,
+  tools:     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>,
+  database:  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14a9 3 0 0 0 18 0V5"/><path d="M3 12a9 3 0 0 0 18 0"/></svg>,
+  internal:  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>,
+}
+
 const OPTIONS = [
   {
     path: '/add-data',
     color: T.green, colorLight: T.greenLight,
     label: 'DATA', title: 'Add Data',
+    cardIcon: CardIcons.data,
     desc: 'Create Drive folders, upload pitch docs, and set up investor sheets before running any workflow.',
     items: [
       { text: 'Create a client Drive folder', icon: Icon.FolderPlus },
@@ -53,6 +65,7 @@ const OPTIONS = [
   {
     path: '/workflow',
     color: T.accent, colorLight: T.accentLight,
+    cardIcon: CardIcons.workflow,
     label: 'WORKFLOW', title: 'Get Workflow',
     desc: 'Swap credentials and IDs into an n8n workflow template, then download the ready-to-import JSON.',
     items: [
@@ -64,6 +77,7 @@ const OPTIONS = [
   {
     path: '/analytics',
     color: '#7C6FF0', colorLight: '#F0EFFE',
+    cardIcon: CardIcons.analytics,
     label: 'INSIGHTS', title: 'Client Analytics',
     desc: 'Visualise investor data across your sheets — sectors, geographies, fund stages, and deal flow.',
     items: [
@@ -75,6 +89,7 @@ const OPTIONS = [
   {
     path: '/company-intel',
     color: '#D97706', colorLight: '#FFFBEB',
+    cardIcon: CardIcons.intel,
     label: 'INTEL', title: 'Company Intel',
     desc: 'Log company updates — funding rounds, news, leadership changes — so the AI references them when writing followup emails.',
     items: [
@@ -86,6 +101,7 @@ const OPTIONS = [
   {
     path: '/overview',
     color: '#0891B2', colorLight: '#ECFEFF',
+    cardIcon: CardIcons.overview,
     label: 'OVERVIEW', title: 'Overview',
     desc: 'See a snapshot of all clients — total investors, emails sent, followups, and replies across every campaign.',
     items: [
@@ -97,6 +113,7 @@ const OPTIONS = [
   {
     path: '/tools',
     color: '#7C3AED', colorLight: '#F5F3FF',
+    cardIcon: CardIcons.tools,
     label: 'TOOLS', title: 'Tools',
     desc: 'Utilities to validate emails, check bounce risk, and run diagnostics across your outreach campaigns.',
     items: [
@@ -108,6 +125,7 @@ const OPTIONS = [
   {
     path: '/data-workflows',
     color: '#0891B2', colorLight: '#ECFEFF',
+    cardIcon: CardIcons.database,
     label: 'DATABASE', title: 'Data Workflows',
     desc: 'Explore the master investor and firm database — view counts, activity status, and geographic density.',
     items: [
@@ -119,6 +137,7 @@ const OPTIONS = [
   {
     path: '/internal-analytics',
     color: '#C026D3', colorLight: '#FDF4FF',
+    cardIcon: CardIcons.internal,
     label: 'INTERNAL', title: 'Internal Analytics',
     desc: 'Internal performance metrics and operational analytics across all outreach campaigns and automations.',
     items: [
@@ -158,7 +177,7 @@ function HubCard({ o }) {
         boxShadow: '-3px -3px 8px rgba(255,255,255,0.9), 3px 3px 8px rgba(0,0,0,0.1)',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
       }}>
-        <div style={{ width: 12, height: 12, borderRadius: '50%', background: o.color }} />
+        <span style={{ color: o.color, display: 'flex' }}>{o.cardIcon}</span>
       </div>
       <div style={{ fontSize: FS.sc, fontWeight: 500, color: o.color, letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: 6 }}>{o.label}</div>
       <div style={{ fontSize: FS.sh, fontWeight: 600, color: INK, letterSpacing: '-0.2px', lineHeight: 1.25, marginBottom: 10 }}>{o.title}</div>
