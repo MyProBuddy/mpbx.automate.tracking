@@ -31,7 +31,7 @@ const OPTIONS = [
   {
     path: '/analytics',
     color: '#7C6FF0', colorLight: '#F0EFFE',
-    label: 'INSIGHTS', title: 'Analytics',
+    label: 'INSIGHTS', title: 'Client Analytics',
     desc: 'Visualise investor data across your sheets — sectors, geographies, fund stages, and deal flow.',
     items: ['Connect your investor sheet', 'Explore interactive charts', 'Spot patterns at a glance'],
   },
@@ -62,6 +62,14 @@ const OPTIONS = [
     label: 'DATABASE', title: 'Data Workflows',
     desc: 'Explore the master investor and firm database — view counts, activity status, and geographic density.',
     items: ['Master firms & investors database', 'Active vs inactive breakdown', 'Geographic density map'],
+  },
+  {
+    path: '/internal-analytics',
+    color: '#C026D3', colorLight: '#FDF4FF',
+    label: 'INTERNAL', title: 'Internal Analytics',
+    desc: 'Internal performance metrics and operational analytics across all outreach campaigns and automations.',
+    items: ['Campaign-wide performance view', 'Automation health metrics', 'Internal reporting dashboard'],
+    disabled: true,
   },
 ]
 
