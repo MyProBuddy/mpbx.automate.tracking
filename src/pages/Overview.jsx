@@ -213,7 +213,7 @@ export default function Overview() {
   }, [connected])
 
   useEffect(() => {
-    fetch('/api/client-db')
+    fetch('/api/db-stats?source=clients')
       .then(r => r.json())
       .then(d => setDbClients(d.clients || []))
       .catch(() => setDbClients([]))
