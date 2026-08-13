@@ -12,8 +12,8 @@ export default async function handler(req, res) {
   // Route: /api/db-stats?source=clients — returns per-schema outreach stats
   if (req.query.source === 'clients') {
     const client = new Client({ connectionString: process.env.SUPABASE_CLIENT_DB_URL, ssl: { rejectUnauthorized: false } })
-    await client.connect()
     try {
+      await client.connect()
       const schemaRes = await client.query(`
         SELECT schema_name FROM information_schema.schemata
         WHERE schema_name NOT IN (
@@ -43,13 +43,15 @@ export default async function handler(req, res) {
             if (hasReply) replies++
           })
           return { schema, total, initialSent, f1, f2, f3, replies }
-        } catch {
-          return { schema, error: true, total: 0, initialSent: 0, f1: 0, f2: 0, f3: 0, replies: 0 }
+        } catch (e) {
+          return { schema, error: e.message, total: 0, initialSent: 0, f1: 0, f2: 0, f3: 0, replies: 0 }
         }
       }))
       return res.json({ clients })
+    } catch (e) {
+      return res.status(500).json({ error: e.message, clients: [] })
     } finally {
-      await client.end()
+      await client.end().catch(() => {})
     }
   }
 
