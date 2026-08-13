@@ -121,6 +121,7 @@ export default function Overview() {
   const [dbClients,   setDbClients]   = useState([])
   const [dbLoading,   setDbLoading]   = useState(true)
   const [dbExpanded,  setDbExpanded]  = useState(false)
+  const [dbError,     setDbError]     = useState(null)
 
   useEffect(() => {
     const t = setInterval(() => {
@@ -215,8 +216,8 @@ export default function Overview() {
   useEffect(() => {
     fetch('/api/db-stats?source=clients')
       .then(r => r.json())
-      .then(d => setDbClients(d.clients || []))
-      .catch(() => setDbClients([]))
+      .then(d => { setDbClients(d.clients || []); if (d.error) setDbError(d.error) })
+      .catch(e => setDbError(e.message))
       .finally(() => setDbLoading(false))
   }, [])
 
@@ -677,7 +678,9 @@ export default function Overview() {
           {dbLoading ? (
             <div style={{ padding: '48px 0', textAlign: 'center', color: MUTED, fontSize: FS.c }}>Loading DB clients…</div>
           ) : dbClients.length === 0 ? (
-            <div style={{ background: NEU_SURF, borderRadius: 20, boxShadow: NEU_SHADOW, padding: '28px 24px', color: MUTED, fontSize: FS.c }}>No client schemas found.</div>
+            <div style={{ background: NEU_SURF, borderRadius: 20, boxShadow: NEU_SHADOW, padding: '28px 24px', color: MUTED, fontSize: FS.c }}>
+              {dbError ? <><b>DB Error:</b> {dbError}</> : 'No client schemas found.'}
+            </div>
           ) : (
             <>
               {/* DB Outreach Status funnel */}
