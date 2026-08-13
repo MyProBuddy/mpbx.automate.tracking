@@ -11,7 +11,7 @@ export default async function handler(req, res) {
 
   // Route: /api/db-stats?source=clients — returns per-schema outreach stats
   if (req.query.source === 'clients') {
-    const client = new Client({ connectionString: process.env.SUPABASE_CLIENT_DB_URL })
+    const client = new Client({ connectionString: process.env.SUPABASE_CLIENT_DB_URL, ssl: { rejectUnauthorized: false } })
     await client.connect()
     try {
       const schemaRes = await client.query(`
