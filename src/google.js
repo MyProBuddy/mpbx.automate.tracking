@@ -41,7 +41,7 @@ export function initTokenClient(onToken, onRefreshToken) {
     callback: async (res) => {
       if (res.code) {
         try {
-          const r = await fetch('/api/token', {
+          const r = await fetch('/api/auth?action=token', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ code: res.code }),

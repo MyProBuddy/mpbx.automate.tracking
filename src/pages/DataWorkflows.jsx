@@ -164,7 +164,7 @@ function DataOverview() {
   const fetchData = useCallback(async (t, s, p) => {
     setLoading(true)
     try {
-      const res = await fetch(`/api/data?type=${t}&status=${s}&page=${p}&limit=5`)
+      const res = await fetch(`/api/supabase?action=data&type=${t}&status=${s}&page=${p}&limit=5`)
       const json = await res.json()
       setRecords(json.data || [])
       setTotal(json.total)

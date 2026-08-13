@@ -1,0 +1,5 @@
+{
+  "investor.relation@windzard.com": {
+    "name": "Windzard",
+    "prompts": {
+      "reply_followup": "You are a JSON-only response API. You MUST respond with ONLY a valid JSON object - no markdown, no explanation.\n\nThe attached document contains the full outreach guidelines including the sender signature and footer. Use it.\n\nTask: Write a short follow-up email to this investor. We previously replied to their message but have not heard back in 2 days. This is our FINAL follow-up — keep it

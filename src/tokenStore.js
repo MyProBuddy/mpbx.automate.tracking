@@ -1,6 +1,6 @@
 export async function pushTokenToStore(token) {
   try {
-    await fetch('/api/token', {
+    await fetch('/api/auth?action=token', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ token }),
@@ -10,7 +10,7 @@ export async function pushTokenToStore(token) {
 
 export async function pullTokenFromStore(forceRefresh = false) {
   try {
-    const url = forceRefresh ? '/api/token?refresh=true' : '/api/token'
+    const url = forceRefresh ? '/api/auth?action=token?refresh=true' : '/api/auth?action=token'
     const r = await fetch(url)
     const { token } = await r.json()
     return token || null
@@ -19,7 +19,7 @@ export async function pullTokenFromStore(forceRefresh = false) {
 
 export async function pushSessionToStore(role) {
   try {
-    await fetch('/api/token?type=session', {
+    await fetch('/api/auth?action=token?type=session', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ session: role }),
@@ -29,7 +29,7 @@ export async function pushSessionToStore(role) {
 
 export async function pullSessionFromStore() {
   try {
-    const r = await fetch('/api/token?type=session')
+    const r = await fetch('/api/auth?action=token?type=session')
     const { session } = await r.json()
     return session || null
   } catch { return null }
@@ -37,6 +37,6 @@ export async function pullSessionFromStore() {
 
 export async function clearSessionFromStore() {
   try {
-    await fetch('/api/token?type=session', { method: 'DELETE' })
+    await fetch('/api/auth?action=token?type=session', { method: 'DELETE' })
   } catch {}
 }

@@ -253,7 +253,7 @@ function AddClientModal({ onClose, onAdded }) {
     if (!name.trim()) { setError('Client name is required'); return }
     setSaving(true)
     const clientId = `client_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`
-    const res = await fetch('/api/prompts', {
+    const res = await fetch('/api/ai?action=prompts', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ client_name: name.trim(), client_email: clientId, client_description: description.trim() }),
@@ -302,7 +302,7 @@ function EditDescriptionModal({ client, onClose, onSaved }) {
   const submit = async e => {
     e.preventDefault()
     setSaving(true)
-    await fetch('/api/prompts', {
+    await fetch('/api/ai?action=prompts', {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ client_email: client.client_email, client_description: description.trim() }),
@@ -369,7 +369,7 @@ function PromptBlock({ promptType, data, onSaved, clientEmail }) {
   useEffect(() => {
     if (promptType !== 'outreach_followup') return
     const key = `prompt_editor.${clientEmail}.outreach.output`
-    fetch(`/api/states?id=${encodeURIComponent(key)}`)
+    fetch(`/api/supabase?action=states&id=${encodeURIComponent(key)}`)
       .then(r => r.ok ? r.json() : null)
       .then(d => { if (d?.subject || d?.body) setPrevMail(d) })
       .catch(() => {})
@@ -382,7 +382,7 @@ function PromptBlock({ promptType, data, onSaved, clientEmail }) {
   useEffect(() => {
     if (!HAS_FILES_TAB.includes(promptType)) return
     // load saved state
-    fetch(`/api/states?id=${encodeURIComponent(stateKey)}`)
+    fetch(`/api/supabase?action=states&id=${encodeURIComponent(stateKey)}`)
       .then(r => r.ok ? r.json() : null)
       .then(d => {
         if (d?.mdFileId) setMdFileId(d.mdFileId)
@@ -404,7 +404,7 @@ function PromptBlock({ promptType, data, onSaved, clientEmail }) {
   useEffect(() => {
     if (promptType !== 'outreach_followup') return
     listClientSheets().then(setSheets).catch(() => {})
-    fetch(`/api/states?id=${encodeURIComponent(updatesStateKey)}`)
+    fetch(`/api/supabase?action=states&id=${encodeURIComponent(updatesStateKey)}`)
       .then(r => r.ok ? r.json() : null)
       .then(d => { if (d?.sheetId) setSelectedSheet(d.sheetId) })
       .catch(() => {})
@@ -424,7 +424,7 @@ function PromptBlock({ promptType, data, onSaved, clientEmail }) {
   }, [selectedSheet])
 
   async function saveUpdatesState() {
-    await fetch('/api/states', {
+    await fetch('/api/supabase?action=states', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ id: updatesStateKey, data: { sheetId: selectedSheet } }),
@@ -434,7 +434,7 @@ function PromptBlock({ promptType, data, onSaved, clientEmail }) {
   }
 
   async function saveFilesState() {
-    await fetch('/api/states', {
+    await fetch('/api/supabase?action=states', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ id: stateKey, data: { folderId: selectedFolder, mdFileId } }),
@@ -444,7 +444,7 @@ function PromptBlock({ promptType, data, onSaved, clientEmail }) {
   }
 
   useEffect(() => {
-    fetch('/api/gemini-models')
+    fetch('/api/ai?action=models')
       .then(r => r.json())
       .then(d => { if (d.models?.length) setModels(d.models) })
       .catch(() => {})
@@ -456,7 +456,7 @@ function PromptBlock({ promptType, data, onSaved, clientEmail }) {
 
   const confirmSave = async () => {
     setSaving(true)
-    await fetch('/api/prompts', {
+    await fetch('/api/ai?action=prompts', {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ id: data.id, prompt: text }),
@@ -486,7 +486,7 @@ function PromptBlock({ promptType, data, onSaved, clientEmail }) {
           body.company_updates = updates.map(r => r.filter(Boolean).join(' | ')).join('\n')
         }
       }
-      const res = await fetch('/api/generate-email', {
+      const res = await fetch('/api/ai?action=generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body),
@@ -498,7 +498,7 @@ function PromptBlock({ promptType, data, onSaved, clientEmail }) {
       if (promptType === 'outreach' && (json.subject || json.body)) {
         const key = `prompt_editor.${clientEmail}.outreach.output`
         const outreachData = { subject: json.subject, body: json.body, signature: json.signature || '' }
-        fetch('/api/states', {
+        fetch('/api/supabase?action=states', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ id: key, data: outreachData }),
@@ -788,7 +788,7 @@ export default function PromptEditor() {
 
   const load = async (selectEmail) => {
     setLoading(true)
-    const res = await fetch('/api/prompts')
+    const res = await fetch('/api/ai?action=prompts')
     const data = await res.json()
     const grouped = groupByClient(data)
     setClients(grouped)
