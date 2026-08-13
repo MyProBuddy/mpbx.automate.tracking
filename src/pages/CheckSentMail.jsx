@@ -38,8 +38,8 @@ export default function CheckSentMail() {
   const [n8nClientId,   setN8nClientId]   = useState('')
   const dropRef = useRef(null)
 
-  const ACCOUNTS_WEBHOOK  = '/api/n8n-accounts'
-  const SENT_MAIL_WEBHOOK = '/api/n8n-sent-mail'
+  const ACCOUNTS_WEBHOOK  = '/api/n8n?type=accounts'
+  const SENT_MAIL_WEBHOOK = '/api/n8n?type=sent-mail'
 
   useEffect(() => {
     fetch(ACCOUNTS_WEBHOOK)
