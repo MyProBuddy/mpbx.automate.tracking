@@ -118,6 +118,9 @@ export default function Overview() {
   const [mailLoading, setMailLoading] = useState(false)
   const [mailPopup,   setMailPopup]   = useState(null)
   const [newRefreshToken, setNewRefreshToken] = useState('')
+  const [dbClients,   setDbClients]   = useState([])
+  const [dbLoading,   setDbLoading]   = useState(true)
+  const [dbExpanded,  setDbExpanded]  = useState(false)
 
   useEffect(() => {
     const t = setInterval(() => {
@@ -208,6 +211,14 @@ export default function Overview() {
       setLoading(false)
     }).catch(() => setLoading(false))
   }, [connected])
+
+  useEffect(() => {
+    fetch('/api/client-db')
+      .then(r => r.json())
+      .then(d => setDbClients(d.clients || []))
+      .catch(() => setDbClients([]))
+      .finally(() => setDbLoading(false))
+  }, [])
 
   const MAIL_VALIDATION_SHEET_ID = '1btrQftzrb_8cKwAs7WH1aTn0JGXES_coF56LEOmF44Y'
 
@@ -646,6 +657,137 @@ export default function Overview() {
             })()}
           </>
         )}
+
+        {/* ── DB Clients Section ── */}
+        <div style={{ marginTop: 60 }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
+            <div>
+              <div style={{ fontSize: FS.c, fontWeight: 500, color: '#7C3AED', marginBottom: 6 }}>Database Clients</div>
+              <h2 style={{ fontSize: FS.sh, fontWeight: 600, letterSpacing: '-0.02em', margin: '0 0 4px', color: INK }}>Outreach DB Overview</h2>
+              <p style={{ fontSize: FS.c, color: MUTED, margin: 0 }}>Live stats from the connected Supabase client database.</p>
+            </div>
+            <button
+              onClick={() => setDbExpanded(v => !v)}
+              style={{ height: 36, border: 'none', borderRadius: 10, padding: '0 18px', background: NEU_SURF, color: INK, cursor: 'pointer', fontFamily: FONT, fontWeight: 600, fontSize: FS.c, boxShadow: NEU_BTN }}
+            >
+              {dbExpanded ? 'Collapse' : 'Expand'}
+            </button>
+          </div>
+
+          {dbLoading ? (
+            <div style={{ padding: '48px 0', textAlign: 'center', color: MUTED, fontSize: FS.c }}>Loading DB clients…</div>
+          ) : dbClients.length === 0 ? (
+            <div style={{ background: NEU_SURF, borderRadius: 20, boxShadow: NEU_SHADOW, padding: '28px 24px', color: MUTED, fontSize: FS.c }}>No client schemas found.</div>
+          ) : (
+            <>
+              {/* DB Outreach Status funnel */}
+              {(() => {
+                const GRAD = 'linear-gradient(90deg, #C026D3, #F43F5E, #F97316)'
+                const dbTotals = dbClients.reduce((acc, c) => ({
+                  total: acc.total + (c.total || 0),
+                  initialSent: acc.initialSent + (c.initialSent || 0),
+                  f1: acc.f1 + (c.f1 || 0),
+                  f2: acc.f2 + (c.f2 || 0),
+                  f3: acc.f3 + (c.f3 || 0),
+                  replies: acc.replies + (c.replies || 0),
+                }), { total: 0, initialSent: 0, f1: 0, f2: 0, f3: 0, replies: 0 })
+                const stages = [
+                  { label: 'Total',        value: dbTotals.total },
+                  { label: 'Initial Sent', value: dbTotals.initialSent },
+                  { label: 'Followup 1',   value: dbTotals.f1 },
+                  { label: 'Followup 2',   value: dbTotals.f2 },
+                  { label: 'Followup 3',   value: dbTotals.f3 },
+                  { label: 'Replies',      value: dbTotals.replies },
+                ]
+                const max = Math.max(1, stages[0].value)
+                return (
+                  <div style={{ background: NEU_SURF, borderRadius: 20, boxShadow: NEU_SHADOW, padding: '24px 28px', marginBottom: 28 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
+                      <div style={{ fontSize: FS.sh, fontWeight: 600, color: INK }}>Outreach Status</div>
+                      <div style={{ fontSize: FS.sc, color: MUTED }}>
+                        {dbTotals.initialSent > 0 ? `${Math.round(dbTotals.replies / dbTotals.initialSent * 100)}% reply rate` : '—'}
+                      </div>
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                      {stages.map((s, i) => {
+                        const pct = s.value / max * 100
+                        const prev = i > 0 ? stages[i - 1].value : s.value
+                        const dropPct = prev > 0 ? Math.round(s.value / prev * 100) : null
+                        return (
+                          <div key={s.label} style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+                            <div style={{ width: 90, fontSize: FS.sc, fontWeight: 500, color: MUTED, textAlign: 'right', flexShrink: 0 }}>{s.label}</div>
+                            <div style={{ flex: 1, height: 32, background: 'rgba(0,0,0,0.06)', borderRadius: 8, overflow: 'hidden', boxShadow: 'inset 2px 2px 5px rgba(0,0,0,0.08), inset -2px -2px 5px rgba(255,255,255,0.7)' }}>
+                              <div style={{ position: 'relative', height: '100%', width: `${pct}%`, borderRadius: 8, transition: 'width 0.6s ease', display: 'flex', alignItems: 'center', paddingLeft: 10, boxSizing: 'border-box' }}>
+                                <div style={{ position: 'absolute', inset: 0, borderRadius: 8, background: i === stages.length - 1 ? GREEN : GRAD, opacity: i === stages.length - 1 ? 1 : (i + 1) / (stages.length - 1) }} />
+                                {pct > 12 && <span style={{ position: 'relative', fontSize: FS.sc, fontWeight: 700, color: i < 2 ? '#C026D3' : '#fff', fontFamily: MONO }}>{s.value.toLocaleString()}</span>}
+                              </div>
+                            </div>
+                            <div style={{ width: 44, fontSize: FS.sc, fontFamily: MONO, fontWeight: 500, color: INK, flexShrink: 0 }}>{pct <= 12 ? s.value.toLocaleString() : ''}</div>
+                            <div style={{ width: 44, fontSize: FS.sc, color: i === 0 ? 'transparent' : MUTED, flexShrink: 0 }}>{i > 0 && dropPct !== null ? `${dropPct}%` : ''}</div>
+                          </div>
+                        )
+                      })}
+                    </div>
+                  </div>
+                )
+              })()}
+
+              {/* DB Clients table */}
+              <div style={{ background: NEU_SURF, borderRadius: 20, boxShadow: NEU_SHADOW, overflow: 'hidden' }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                  <thead>
+                    <tr>
+                      <th style={thS}>Client</th>
+                      <th style={thR}>Total</th>
+                      <th style={thR}>Initial Sent</th>
+                      <th style={thR}>Followup 1</th>
+                      <th style={thR}>Followup 2</th>
+                      <th style={thR}>Followup 3</th>
+                      <th style={thR}>Replies</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {(dbExpanded ? dbClients : dbClients.slice(0, 5)).map(c => (
+                      <tr key={c.schema}
+                        onMouseEnter={e => e.currentTarget.style.background = 'rgba(0,0,0,0.03)'}
+                        onMouseLeave={e => e.currentTarget.style.background = ''}>
+                        <td style={tdS}>
+                          <div style={{ fontWeight: 400, color: INK }}>{c.schema}</div>
+                          {c.error && <span style={{ fontSize: FS.sc, color: RED }}>Failed to load</span>}
+                        </td>
+                        <td style={tdNum}>{c.error ? '—' : c.total}</td>
+                        <td style={tdNum}>{c.error ? '—' : c.initialSent}</td>
+                        <td style={tdNum}>{c.error ? '—' : c.f1}</td>
+                        <td style={tdNum}>{c.error ? '—' : c.f2}</td>
+                        <td style={tdNum}>{c.error ? '—' : c.f3}</td>
+                        <td style={tdNum}>{c.error ? '—' : c.replies}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                  <tfoot>
+                    <tr>
+                      <td style={totLabel}>{dbClients.length} clients total</td>
+                      <td style={totTd}>{dbClients.reduce((a, c) => a + (c.total || 0), 0)}</td>
+                      <td style={totTd}>{dbClients.reduce((a, c) => a + (c.initialSent || 0), 0)}</td>
+                      <td style={totTd}>{dbClients.reduce((a, c) => a + (c.f1 || 0), 0)}</td>
+                      <td style={totTd}>{dbClients.reduce((a, c) => a + (c.f2 || 0), 0)}</td>
+                      <td style={totTd}>{dbClients.reduce((a, c) => a + (c.f3 || 0), 0)}</td>
+                      <td style={totTd}>{dbClients.reduce((a, c) => a + (c.replies || 0), 0)}</td>
+                    </tr>
+                  </tfoot>
+                </table>
+                {!dbExpanded && dbClients.length > 5 && (
+                  <div style={{ padding: '12px 18px', borderTop: `1px solid ${LINE}`, textAlign: 'center' }}>
+                    <button onClick={() => setDbExpanded(true)} style={{ fontSize: FS.sc, color: '#7C3AED', background: 'none', border: 'none', cursor: 'pointer', fontFamily: FONT, fontWeight: 500 }}>
+                      Show all {dbClients.length} clients ↓
+                    </button>
+                  </div>
+                )}
+              </div>
+            </>
+          )}
+        </div>
+
       </main>
 
       {/* Mail detail popup */}
