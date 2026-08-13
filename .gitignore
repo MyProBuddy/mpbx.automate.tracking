@@ -3,3 +3,9 @@ dist/
 .env
 dev.log
 C:UsersAsusDownloadsworkflow_fetched.json
+tempDataFolderAndScripts/
+*.preview.html
+hub-preview.html
+mail-status-preview.html
+noverview-preview.html
+spatial-preview.html
