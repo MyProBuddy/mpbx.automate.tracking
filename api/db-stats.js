@@ -11,7 +11,16 @@ export default async function handler(req, res) {
 
   // Route: /api/db-stats?source=clients — returns per-schema outreach stats
   if (req.query.source === 'clients') {
-    const client = new Client({ connectionString: process.env.SUPABASE_CLIENT_DB_URL, ssl: { rejectUnauthorized: false } })
+    const connStr = process.env.SUPABASE_CLIENT_DB_URL || ''
+    const url = new URL(connStr.replace('sslmode=require', 'sslmode=no-verify'))
+    const client = new Client({
+      host: url.hostname,
+      port: parseInt(url.port) || 6543,
+      database: url.pathname.replace('/', ''),
+      user: decodeURIComponent(url.username),
+      password: decodeURIComponent(url.password),
+      ssl: { rejectUnauthorized: false },
+    })
     try {
       await client.connect()
       const schemaRes = await client.query(`
