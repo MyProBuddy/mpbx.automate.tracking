@@ -663,7 +663,7 @@ export default function Overview() {
         <div style={{ marginTop: 60 }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
             <div>
-              <div style={{ fontSize: FS.c, fontWeight: 500, color: '#7C3AED', marginBottom: 6 }}>Database Clients</div>
+              <div style={{ fontSize: FS.c, fontWeight: 500, color: '#7C3AED', marginBottom: 6 }}>Postgres Migrated Clients</div>
               <h2 style={{ fontSize: FS.sh, fontWeight: 600, letterSpacing: '-0.02em', margin: '0 0 4px', color: INK }}>Outreach DB Overview</h2>
               <p style={{ fontSize: FS.c, color: MUTED, margin: 0 }}>Live stats from the connected Supabase client database.</p>
             </div>
