@@ -18,7 +18,8 @@ export default async function handler(req, res) {
         SELECT schema_name FROM information_schema.schemata
         WHERE schema_name NOT IN (
           'information_schema','pg_catalog','pg_toast','auth','extensions',
-          'graphql','graphql_public','pgbouncer','realtime','storage','vault','public'
+          'graphql','graphql_public','pgbouncer','realtime','storage','vault','public',
+          'client_schema_name'
         )
         AND schema_name NOT LIKE 'pg_%'
         ORDER BY schema_name
