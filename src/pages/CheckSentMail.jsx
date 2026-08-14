@@ -3,6 +3,7 @@ import { T } from '../constants.js'
 import Nav from '../components/Nav.jsx'
 import { listClientSheets, getSheetTabs, getSheetValues, initTokenClient, requestToken, syncTokenFromServer } from '../google.js'
 import { useAuth } from '../AuthContext.jsx'
+import apiFetch from '../lib/apiFetch.js'
 
 const FONT  = "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
 const FS    = { h: 32, sh: 18, c: 14, sc: 12 }
@@ -42,7 +43,7 @@ export default function CheckSentMail() {
   const SENT_MAIL_WEBHOOK = '/api/n8n?type=sent-mail'
 
   useEffect(() => {
-    fetch(ACCOUNTS_WEBHOOK)
+    apiFetch(ACCOUNTS_WEBHOOK)
       .then(r => r.json())
       .then(data => {
         const accounts = data?.[0]?.accounts || []
@@ -58,7 +59,7 @@ export default function CheckSentMail() {
     setCheckResult(null)
     setCheckError('')
     try {
-      const res = await fetch(SENT_MAIL_WEBHOOK, {
+      const res = await apiFetch(SENT_MAIL_WEBHOOK, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ clientId: n8nClientId, emails: [selectedInv.email] }),
