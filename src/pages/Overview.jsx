@@ -667,12 +667,6 @@ export default function Overview() {
               <h2 style={{ fontSize: FS.sh, fontWeight: 600, letterSpacing: '-0.02em', margin: '0 0 4px', color: INK }}>Outreach DB Overview</h2>
               <p style={{ fontSize: FS.c, color: MUTED, margin: 0 }}>Live stats from the connected Supabase client database.</p>
             </div>
-            <button
-              onClick={() => setDbExpanded(v => !v)}
-              style={{ height: 36, border: 'none', borderRadius: 10, padding: '0 18px', background: NEU_SURF, color: INK, cursor: 'pointer', fontFamily: FONT, fontWeight: 600, fontSize: FS.c, boxShadow: NEU_BTN }}
-            >
-              {dbExpanded ? 'Collapse' : 'Expand'}
-            </button>
           </div>
 
           {dbLoading ? (
@@ -750,7 +744,7 @@ export default function Overview() {
                     </tr>
                   </thead>
                   <tbody>
-                    {(dbExpanded ? dbClients : dbClients.slice(0, 5)).map(c => (
+                    {dbClients.map(c => (
                       <tr key={c.schema}
                         onMouseEnter={e => e.currentTarget.style.background = 'rgba(0,0,0,0.03)'}
                         onMouseLeave={e => e.currentTarget.style.background = ''}>
@@ -779,13 +773,6 @@ export default function Overview() {
                     </tr>
                   </tfoot>
                 </table>
-                {!dbExpanded && dbClients.length > 5 && (
-                  <div style={{ padding: '12px 18px', borderTop: `1px solid ${LINE}`, textAlign: 'center' }}>
-                    <button onClick={() => setDbExpanded(true)} style={{ fontSize: FS.sc, color: '#7C3AED', background: 'none', border: 'none', cursor: 'pointer', fontFamily: FONT, fontWeight: 500 }}>
-                      Show all {dbClients.length} clients ↓
-                    </button>
-                  </div>
-                )}
               </div>
             </>
           )}
