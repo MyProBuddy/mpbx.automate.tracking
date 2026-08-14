@@ -370,7 +370,7 @@ function PromptBlock({ promptType, data, onSaved, clientEmail }) {
   useEffect(() => {
     if (promptType !== 'outreach_followup') return
     const key = `prompt_editor.${clientEmail}.outreach.output`
-    fetch(`/api/supabase?action=states&id=${encodeURIComponent(key)}`)
+    apiFetch(`/api/supabase?action=states&id=${encodeURIComponent(key)}`)
       .then(r => r.ok ? r.json() : null)
       .then(d => { if (d?.subject || d?.body) setPrevMail(d) })
       .catch(() => {})
@@ -383,7 +383,7 @@ function PromptBlock({ promptType, data, onSaved, clientEmail }) {
   useEffect(() => {
     if (!HAS_FILES_TAB.includes(promptType)) return
     // load saved state
-    fetch(`/api/supabase?action=states&id=${encodeURIComponent(stateKey)}`)
+    apiFetch(`/api/supabase?action=states&id=${encodeURIComponent(stateKey)}`)
       .then(r => r.ok ? r.json() : null)
       .then(d => {
         if (d?.mdFileId) setMdFileId(d.mdFileId)
@@ -405,7 +405,7 @@ function PromptBlock({ promptType, data, onSaved, clientEmail }) {
   useEffect(() => {
     if (promptType !== 'outreach_followup') return
     listClientSheets().then(setSheets).catch(() => {})
-    fetch(`/api/supabase?action=states&id=${encodeURIComponent(updatesStateKey)}`)
+    apiFetch(`/api/supabase?action=states&id=${encodeURIComponent(updatesStateKey)}`)
       .then(r => r.ok ? r.json() : null)
       .then(d => { if (d?.sheetId) setSelectedSheet(d.sheetId) })
       .catch(() => {})
