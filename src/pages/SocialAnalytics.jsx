@@ -123,7 +123,7 @@ export default function SocialAnalytics() {
 
   return (
     <div style={{ minHeight: '100vh', fontFamily: FONT, background: NEU_BG }}>
-      <Nav title="Social Analytics" />
+      <Nav title="Social Analytics" backTo="/hub" />
       <div style={{ maxWidth: 1200, margin: '0 auto', padding: '40px 48px 80px' }}>
 
         {/* Header */}
