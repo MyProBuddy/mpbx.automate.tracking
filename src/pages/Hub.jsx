@@ -47,6 +47,7 @@ const CardIcons = {
   tools:     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>,
   database:  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14a9 3 0 0 0 18 0V5"/><path d="M3 12a9 3 0 0 0 18 0"/></svg>,
   internal:  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>,
+  social:    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>,
 }
 
 const OPTIONS = [
@@ -144,6 +145,19 @@ const OPTIONS = [
       { text: 'Campaign-wide performance view', icon: Icon.TrendUp },
       { text: 'Automation health metrics',      icon: Icon.Cpu },
       { text: 'Internal reporting dashboard',   icon: Icon.Report },
+    ],
+    disabled: true,
+  },
+  {
+    path: '/social-analytics',
+    color: '#0EA5E9', colorLight: '#F0F9FF',
+    cardIcon: CardIcons.social,
+    label: 'SOCIAL', title: 'Social Analytics',
+    desc: 'Track engagement and performance across your social media posts — reach, likes, comments, and growth trends.',
+    items: [
+      { text: 'Post engagement metrics',   icon: Icon.TrendUp },
+      { text: 'Platform-wise breakdown',   icon: Icon.BarChart },
+      { text: 'Growth & reach tracking',   icon: Icon.Activity },
     ],
     disabled: true,
   },
