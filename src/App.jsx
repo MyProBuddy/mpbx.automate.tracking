@@ -19,6 +19,7 @@ import DataWorkflows      from './pages/DataWorkflows.jsx'
 import Tools              from './pages/Tools.jsx'
 import PromptEditor       from './pages/PromptEditor.jsx'
 import CheckSentMail      from './pages/CheckSentMail.jsx'
+import SocialAnalytics    from './pages/SocialAnalytics.jsx'
 
 // /n/* stub — uses NNav, independent from old pages
 function NSectionStub({ title }) {
@@ -73,6 +74,7 @@ function AppRoutes() {
       <Route path="/tools/prompt-editor"      element={<Protected><PromptEditor /></Protected>} />
       <Route path="/tools/check-sent-mail"   element={<Protected><CheckSentMail /></Protected>} />
       <Route path="/home"             element={<Protected><Home /></Protected>} />
+      <Route path="/social-analytics" element={<Protected><SocialAnalytics /></Protected>} />
       {/* New /n/* routes — independent from old pages */}
       <Route path="/n/overview"  element={<Protected><NOverview /></Protected>} />
       <Route path="/n/analytics" element={<Protected><NSectionStub title="Analytics" /></Protected>} />

@@ -159,7 +159,6 @@ const OPTIONS = [
       { text: 'Platform-wise breakdown',   icon: Icon.BarChart },
       { text: 'Growth & reach tracking',   icon: Icon.Activity },
     ],
-    disabled: true,
   },
 ]
 
