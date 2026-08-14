@@ -115,11 +115,21 @@ function BarRow({ label, value, max, color }) {
   )
 }
 
+const ACCOUNTS = {
+  instagram: ['All Accounts', '@myprobuddy', '@mpbx.outreach'],
+  threads:   ['All Accounts', '@myprobuddy'],
+  whatsapp:  ['All Accounts', '+91 XXXXX XXXXX'],
+  x:         ['All Accounts', '@myprobuddy', '@mpbx'],
+  youtube:   ['All Accounts', 'MyProBuddy'],
+}
+
 export default function SocialAnalytics() {
   const [active, setActive] = useState('instagram')
+  const [account, setAccount] = useState('All Accounts')
   const p = PLATFORMS.find(p => p.key === active)
 
   useEffect(() => { window.scrollTo(0, 0) }, [])
+  useEffect(() => { setAccount('All Accounts') }, [active])
 
   return (
     <div style={{ minHeight: '100vh', fontFamily: FONT, background: NEU_BG }}>
@@ -138,6 +148,29 @@ export default function SocialAnalytics() {
           {PLATFORMS.map(pl => (
             <PlatformCard key={pl.key} p={pl} active={active === pl.key} onClick={() => setActive(pl.key)} />
           ))}
+        </div>
+
+        {/* Account selector */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 28, background: NEU_SURF, borderRadius: 14, boxShadow: NEU_SHADOW, padding: '12px 20px' }}>
+          <span style={{ fontSize: FS.sc, fontWeight: 500, color: MUTED, flexShrink: 0 }}>Account</span>
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+            {(ACCOUNTS[active] || ['All Accounts']).map(acc => (
+              <button
+                key={acc}
+                onClick={() => setAccount(acc)}
+                style={{
+                  padding: '6px 16px', borderRadius: 8, border: 'none', cursor: 'pointer',
+                  fontFamily: FONT, fontSize: FS.sc, fontWeight: 500,
+                  background: account === acc ? p.color : 'rgba(0,0,0,0.06)',
+                  color: account === acc ? '#fff' : MUTED,
+                  boxShadow: account === acc ? `0 2px 8px ${p.color}40` : 'none',
+                  transition: 'all 0.15s ease',
+                }}
+              >
+                {acc}
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* Metric cards */}
