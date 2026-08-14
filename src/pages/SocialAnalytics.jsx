@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Nav from '../components/Nav.jsx'
 
 const FONT     = "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
@@ -118,6 +118,8 @@ function BarRow({ label, value, max, color }) {
 export default function SocialAnalytics() {
   const [active, setActive] = useState('instagram')
   const p = PLATFORMS.find(p => p.key === active)
+
+  useEffect(() => { window.scrollTo(0, 0) }, [])
 
   return (
     <div style={{ minHeight: '100vh', fontFamily: FONT, background: NEU_BG }}>
