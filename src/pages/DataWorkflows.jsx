@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { T } from '../constants.js'
 import Nav from '../components/Nav.jsx'
 import { fetchDbStats } from '../lib/supabase.js'
+import apiFetch from '../lib/apiFetch.js'
 
 const FONT  = "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
 const FS    = { h: 32, sh: 18, c: 14, sc: 12 }
