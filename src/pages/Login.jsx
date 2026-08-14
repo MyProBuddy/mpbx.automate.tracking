@@ -24,8 +24,8 @@ export default function Login() {
 
   const submit = async e => {
     e.preventDefault()
-    const r = await authenticate(email, password)
-    if (r) login(r)
+    const result = await authenticate(email, password)
+    if (result) login(result.role, result.sessionToken)
     else setError('Incorrect email or password.')
   }
 

@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import ReactECharts from 'echarts-for-react'
 import { listClientSheets, getSheetTabs, getSheetValues, isConnected, initTokenClient, requestToken, syncTokenFromServer } from './google.js'
 import { useAuth } from './AuthContext.jsx'
+import apiFetch from './lib/apiFetch.js'
 import Nav from './components/Nav.jsx'
 
 // ── color tokens ───────────────────────────────────────────────────────────────
@@ -511,7 +512,7 @@ export default function Analytics() {
   }, [])
 
   useEffect(() => {
-    fetch('/api/n8n?type=accounts')
+    apiFetch('/api/n8n?type=accounts')
       .then(r => { if (!r.ok) throw new Error(r.status); return r.json() })
       .then(raw => {
         const payload = Array.isArray(raw) ? raw[0] : raw?.value?.[0] ?? raw

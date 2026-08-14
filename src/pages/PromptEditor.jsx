@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from 'react'
 import { T } from '../constants.js'
 import Nav from '../components/Nav.jsx'
+import apiFetch from '../lib/apiFetch.js'
 
 const FONT  = "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
 const FS    = { h: 32, sh: 18, c: 14, sc: 12 }
@@ -253,7 +254,7 @@ function AddClientModal({ onClose, onAdded }) {
     if (!name.trim()) { setError('Client name is required'); return }
     setSaving(true)
     const clientId = `client_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`
-    const res = await fetch('/api/ai?action=prompts', {
+    const res = await apiFetch('/api/ai?action=prompts', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ client_name: name.trim(), client_email: clientId, client_description: description.trim() }),
@@ -302,7 +303,7 @@ function EditDescriptionModal({ client, onClose, onSaved }) {
   const submit = async e => {
     e.preventDefault()
     setSaving(true)
-    await fetch('/api/ai?action=prompts', {
+    await apiFetch('/api/ai?action=prompts', {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ client_email: client.client_email, client_description: description.trim() }),
@@ -424,7 +425,7 @@ function PromptBlock({ promptType, data, onSaved, clientEmail }) {
   }, [selectedSheet])
 
   async function saveUpdatesState() {
-    await fetch('/api/supabase?action=states', {
+    await apiFetch('/api/supabase?action=states', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ id: updatesStateKey, data: { sheetId: selectedSheet } }),
@@ -434,7 +435,7 @@ function PromptBlock({ promptType, data, onSaved, clientEmail }) {
   }
 
   async function saveFilesState() {
-    await fetch('/api/supabase?action=states', {
+    await apiFetch('/api/supabase?action=states', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ id: stateKey, data: { folderId: selectedFolder, mdFileId } }),
@@ -444,7 +445,7 @@ function PromptBlock({ promptType, data, onSaved, clientEmail }) {
   }
 
   useEffect(() => {
-    fetch('/api/ai?action=models')
+    apiFetch('/api/ai?action=models')
       .then(r => r.json())
       .then(d => { if (d.models?.length) setModels(d.models) })
       .catch(() => {})
@@ -456,7 +457,7 @@ function PromptBlock({ promptType, data, onSaved, clientEmail }) {
 
   const confirmSave = async () => {
     setSaving(true)
-    await fetch('/api/ai?action=prompts', {
+    await apiFetch('/api/ai?action=prompts', {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ id: data.id, prompt: text }),
@@ -486,7 +487,7 @@ function PromptBlock({ promptType, data, onSaved, clientEmail }) {
           body.company_updates = updates.map(r => r.filter(Boolean).join(' | ')).join('\n')
         }
       }
-      const res = await fetch('/api/ai?action=generate', {
+      const res = await apiFetch('/api/ai?action=generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body),
@@ -498,7 +499,7 @@ function PromptBlock({ promptType, data, onSaved, clientEmail }) {
       if (promptType === 'outreach' && (json.subject || json.body)) {
         const key = `prompt_editor.${clientEmail}.outreach.output`
         const outreachData = { subject: json.subject, body: json.body, signature: json.signature || '' }
-        fetch('/api/supabase?action=states', {
+        apiFetch('/api/supabase?action=states', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ id: key, data: outreachData }),
@@ -788,7 +789,7 @@ export default function PromptEditor() {
 
   const load = async (selectEmail) => {
     setLoading(true)
-    const res = await fetch('/api/ai?action=prompts')
+    const res = await apiFetch('/api/ai?action=prompts')
     const data = await res.json()
     const grouped = groupByClient(data)
     setClients(grouped)

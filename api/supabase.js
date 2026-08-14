@@ -1,12 +1,12 @@
 import { createClient } from '@supabase/supabase-js'
+import { verifySession, setCors } from './_lib.js'
 
 const sb = () => createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY)
 
 export default async function handler(req, res) {
-  res.setHeader('Access-Control-Allow-Origin', '*')
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PATCH, OPTIONS')
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type')
+  setCors(res, 'GET, POST, PATCH, OPTIONS')
   if (req.method === 'OPTIONS') return res.status(200).end()
+  if (!verifySession(req)) return res.status(401).json({ error: 'Unauthorized' })
 
   const { action } = req.query
 

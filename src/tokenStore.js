@@ -1,6 +1,8 @@
+import apiFetch from './lib/apiFetch.js'
+
 export async function pushTokenToStore(token) {
   try {
-    await fetch('/api/auth?action=token', {
+    await apiFetch('/api/auth?action=token', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ token }),
@@ -11,7 +13,7 @@ export async function pushTokenToStore(token) {
 export async function pullTokenFromStore(forceRefresh = false) {
   try {
     const url = forceRefresh ? '/api/auth?action=token&refresh=true' : '/api/auth?action=token'
-    const r = await fetch(url)
+    const r = await apiFetch(url)
     const { token } = await r.json()
     return token || null
   } catch { return null }

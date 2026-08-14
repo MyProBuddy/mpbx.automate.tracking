@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { syncTokenFromServer, isConnected } from './google.js'
+import { saveSessionToken, clearSessionToken } from './lib/apiFetch.js'
 
 const AuthContext = createContext(null)
 
@@ -25,14 +26,16 @@ export function AuthProvider({ children }) {
     }
   }, [])
 
-  const login = (r) => {
+  const login = (r, sessionToken) => {
     localStorage.setItem('wf_auth', r)
+    if (sessionToken) saveSessionToken(sessionToken)
     setRole(r)
     navigate('/hub')
   }
 
   const logout = () => {
     localStorage.removeItem('wf_auth')
+    clearSessionToken()
     setRole(null)
     navigate('/login')
   }

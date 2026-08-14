@@ -1,4 +1,5 @@
 import crypto from 'crypto'
+import { signSession, rateLimit, setCors } from './_lib.js'
 
 // ── token helpers ──────────────────────────────────────────────────────────────
 const GIST_ID  = process.env.GIST_ID
@@ -46,17 +47,20 @@ async function getAccessTokenFromRefreshToken(refreshToken) {
 }
 
 export default async function handler(req, res) {
-  res.setHeader('Access-Control-Allow-Origin', '*')
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, DELETE, OPTIONS')
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type')
+  setCors(res, 'GET, POST, DELETE, OPTIONS')
   if (req.method === 'OPTIONS') return res.status(200).end()
 
   // ── Route: login (?action=login or default POST without action) ───────────
   if (!req.query.action || req.query.action === 'login') {
     if (req.method !== 'POST') return res.status(405).end()
+    const ip = req.headers['x-forwarded-for']?.split(',')[0] || 'unknown'
+    if (rateLimit(ip, 10, 15 * 60 * 1000)) return res.status(429).json({ error: 'Too many attempts. Try again in 15 minutes.' })
     const { email, password } = req.body || {}
     if (!email || !password) return res.status(400).json({ error: 'missing credentials' })
-    if (email === process.env.SA_EMAIL && password === process.env.SA_PASSWORD) return res.json({ role: 'superadmin' })
+    if (email === process.env.SA_EMAIL && password === process.env.SA_PASSWORD) {
+      const sessionToken = signSession({ role: 'superadmin', exp: Date.now() + 24 * 60 * 60 * 1000 })
+      return res.json({ role: 'superadmin', sessionToken })
+    }
     return res.status(401).json({ role: null })
   }
 

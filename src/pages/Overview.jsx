@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import apiFetch from '../lib/apiFetch.js'
 import { useNavigate } from 'react-router-dom'
 import { T } from '../constants.js'
 import Nav from '../components/Nav.jsx'
@@ -214,7 +215,7 @@ export default function Overview() {
   }, [connected])
 
   useEffect(() => {
-    fetch('/api/db-stats?source=clients')
+    apiFetch('/api/db-stats?source=clients')
       .then(r => r.json())
       .then(d => { setDbClients(d.clients || []); if (d.error) setDbError(d.error) })
       .catch(e => setDbError(e.message))

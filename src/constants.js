@@ -50,5 +50,5 @@ export async function authenticate(email, password) {
     body: JSON.stringify({ email, password }),
   })
   const data = await res.json()
-  return data.role || null
+  return data.role ? { role: data.role, sessionToken: data.sessionToken } : null
 }
