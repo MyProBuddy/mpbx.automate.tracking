@@ -58,7 +58,7 @@ export default async function handler(req, res) {
     const { email, password } = req.body || {}
     if (!email || !password) return res.status(400).json({ error: 'missing credentials' })
     if (email === process.env.SA_EMAIL && password === process.env.SA_PASSWORD) {
-      const sessionToken = signSession({ role: 'superadmin', exp: Date.now() + 24 * 60 * 60 * 1000 })
+      const sessionToken = signSession({ role: 'superadmin' })
       return res.json({ role: 'superadmin', sessionToken })
     }
     return res.status(401).json({ role: null })

@@ -1,7 +1,5 @@
 import crypto from 'crypto'
 
-const SESSION_TTL_MS = 24 * 60 * 60 * 1000 // 24 hours
-
 function getKey() {
   const k = process.env.ENCRYPT_KEY || ''
   return Buffer.from(k.padEnd(32).slice(0, 32))
@@ -21,9 +19,7 @@ export function verifySession(req) {
     const [b64, mac] = token.split('.')
     const data       = Buffer.from(b64, 'base64').toString('utf8')
     const expected   = crypto.createHmac('sha256', getKey()).update(data).digest('hex')
-    if (mac !== expected) return false
-    const { exp } = JSON.parse(data)
-    return Date.now() < exp
+    return mac === expected
   } catch { return false }
 }
 
