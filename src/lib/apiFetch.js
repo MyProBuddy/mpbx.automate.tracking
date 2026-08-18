@@ -19,7 +19,7 @@ export default async function apiFetch(url, opts = {}) {
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
     },
   })
-  if (res.status === 401) {
+  if (res.status === 401 && !url.includes('/api/auth') && window.location.pathname !== '/login') {
     clearSessionToken()
     localStorage.removeItem('wf_auth')
     window.location.href = '/login'
