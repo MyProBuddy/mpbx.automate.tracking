@@ -155,32 +155,17 @@ function RecordCard({ record, type }) {
 }
 
 function DataOverview() {
-  const [type, setType]           = useState('investors')
-  const [status, setStatus]       = useState('all')
-  const [batch, setBatch]         = useState('all')
-  const [hasEmail, setHasEmail]   = useState('all')
-  const [country, setCountry]     = useState('all')
-  const [fundStage, setFundStage] = useState('all')
-  const [searchInput, setSearchInput] = useState('')
-  const [search, setSearch]       = useState('')
-  const [records, setRecords]     = useState([])
-  const [total, setTotal]         = useState(null)
-  const [page, setPage]           = useState(1)
-  const [loading, setLoading]     = useState(false)
-  const [invStats, setInvStats]   = useState(null)
+  const [type, setType]       = useState('investors')
+  const [status, setStatus]   = useState('all')
+  const [records, setRecords] = useState([])
+  const [total, setTotal]     = useState(null)
+  const [page, setPage]       = useState(1)
+  const [loading, setLoading] = useState(false)
 
-  useEffect(() => {
-    apiFetch('/api/supabase?action=investor-stats')
-      .then(r => r.json())
-      .then(d => setInvStats(d))
-      .catch(() => {})
-  }, [])
-
-  const fetchData = useCallback(async (t, s, p, b, he, c, fs, q) => {
+  const fetchData = useCallback(async (t, s, p) => {
     setLoading(true)
     try {
-      const params = new URLSearchParams({ action: 'data', type: t, status: s, page: p, batch: b, has_email: he, country: c, fund_stage: fs, search: q })
-      const res = await apiFetch(`/api/supabase?${params}`)
+      const res = await apiFetch(`/api/supabase?action=data&type=${t}&status=${s}&page=${p}&limit=5`)
       const json = await res.json()
       setRecords(json.data || [])
       setTotal(json.total)
@@ -190,23 +175,26 @@ function DataOverview() {
   }, [])
 
   useEffect(() => {
-    fetchData(type, status, page, batch, hasEmail, country, fundStage, search)
-  }, [type, status, page, batch, hasEmail, country, fundStage, search, fetchData])
+    fetchData(type, status, page)
+  }, [type, status, page, fetchData])
 
   const changeType = (t) => { setType(t); setPage(1) }
-  const resetFilters = () => { setStatus('all'); setBatch('all'); setHasEmail('all'); setCountry('all'); setFundStage('all'); setSearchInput(''); setSearch(''); setPage(1) }
+  const changeStatus = (s) => { setStatus(s); setPage(1) }
 
   const totalPages = total !== null ? Math.ceil(total / 5) : null
 
-  const selectStyle = { height: 34, borderRadius: 8, border: `1px solid ${LINE}`, padding: '0 10px', fontSize: FS.sc, fontFamily: FONT, background: 'linear-gradient(145deg, #f6f6f6, #e8e8e8)', color: INK, cursor: 'pointer' }
-
   return (
     <div>
-      {/* Type toggle */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16, flexWrap: 'wrap' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 20, flexWrap: 'wrap' }}>
         <div style={{ display: 'flex', gap: 6 }}>
           <FilterBtn active={type === 'investors'} onClick={() => changeType('investors')}>Investors</FilterBtn>
           <FilterBtn active={type === 'firms'} onClick={() => changeType('firms')}>Firms</FilterBtn>
+        </div>
+        <div style={{ width: 1, height: 24, background: LINE, margin: '0 4px' }} />
+        <div style={{ display: 'flex', gap: 6 }}>
+          <FilterBtn active={status === 'all'} onClick={() => changeStatus('all')}>All</FilterBtn>
+          <FilterBtn active={status === 'active'} onClick={() => changeStatus('active')}>Active</FilterBtn>
+          <FilterBtn active={status === 'inactive'} onClick={() => changeStatus('inactive')}>Inactive</FilterBtn>
         </div>
         {total !== null && (
           <span style={{ fontSize: FS.sc, color: MUTED, marginLeft: 8 }}>
@@ -214,51 +202,6 @@ function DataOverview() {
           </span>
         )}
       </div>
-
-      {/* Filters — investors only */}
-      {type === 'investors' && (
-        <div style={{ background: 'linear-gradient(145deg, #f6f6f6, #e8e8e8)', borderRadius: 14, boxShadow: NEU_SHADOW, padding: '14px 18px', marginBottom: 18, display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center' }}>
-          <input
-            placeholder="Search name, email, firm…"
-            value={searchInput}
-            onChange={e => setSearchInput(e.target.value)}
-            onKeyDown={e => { if (e.key === 'Enter') { setSearch(searchInput); setPage(1) } }}
-            style={{ flex: '1 1 180px', height: 34, borderRadius: 8, border: `1px solid ${LINE}`, padding: '0 10px', fontSize: FS.sc, fontFamily: FONT, background: 'rgba(0,0,0,0.03)', outline: 'none', color: INK }}
-          />
-          <button onClick={() => { setSearch(searchInput); setPage(1) }}
-            style={{ height: 34, padding: '0 14px', borderRadius: 8, border: 'none', background: 'rgba(192,38,211,0.12)', color: '#C026D3', fontWeight: 600, fontSize: FS.sc, cursor: 'pointer', fontFamily: FONT }}>
-            Search
-          </button>
-          <select value={status} onChange={e => { setStatus(e.target.value); setPage(1) }} style={selectStyle}>
-            <option value="all">All Status</option>
-            <option value="active">Active</option>
-            <option value="inactive">Inactive</option>
-          </select>
-          <select value={batch} onChange={e => { setBatch(e.target.value); setPage(1) }} style={selectStyle}>
-            <option value="all">All Batches</option>
-            <option value="original">Original (i#####)</option>
-            <option value="am">AngelMatch (AM#####)</option>
-          </select>
-          <select value={hasEmail} onChange={e => { setHasEmail(e.target.value); setPage(1) }} style={selectStyle}>
-            <option value="all">Has Email: All</option>
-            <option value="yes">Has Email: Yes</option>
-            <option value="no">Has Email: No</option>
-          </select>
-          <select value={country} onChange={e => { setCountry(e.target.value); setPage(1) }} style={selectStyle}>
-            <option value="all">All Countries</option>
-            {(invStats?.countries || []).map(c => <option key={c.value} value={c.value}>{c.value} ({c.count})</option>)}
-          </select>
-          <select value={fundStage} onChange={e => { setFundStage(e.target.value); setPage(1) }} style={selectStyle}>
-            <option value="all">All Stages</option>
-            {(invStats?.stages || []).map(s => <option key={s.value} value={s.value}>{s.value} ({s.count})</option>)}
-          </select>
-          <button onClick={resetFilters}
-            style={{ height: 34, padding: '0 12px', borderRadius: 8, border: 'none', background: 'rgba(0,0,0,0.06)', color: MUTED, fontSize: FS.sc, cursor: 'pointer', fontFamily: FONT }}>
-            Reset
-          </button>
-        </div>
-      )}
-
 
       {loading
         ? <div style={{ fontSize: FS.c, color: MUTED, padding: '32px 0' }}>Loading…</div>

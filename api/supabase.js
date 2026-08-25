@@ -27,7 +27,7 @@ export default async function handler(req, res) {
     const { type = 'investors', status = 'all', page = '1', country = 'all', fund_stage = 'all', has_email = 'all', batch = 'all', search = '' } = req.query
     const table = type === 'firms' ? 'firms' : 'investors'
     const pageNum = Math.max(1, parseInt(page))
-    const pageSize = 5
+    const pageSize = 50
     const from = (pageNum - 1) * pageSize
     let query = sb().from(table).select('*', { count: 'exact' }).range(from, from + pageSize - 1)
     if (table === 'investors') {
