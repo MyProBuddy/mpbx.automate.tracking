@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { T } from '../constants.js'
 import Nav from '../components/Nav.jsx'
 import { fetchDbStats } from '../lib/supabase.js'
@@ -154,6 +154,68 @@ function RecordCard({ record, type }) {
   )
 }
 
+function CountryDropdown({ value, onChange, countries }) {
+  const [open, setOpen] = useState(false)
+  const ref = React.useRef(null)
+
+  useEffect(() => {
+    const handler = e => { if (ref.current && !ref.current.contains(e.target)) setOpen(false) }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [])
+
+  const selected = countries.find(c => c.value === value)
+  const label = selected ? selected.value : 'All Countries'
+  const isFiltered = value !== 'all'
+
+  return (
+    <div ref={ref} style={{ position: 'relative' }}>
+      <button
+        onClick={() => setOpen(o => !o)}
+        style={{
+          height: 34, padding: '0 12px 0 14px', borderRadius: 10, border: 'none',
+          background: NEU_SURF, boxShadow: open ? NEU_INSET : NEU_BTN,
+          color: isFiltered ? '#C026D3' : MUTED, fontSize: FS.c, fontFamily: FONT,
+          cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8, fontWeight: isFiltered ? 600 : 400,
+        }}>
+        {label}
+        <span style={{ fontSize: 10, color: isFiltered ? '#C026D3' : MUTED, marginTop: 1 }}>{open ? '▲' : '▼'}</span>
+      </button>
+
+      {open && (
+        <div style={{
+          position: 'absolute', top: 40, left: 0, zIndex: 100,
+          background: 'linear-gradient(145deg, #f6f6f6, #e8e8e8)',
+          borderRadius: 12, boxShadow: '0 8px 32px rgba(0,0,0,0.15), -4px -4px 10px rgba(255,255,255,0.8)',
+          overflow: 'hidden', minWidth: 200,
+        }}>
+          <div style={{ maxHeight: 260, overflowY: 'auto' }}>
+            {[{ value: 'all', label: 'All Countries', count: null }, ...countries.map(c => ({ value: c.value, label: c.value, count: c.count }))].map(c => (
+              <div
+                key={c.value}
+                onClick={() => { onChange(c.value); setOpen(false) }}
+                style={{
+                  padding: '9px 16px', fontSize: FS.c, fontFamily: FONT, cursor: 'pointer',
+                  display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12,
+                  background: value === c.value ? 'rgba(192,38,211,0.08)' : 'transparent',
+                  color: value === c.value ? '#C026D3' : INK,
+                  fontWeight: value === c.value ? 600 : 400,
+                  borderBottom: `1px solid rgba(0,0,0,0.04)`,
+                }}
+                onMouseEnter={e => { if (value !== c.value) e.currentTarget.style.background = 'rgba(0,0,0,0.04)' }}
+                onMouseLeave={e => { if (value !== c.value) e.currentTarget.style.background = 'transparent' }}
+              >
+                <span>{c.label}</span>
+                {c.count && <span style={{ fontSize: FS.sc, color: MUTED, fontFamily: T.mono }}>{c.count.toLocaleString()}</span>}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
 function DataOverview() {
   const [type, setType]         = useState('investors')
   const [status, setStatus]     = useState('all')
@@ -206,13 +268,11 @@ function DataOverview() {
           <FilterBtn active={status === 'inactive'} onClick={() => changeStatus('inactive')}>Inactive</FilterBtn>
         </div>
         {type === 'investors' && (
-          <select
+          <CountryDropdown
             value={country}
-            onChange={e => { setCountry(e.target.value); setPage(1) }}
-            style={{ height: 34, borderRadius: 10, border: 'none', padding: '0 10px', fontSize: FS.c, fontFamily: FONT, background: NEU_SURF, color: country !== 'all' ? '#C026D3' : MUTED, cursor: 'pointer', boxShadow: NEU_BTN }}>
-            <option value="all">All Countries</option>
-            {countries.map(c => <option key={c.value} value={c.value}>{c.value} ({c.count})</option>)}
-          </select>
+            onChange={v => { setCountry(v); setPage(1) }}
+            countries={countries}
+          />
         )}
         {total !== null && (
           <span style={{ fontSize: FS.sc, color: MUTED, marginLeft: 8 }}>
