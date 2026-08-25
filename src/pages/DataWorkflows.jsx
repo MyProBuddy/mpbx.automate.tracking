@@ -155,17 +155,26 @@ function RecordCard({ record, type }) {
 }
 
 function DataOverview() {
-  const [type, setType]       = useState('investors')
-  const [status, setStatus]   = useState('all')
-  const [records, setRecords] = useState([])
-  const [total, setTotal]     = useState(null)
-  const [page, setPage]       = useState(1)
-  const [loading, setLoading] = useState(false)
+  const [type, setType]         = useState('investors')
+  const [status, setStatus]     = useState('all')
+  const [country, setCountry]   = useState('all')
+  const [countries, setCountries] = useState([])
+  const [records, setRecords]   = useState([])
+  const [total, setTotal]       = useState(null)
+  const [page, setPage]         = useState(1)
+  const [loading, setLoading]   = useState(false)
 
-  const fetchData = useCallback(async (t, s, p) => {
+  useEffect(() => {
+    apiFetch('/api/supabase?action=investor-countries')
+      .then(r => r.json())
+      .then(d => setCountries(d.countries || []))
+      .catch(() => {})
+  }, [])
+
+  const fetchData = useCallback(async (t, s, p, c) => {
     setLoading(true)
     try {
-      const res = await apiFetch(`/api/supabase?action=data&type=${t}&status=${s}&page=${p}&limit=5`)
+      const res = await apiFetch(`/api/supabase?action=data&type=${t}&status=${s}&page=${p}&country=${c}`)
       const json = await res.json()
       setRecords(json.data || [])
       setTotal(json.total)
@@ -175,10 +184,10 @@ function DataOverview() {
   }, [])
 
   useEffect(() => {
-    fetchData(type, status, page)
-  }, [type, status, page, fetchData])
+    fetchData(type, status, page, country)
+  }, [type, status, page, country, fetchData])
 
-  const changeType = (t) => { setType(t); setPage(1) }
+  const changeType = (t) => { setType(t); setCountry('all'); setPage(1) }
   const changeStatus = (s) => { setStatus(s); setPage(1) }
 
   const totalPages = total !== null ? Math.ceil(total / 5) : null
@@ -196,6 +205,15 @@ function DataOverview() {
           <FilterBtn active={status === 'active'} onClick={() => changeStatus('active')}>Active</FilterBtn>
           <FilterBtn active={status === 'inactive'} onClick={() => changeStatus('inactive')}>Inactive</FilterBtn>
         </div>
+        {type === 'investors' && (
+          <select
+            value={country}
+            onChange={e => { setCountry(e.target.value); setPage(1) }}
+            style={{ height: 34, borderRadius: 10, border: 'none', padding: '0 10px', fontSize: FS.c, fontFamily: FONT, background: NEU_SURF, color: country !== 'all' ? '#C026D3' : MUTED, cursor: 'pointer', boxShadow: NEU_BTN }}>
+            <option value="all">All Countries</option>
+            {countries.map(c => <option key={c.value} value={c.value}>{c.value} ({c.count})</option>)}
+          </select>
+        )}
         {total !== null && (
           <span style={{ fontSize: FS.sc, color: MUTED, marginLeft: 8 }}>
             {total.toLocaleString()} {type} found

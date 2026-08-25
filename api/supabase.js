@@ -24,16 +24,28 @@ export default async function handler(req, res) {
   // ── ?action=data — paginated investors/firms table ────────────────────────
   if (action === 'data') {
     if (req.method !== 'GET') return res.status(405).end()
-    const { type = 'investors', status = 'all', page = '1' } = req.query
+    const { type = 'investors', status = 'all', page = '1', country = 'all' } = req.query
     const table = type === 'firms' ? 'firms' : 'investors'
     const pageNum = Math.max(1, parseInt(page))
     const pageSize = 5
     const from = (pageNum - 1) * pageSize
     let query = sb().from(table).select('*', { count: 'exact' }).range(from, from + pageSize - 1)
     if (status !== 'all') query = query.eq('activity_status', status)
+    if (country !== 'all' && table === 'investors') query = query.eq('country', country)
     const { data, count, error } = await query
     if (error) return res.status(500).json({ error: error.message })
     return res.json({ data, total: count, page: pageNum, pageSize })
+  }
+
+  // ── ?action=investor-countries — distinct countries for dropdown ──────────
+  if (action === 'investor-countries') {
+    if (req.method !== 'GET') return res.status(405).end()
+    const { data, error } = await sb().from('investors').select('country').not('country', 'is', null).neq('country', '').limit(10000)
+    if (error) return res.status(500).json({ error: error.message })
+    const counts = {}
+    data.forEach(r => { counts[r.country] = (counts[r.country] || 0) + 1 })
+    const countries = Object.entries(counts).sort((a, b) => b[1] - a[1]).map(([value, count]) => ({ value, count }))
+    return res.json({ countries })
   }
 
   // ── ?action=states — get/set workflow state ───────────────────────────────
