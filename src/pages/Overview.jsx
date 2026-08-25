@@ -124,6 +124,14 @@ export default function Overview() {
   const [dbExpanded,  setDbExpanded]  = useState(false)
   const [dbError,     setDbError]     = useState(null)
 
+  const [invStats,    setInvStats]    = useState(null)
+  const [invData,     setInvData]     = useState([])
+  const [invTotal,    setInvTotal]    = useState(0)
+  const [invLoading,  setInvLoading]  = useState(false)
+  const [invPage,     setInvPage]     = useState(1)
+  const [invFilters,  setInvFilters]  = useState({ status: 'all', country: 'all', fund_stage: 'all', has_email: 'all', batch: 'all', search: '' })
+  const [searchInput, setSearchInput] = useState('')
+
   useEffect(() => {
     const t = setInterval(() => {
       if (window.google) {
@@ -213,6 +221,23 @@ export default function Overview() {
       setLoading(false)
     }).catch(() => setLoading(false))
   }, [connected])
+
+  useEffect(() => {
+    apiFetch('/api/supabase?action=investor-stats')
+      .then(r => r.json())
+      .then(d => setInvStats(d))
+      .catch(() => {})
+  }, [])
+
+  useEffect(() => {
+    setInvLoading(true)
+    const p = new URLSearchParams({ action: 'data', type: 'investors', page: invPage, ...invFilters })
+    apiFetch(`/api/supabase?${p}`)
+      .then(r => r.json())
+      .then(d => { setInvData(d.data || []); setInvTotal(d.total || 0) })
+      .catch(() => {})
+      .finally(() => setInvLoading(false))
+  }, [invFilters, invPage])
 
   useEffect(() => {
     apiFetch('/api/db-stats?source=clients')
@@ -776,6 +801,165 @@ export default function Overview() {
                 </table>
               </div>
             </>
+          )}
+        </div>
+
+        {/* ── Investor Database Section ── */}
+        <div style={{ marginTop: 60 }}>
+          <div style={{ marginBottom: 20 }}>
+            <div style={{ fontSize: FS.c, fontWeight: 500, color: A, marginBottom: 6 }}>Investor Database</div>
+            <h2 style={{ fontSize: FS.sh, fontWeight: 600, letterSpacing: '-0.02em', margin: '0 0 4px', color: INK }}>Investors & Firms</h2>
+            <p style={{ fontSize: FS.c, color: MUTED, margin: 0 }}>Browse and filter all investors in the Supabase database.</p>
+          </div>
+
+          {/* Stat cards */}
+          {invStats && (
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 14, marginBottom: 24 }}>
+              {[
+                { label: 'Total Investors', value: invStats.total?.toLocaleString(), color: INK },
+                { label: 'Active',          value: invStats.active?.toLocaleString(), color: GREEN },
+                { label: 'Inactive',        value: invStats.inactive?.toLocaleString(), color: MUTED },
+                { label: 'With Email',      value: invStats.withEmail?.toLocaleString(), color: BLUE },
+                { label: 'AngelMatch Batch',value: invStats.amBatch?.toLocaleString(), color: AMBER },
+              ].map(({ label, value, color }) => (
+                <div key={label} style={{ background: NEU_SURF, borderRadius: 16, padding: '18px 20px', boxShadow: NEU_SHADOW }}>
+                  <div style={{ fontSize: FS.sc, fontWeight: 500, color: MUTED, marginBottom: 6 }}>{label}</div>
+                  <div style={{ fontSize: 26, fontWeight: 500, letterSpacing: '-0.5px', color, fontFamily: MONO, lineHeight: 1 }}>{value}</div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Filter bar */}
+          <div style={{ background: NEU_SURF, borderRadius: 16, boxShadow: NEU_SHADOW, padding: '16px 20px', marginBottom: 20, display: 'flex', gap: 12, flexWrap: 'wrap', alignItems: 'center' }}>
+            {/* Search */}
+            <input
+              placeholder="Search name, email, firm…"
+              value={searchInput}
+              onChange={e => setSearchInput(e.target.value)}
+              onKeyDown={e => { if (e.key === 'Enter') { setInvFilters(f => ({ ...f, search: searchInput })); setInvPage(1) } }}
+              style={{ flex: '1 1 200px', height: 36, borderRadius: 8, border: `1px solid ${LINE}`, padding: '0 12px', fontSize: FS.c, fontFamily: FONT, background: 'rgba(0,0,0,0.03)', outline: 'none', color: INK }}
+            />
+            <button onClick={() => { setInvFilters(f => ({ ...f, search: searchInput })); setInvPage(1) }}
+              style={{ height: 36, padding: '0 16px', borderRadius: 8, border: 'none', background: A + '15', color: A, fontWeight: 600, fontSize: FS.sc, cursor: 'pointer', fontFamily: FONT, boxShadow: NEU_BTN }}>
+              Search
+            </button>
+
+            {/* Status */}
+            <select value={invFilters.status} onChange={e => { setInvFilters(f => ({ ...f, status: e.target.value })); setInvPage(1) }}
+              style={{ height: 36, borderRadius: 8, border: `1px solid ${LINE}`, padding: '0 10px', fontSize: FS.c, fontFamily: FONT, background: NEU_SURF, color: INK, cursor: 'pointer' }}>
+              <option value="all">All Status</option>
+              <option value="active">Active</option>
+              <option value="inactive">Inactive</option>
+            </select>
+
+            {/* Batch */}
+            <select value={invFilters.batch} onChange={e => { setInvFilters(f => ({ ...f, batch: e.target.value })); setInvPage(1) }}
+              style={{ height: 36, borderRadius: 8, border: `1px solid ${LINE}`, padding: '0 10px', fontSize: FS.c, fontFamily: FONT, background: NEU_SURF, color: INK, cursor: 'pointer' }}>
+              <option value="all">All Batches</option>
+              <option value="original">Original (i#####)</option>
+              <option value="am">AngelMatch (AM#####)</option>
+            </select>
+
+            {/* Has Email */}
+            <select value={invFilters.has_email} onChange={e => { setInvFilters(f => ({ ...f, has_email: e.target.value })); setInvPage(1) }}
+              style={{ height: 36, borderRadius: 8, border: `1px solid ${LINE}`, padding: '0 10px', fontSize: FS.c, fontFamily: FONT, background: NEU_SURF, color: INK, cursor: 'pointer' }}>
+              <option value="all">Has Email: All</option>
+              <option value="yes">Has Email: Yes</option>
+              <option value="no">Has Email: No</option>
+            </select>
+
+            {/* Country */}
+            <select value={invFilters.country} onChange={e => { setInvFilters(f => ({ ...f, country: e.target.value })); setInvPage(1) }}
+              style={{ height: 36, borderRadius: 8, border: `1px solid ${LINE}`, padding: '0 10px', fontSize: FS.c, fontFamily: FONT, background: NEU_SURF, color: INK, cursor: 'pointer' }}>
+              <option value="all">All Countries</option>
+              {(invStats?.countries || []).map(c => (
+                <option key={c.value} value={c.value}>{c.value} ({c.count})</option>
+              ))}
+            </select>
+
+            {/* Fund Stage */}
+            <select value={invFilters.fund_stage} onChange={e => { setInvFilters(f => ({ ...f, fund_stage: e.target.value })); setInvPage(1) }}
+              style={{ height: 36, borderRadius: 8, border: `1px solid ${LINE}`, padding: '0 10px', fontSize: FS.c, fontFamily: FONT, background: NEU_SURF, color: INK, cursor: 'pointer' }}>
+              <option value="all">All Stages</option>
+              {(invStats?.stages || []).map(s => (
+                <option key={s.value} value={s.value}>{s.value} ({s.count})</option>
+              ))}
+            </select>
+
+            {/* Reset */}
+            <button onClick={() => { setInvFilters({ status: 'all', country: 'all', fund_stage: 'all', has_email: 'all', batch: 'all', search: '' }); setSearchInput(''); setInvPage(1) }}
+              style={{ height: 36, padding: '0 14px', borderRadius: 8, border: 'none', background: 'rgba(0,0,0,0.06)', color: MUTED, fontSize: FS.sc, cursor: 'pointer', fontFamily: FONT }}>
+              Reset
+            </button>
+          </div>
+
+          {/* Results count */}
+          <div style={{ fontSize: FS.sc, color: MUTED, marginBottom: 12, fontFamily: FONT }}>
+            {invLoading ? 'Loading…' : `${invTotal.toLocaleString()} investors found — page ${invPage} of ${Math.ceil(invTotal / 50)}`}
+          </div>
+
+          {/* Table */}
+          <div style={{ background: NEU_SURF, borderRadius: 20, boxShadow: NEU_SHADOW, overflow: 'hidden', marginBottom: 24 }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+              <thead>
+                <tr>
+                  <th style={thS}>ID</th>
+                  <th style={thS}>Name</th>
+                  <th style={thS}>Title</th>
+                  <th style={thS}>Firm</th>
+                  <th style={thS}>Country</th>
+                  <th style={thS}>Stage</th>
+                  <th style={thS}>Email</th>
+                  <th style={thS}>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {invLoading ? (
+                  <tr><td colSpan={8} style={{ ...tdS, textAlign: 'center', color: MUTED, padding: '40px 0' }}>Loading…</td></tr>
+                ) : invData.length === 0 ? (
+                  <tr><td colSpan={8} style={{ ...tdS, textAlign: 'center', color: MUTED, padding: '40px 0' }}>No investors found</td></tr>
+                ) : invData.map((inv, i) => (
+                  <tr key={i}
+                    onMouseEnter={e => e.currentTarget.style.background = 'rgba(0,0,0,0.03)'}
+                    onMouseLeave={e => e.currentTarget.style.background = ''}>
+                    <td style={{ ...tdS, fontFamily: MONO, fontSize: FS.sc, color: MUTED }}>{inv.contact_id}</td>
+                    <td style={{ ...tdS, fontWeight: 500 }}>{[inv.first_name, inv.last_name].filter(Boolean).join(' ') || '—'}</td>
+                    <td style={{ ...tdS, fontSize: FS.sc, color: MUTED }}>{inv.title || '—'}</td>
+                    <td style={{ ...tdS, fontSize: FS.sc }}>{inv.firm_name_raw || '—'}</td>
+                    <td style={{ ...tdS, fontSize: FS.sc }}>{inv.country || '—'}</td>
+                    <td style={{ ...tdS, fontSize: FS.sc }}>{inv.fund_stage || '—'}</td>
+                    <td style={{ ...tdS, fontSize: FS.sc }}>
+                      {inv.email
+                        ? <span style={{ color: GREEN, fontFamily: MONO, fontSize: 11 }}>{inv.email}</span>
+                        : <span style={{ color: MUTED, fontSize: FS.sc }}>—</span>}
+                    </td>
+                    <td style={tdS}>
+                      <span style={{ display: 'inline-block', padding: '2px 10px', borderRadius: 999, fontSize: 11, fontWeight: 500, fontFamily: MONO, background: inv.activity_status === 'active' ? GREEN + '18' : 'rgba(0,0,0,0.06)', color: inv.activity_status === 'active' ? GREEN : MUTED }}>
+                        {inv.activity_status || '—'}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Pagination */}
+          {invTotal > 50 && (
+            <div style={{ display: 'flex', gap: 8, alignItems: 'center', justifyContent: 'center' }}>
+              <button onClick={() => setInvPage(p => Math.max(1, p - 1))} disabled={invPage === 1}
+                style={{ height: 34, padding: '0 16px', borderRadius: 8, border: 'none', background: NEU_SURF, color: invPage === 1 ? MUTED : INK, cursor: invPage === 1 ? 'default' : 'pointer', fontFamily: FONT, fontSize: FS.sc, boxShadow: NEU_BTN }}>
+                ← Prev
+              </button>
+              <span style={{ fontSize: FS.sc, color: MUTED, fontFamily: MONO }}>
+                {invPage} / {Math.ceil(invTotal / 50)}
+              </span>
+              <button onClick={() => setInvPage(p => Math.min(Math.ceil(invTotal / 50), p + 1))} disabled={invPage >= Math.ceil(invTotal / 50)}
+                style={{ height: 34, padding: '0 16px', borderRadius: 8, border: 'none', background: NEU_SURF, color: invPage >= Math.ceil(invTotal / 50) ? MUTED : INK, cursor: invPage >= Math.ceil(invTotal / 50) ? 'default' : 'pointer', fontFamily: FONT, fontSize: FS.sc, boxShadow: NEU_BTN }}>
+                Next →
+              </button>
+            </div>
           )}
         </div>
 
