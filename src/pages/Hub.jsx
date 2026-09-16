@@ -2,7 +2,6 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { T } from '../constants.js'
 import Nav from '../components/Nav.jsx'
-import apiFetch from '../lib/apiFetch.js'
 
 const FONT = "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
 const FS   = { h: 32, sh: 18, c: 14, sc: 12 }
@@ -286,37 +285,14 @@ function MasterDatabasePanel({ stats }) {
 }
 
 export default function Hub() {
-  async function downloadEnv() {
-    const res = await apiFetch('/api/env')
-    const text = await res.text()
-    const a = document.createElement('a')
-    a.href = URL.createObjectURL(new Blob([text], { type: 'text/plain' }))
-    a.download = '.env'
-    a.click()
-  }
-
   return (
     <div style={{ minHeight: '100vh', fontFamily: FONT, background: NEU_BG }}>
       <Nav title="Workflow Configurator" />
       <div style={{ maxWidth: 1200, margin: '0 auto', padding: '40px 48px 80px' }}>
-        <div style={{ marginBottom: 44, display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
-          <div>
-            <div style={{ fontSize: FS.c, fontWeight: 500, color: T.accent, marginBottom: 8 }}>Dashboard</div>
-            <div style={{ fontSize: FS.h, fontWeight: 600, letterSpacing: '-0.3px', lineHeight: 1.2, color: INK, marginBottom: 6 }}>What would you like to do?</div>
-            <div style={{ fontSize: FS.c, color: MUTED, lineHeight: 1.5 }}>Choose an action to get started.</div>
-          </div>
-          <button
-            onClick={downloadEnv}
-            style={{
-              display: 'flex', alignItems: 'center', gap: 8,
-              background: NEU_SURF, border: 'none', borderRadius: 10,
-              padding: '10px 18px', cursor: 'pointer',
-              boxShadow: NEU_SHADOW, fontSize: FS.c, fontWeight: 500,
-              color: INK, fontFamily: FONT, flexShrink: 0, marginTop: 8,
-            }}
-          >
-            {Icon.Download} Download .env
-          </button>
+        <div style={{ marginBottom: 44 }}>
+          <div style={{ fontSize: FS.c, fontWeight: 500, color: T.accent, marginBottom: 8 }}>Dashboard</div>
+          <div style={{ fontSize: FS.h, fontWeight: 600, letterSpacing: '-0.3px', lineHeight: 1.2, color: INK, marginBottom: 6 }}>What would you like to do?</div>
+          <div style={{ fontSize: FS.c, color: MUTED, lineHeight: 1.5 }}>Choose an action to get started.</div>
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 24, gridAutoRows: '1fr' }}>
