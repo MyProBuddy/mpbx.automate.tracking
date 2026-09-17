@@ -83,15 +83,18 @@ function SentMailPanel({ investor, onClose }) {
     <>
       {/* Backdrop */}
       <div onClick={onClose} style={{
-        position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.25)', zIndex: 100,
+        position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.35)', zIndex: 100,
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
       }} />
 
-      {/* Panel */}
+      {/* Modal */}
       <div style={{
-        position: 'fixed', top: 0, right: 0, bottom: 0, width: 560,
+        position: 'fixed', top: '50%', left: '50%',
+        transform: 'translate(-50%, -50%)',
+        width: 540, maxHeight: '85vh',
         background: NEU_BG, zIndex: 101, overflowY: 'auto',
-        boxShadow: '-8px 0 32px rgba(0,0,0,0.15)', fontFamily: FONT,
-        padding: '32px 28px',
+        borderRadius: 20, boxShadow: '0 24px 64px rgba(0,0,0,0.25)',
+        fontFamily: FONT, padding: '32px 28px',
       }}>
         {/* Header */}
         <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 24 }}>
@@ -248,40 +251,40 @@ function Funnel({ data }) {
         Outreach Funnel
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: `${W}px 1fr 148px`, columnGap: 40, alignItems: 'start' }}>
+      {/* Master grid: 3 columns × 5 rows (one row per funnel stage) */}
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: `${W}px 1fr 160px`,
+        gridTemplateRows: `repeat(5, ${SEG_H + GAP}px)`,
+        columnGap: 40,
+      }}>
 
-        {/* The funnel — shape carries meaning, not color noise */}
-        <svg width={W} height={svgH} style={{ flexShrink: 0, overflow: 'visible' }}>
+        {/* Col 1: SVG funnel — spans all 5 rows */}
+        <svg
+          width={W} height={svgH}
+          style={{ gridColumn: '1', gridRow: '1 / 6', overflow: 'visible' }}
+        >
           <defs>
             <linearGradient id="fshimmer" x1="0" y1="0" x2="0" y2="1">
               <stop offset="0%"   stopColor="rgba(255,255,255,0.22)" />
               <stop offset="100%" stopColor="rgba(255,255,255,0)" />
             </linearGradient>
           </defs>
-
           {segs.map(({ tl, tr, bl, br, y, opacity }, i) => {
             const stage = FUNNEL_STAGES[i]
             const val   = vals[i]
             const cx    = W / 2
             const pts   = `${tl},${y} ${tr},${y} ${br},${y+SEG_H} ${bl},${y+SEG_H}`
-
             return (
               <g key={stage.key}>
-                {/* Fill: single color, opacity is the data */}
                 <polygon points={pts} fill={ACCENT} fillOpacity={opacity} />
-                {/* Top shimmer — Rams material honesty, subtle surface depth */}
                 <polygon points={`${tl},${y} ${tr},${y} ${tr+4},${y+18} ${tl-4},${y+18}`} fill="url(#fshimmer)" />
-                {/* Hairline top border — crisp, surgical */}
                 <line x1={tl} y1={y} x2={tr} y2={y} stroke={ACCENT} strokeOpacity={opacity + 0.2} strokeWidth="1.5" />
-
-                {/* Number — always white, fill is always dark enough to carry it */}
-                <text x={cx} y={y + SEG_H * 0.4}
-                  textAnchor="middle" dominantBaseline="middle"
+                <text x={cx} y={y + SEG_H * 0.4} textAnchor="middle" dominantBaseline="middle"
                   style={{ fontSize: 26, fontWeight: 800, fill: '#fff', fontFamily: FONT, letterSpacing: '-1px' }}>
                   {val}
                 </text>
-                <text x={cx} y={y + SEG_H * 0.72}
-                  textAnchor="middle" dominantBaseline="middle"
+                <text x={cx} y={y + SEG_H * 0.72} textAnchor="middle" dominantBaseline="middle"
                   style={{ fontSize: 10, fontWeight: 600, fill: 'rgba(255,255,255,0.85)', fontFamily: FONT, letterSpacing: '0.08em', textTransform: 'uppercase' }}>
                   {stage.label}
                 </text>
@@ -290,65 +293,56 @@ function Funnel({ data }) {
           })}
         </svg>
 
-        {/* Right: positive framing */}
-        <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', height: svgH, paddingTop: 2 }}>
-          {FUNNEL_STAGES.map((stage, i) => {
-            const val      = vals[i]
-            const pctTotal = Math.round((val / total) * 100)
-            const prev     = i > 0 ? (vals[i - 1] || 1) : null
-            const conv     = prev !== null ? Math.round((val / prev) * 100) : null
-            const prevVal  = i > 0 ? vals[i - 1] : null
-            const opportunity = prevVal !== null ? prevVal - val : null
-
-            // Positive label: what's working OR what's waiting
-            let insight = null
-            if (conv !== null) {
-              if (val > 0) {
-                insight = { text: `${conv}% conversion rate`, color: GREEN }
-              } else if (opportunity > 0) {
-                insight = { text: `${opportunity} ready to engage`, color: '#f59e0b' }
-              }
-            }
-
-            return (
-              <div key={stage.key} style={{ height: SEG_H + GAP, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-                <div style={{ fontSize: 11, color: MUTED, marginBottom: 3 }}>{stage.sub}</div>
-                <div style={{ display: 'flex', alignItems: 'baseline', gap: 8 }}>
-                  <span style={{ fontSize: 15, fontWeight: 700, color: INK }}>{pctTotal}%</span>
-                  <span style={{ fontSize: 10, color: MUTED }}>of total</span>
-                </div>
-                {insight && (
-                  <div style={{ fontSize: 10, fontWeight: 600, color: insight.color, marginTop: 2 }}>
-                    {insight.text}
-                  </div>
-                )}
+        {/* Col 2: one stat row per grid row — perfectly aligned to funnel segments */}
+        {FUNNEL_STAGES.map((stage, i) => {
+          const val         = vals[i]
+          const pctTotal    = Math.round((val / total) * 100)
+          const prev        = i > 0 ? (vals[i - 1] || 1) : null
+          const conv        = prev !== null ? Math.round((val / prev) * 100) : null
+          const prevVal     = i > 0 ? vals[i - 1] : null
+          const opportunity = prevVal !== null ? prevVal - val : null
+          let insight = null
+          if (conv !== null) {
+            if (val > 0)             insight = { text: `${conv}% conversion rate`, color: GREEN }
+            else if (opportunity > 0) insight = { text: `${opportunity} ready to engage`, color: '#f59e0b' }
+          }
+          return (
+            <div key={stage.key} style={{
+              gridColumn: '2', gridRow: `${i + 1}`,
+              display: 'flex', flexDirection: 'column', justifyContent: 'center',
+            }}>
+              <div style={{ fontSize: 11, color: MUTED, marginBottom: 3 }}>{stage.sub}</div>
+              <div style={{ display: 'flex', alignItems: 'baseline', gap: 8 }}>
+                <span style={{ fontSize: 15, fontWeight: 700, color: INK }}>{pctTotal}%</span>
+                <span style={{ fontSize: 10, color: MUTED }}>of total</span>
               </div>
-            )
-          })}
-        </div>
-
-        {/* Weekly stat cards — grid-placed, one per half of funnel height */}
-        <div style={{
-          display: 'grid',
-          gridTemplateRows: `${svgH / 2}px ${svgH / 2}px`,
-          height: svgH,
-          width: '100%',
-        }}>
-          {[
-            { label: 'Outreach sent',  value: data.outreach_this_week },
-            { label: 'Followups sent', value: data.followups_this_week },
-          ].map(({ label, value }) => (
-            <div key={label} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <div style={{
-                background: NEU_SURF, borderRadius: 12, boxShadow: NEU_SHD,
-                padding: '14px 18px', width: '100%',
-              }}>
-                <div style={{ fontSize: 9, color: MUTED, letterSpacing: '0.06em', marginBottom: 6 }}>This week</div>
-                <div style={{ fontSize: 18, fontWeight: 600, color: MUTED, letterSpacing: '-0.5px', lineHeight: 1 }}>{value}</div>
-                <div style={{ fontSize: 10, color: MUTED, marginTop: 4, opacity: 0.7 }}>{label}</div>
-              </div>
+              {insight && (
+                <div style={{ fontSize: 10, fontWeight: 600, color: insight.color, marginTop: 2 }}>{insight.text}</div>
+              )}
             </div>
-          ))}
+          )
+        })}
+
+        {/* Col 3: 2 weekly cards — each spans ~2.5 rows, centred in their half */}
+        <div style={{
+          gridColumn: '3', gridRow: '1 / 3',
+          display: 'flex', alignItems: 'center',
+        }}>
+          <div style={{ background: NEU_SURF, borderRadius: 12, boxShadow: NEU_SHD, padding: '14px 16px', width: '100%' }}>
+            <div style={{ fontSize: 9, color: MUTED, letterSpacing: '0.06em', marginBottom: 6 }}>This week</div>
+            <div style={{ fontSize: 18, fontWeight: 600, color: MUTED, letterSpacing: '-0.5px', lineHeight: 1 }}>{data.outreach_this_week}</div>
+            <div style={{ fontSize: 10, color: MUTED, marginTop: 4, opacity: 0.7 }}>Outreach sent</div>
+          </div>
+        </div>
+        <div style={{
+          gridColumn: '3', gridRow: '4 / 6',
+          display: 'flex', alignItems: 'center',
+        }}>
+          <div style={{ background: NEU_SURF, borderRadius: 12, boxShadow: NEU_SHD, padding: '14px 16px', width: '100%' }}>
+            <div style={{ fontSize: 9, color: MUTED, letterSpacing: '0.06em', marginBottom: 6 }}>This week</div>
+            <div style={{ fontSize: 18, fontWeight: 600, color: MUTED, letterSpacing: '-0.5px', lineHeight: 1 }}>{data.followups_this_week}</div>
+            <div style={{ fontSize: 10, color: MUTED, marginTop: 4, opacity: 0.7 }}>Followups sent</div>
+          </div>
         </div>
 
       </div>

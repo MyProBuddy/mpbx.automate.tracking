@@ -30,15 +30,20 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: `Pool init failed: ${e.message}` })
   }
 
-  // Get all client schemas
+  // Get only schemas that have all 6 required client tables
+  const REQUIRED_TABLES = ['config', 'conversation_log', 'investors', 'thread_tracking', 'tracking', 'updates']
   let schemaRows
   try {
     const result = await db.query(
-      `SELECT schema_name FROM information_schema.schemata
-       WHERE schema_name NOT IN (${EXCLUDED_SCHEMAS.map((_, i) => `$${i + 1}`).join(',')})
-       AND schema_name NOT LIKE 'pg_%'
-       ORDER BY schema_name`,
-      EXCLUDED_SCHEMAS
+      `SELECT table_schema AS schema_name
+       FROM information_schema.tables
+       WHERE table_schema NOT IN (${EXCLUDED_SCHEMAS.map((_, i) => `$${i + 1}`).join(',')})
+       AND table_schema NOT LIKE 'pg_%'
+       AND table_name = ANY($${EXCLUDED_SCHEMAS.length + 1})
+       GROUP BY table_schema
+       HAVING COUNT(DISTINCT table_name) = $${EXCLUDED_SCHEMAS.length + 2}
+       ORDER BY table_schema`,
+      [...EXCLUDED_SCHEMAS, REQUIRED_TABLES, REQUIRED_TABLES.length]
     )
     schemaRows = result.rows
   } catch (e) {
