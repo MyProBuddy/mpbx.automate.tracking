@@ -488,14 +488,15 @@ export default function ClientDetail() {
                       {row['followup count'] || 0}
                     </td>
                     <td style={{ padding: '11px 16px' }}>{statusBadge(row)}</td>
-                    <td style={{ padding: '11px 16px' }}>
+                    <td style={{ padding: '8px 16px' }}>
                       <button
                         onClick={() => setPanel(row)}
                         style={{
-                          padding: '5px 12px', borderRadius: 8, border: 'none',
+                          width: '100%', padding: '10px 0', borderRadius: 10, border: 'none',
                           background: NEU_SURF, boxShadow: NEU_BTN,
-                          fontSize: 11, fontWeight: 600, color: MUTED,
+                          fontSize: 12, fontWeight: 600, color: INK,
                           cursor: 'pointer', fontFamily: FONT, whiteSpace: 'nowrap',
+                          letterSpacing: '0.02em',
                         }}
                       >
                         Check Mail
