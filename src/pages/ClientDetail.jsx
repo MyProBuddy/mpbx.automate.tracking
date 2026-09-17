@@ -397,7 +397,7 @@ export default function ClientDetail() {
 
   return (
     <div style={{ minHeight: '100vh', fontFamily: FONT, background: NEU_BG }}>
-      <Nav title="Client Analytics" />
+      <Nav title="Client Analytics" backTo="/client-analytics" />
       <div style={{ maxWidth: 1200, margin: '0 auto', padding: '40px 48px 80px' }}>
 
         {/* Header */}

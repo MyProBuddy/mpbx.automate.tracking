@@ -147,15 +147,8 @@ export default function ClientAnalytics() {
 
   return (
     <div style={{ minHeight: '100vh', fontFamily: FONT, background: NEU_BG }}>
-      <Nav title="Client Analytics" />
+      <Nav title="Client Analytics" backTo="/hub" />
       <div style={{ maxWidth: 1100, margin: '0 auto', padding: '40px 48px 80px' }}>
-
-        <button onClick={() => navigate('/hub')} style={{
-          background: 'linear-gradient(145deg, #f6f6f6, #e8e8e8)', border: 'none', borderRadius: 10,
-          boxShadow: '-4px -4px 10px rgba(255,255,255,0.9), 4px 4px 10px rgba(0,0,0,0.10)',
-          padding: '8px 16px', cursor: 'pointer', fontSize: 13, color: '#626260',
-          fontFamily: FONT, marginBottom: 28,
-        }}>← Back</button>
 
         <div style={{ marginBottom: 36 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
