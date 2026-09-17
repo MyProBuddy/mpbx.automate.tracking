@@ -19,16 +19,31 @@ export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end()
   if (!verifySession(req)) return res.status(401).json({ error: 'Unauthorized' })
 
-  const db = getPool()
+  if (!process.env.CLIENT_ANALYTICS_DB_URL) {
+    return res.status(500).json({ error: 'CLIENT_ANALYTICS_DB_URL env var is not set' })
+  }
+
+  let db
+  try {
+    db = getPool()
+  } catch (e) {
+    return res.status(500).json({ error: `Pool init failed: ${e.message}` })
+  }
 
   // Get all client schemas
-  const { rows: schemaRows } = await db.query(
-    `SELECT schema_name FROM information_schema.schemata
-     WHERE schema_name NOT IN (${EXCLUDED_SCHEMAS.map((_, i) => `$${i + 1}`).join(',')})
-     AND schema_name NOT LIKE 'pg_%'
-     ORDER BY schema_name`,
-    EXCLUDED_SCHEMAS
-  )
+  let schemaRows
+  try {
+    const result = await db.query(
+      `SELECT schema_name FROM information_schema.schemata
+       WHERE schema_name NOT IN (${EXCLUDED_SCHEMAS.map((_, i) => `$${i + 1}`).join(',')})
+       AND schema_name NOT LIKE 'pg_%'
+       ORDER BY schema_name`,
+      EXCLUDED_SCHEMAS
+    )
+    schemaRows = result.rows
+  } catch (e) {
+    return res.status(500).json({ error: `DB query failed: ${e.message}` })
+  }
 
   const clients = schemaRows.map(r => r.schema_name)
 
