@@ -80,12 +80,24 @@ const OPTIONS = [
     color: '#7C6FF0', colorLight: '#F0EFFE',
     cardIcon: CardIcons.analytics,
     label: 'INSIGHTS', title: 'Client Analytics',
-    tag: 'NEW',
     desc: 'Visualise investor data across your sheets — sectors, geographies, fund stages, and deal flow.',
     items: [
       { text: 'Connect your investor sheet',   icon: Icon.Link },
       { text: 'Explore interactive charts',    icon: Icon.BarChart },
       { text: 'Spot patterns at a glance',     icon: Icon.Search },
+    ],
+  },
+  {
+    path: '/client-analytics',
+    color: '#3ECF8E', colorLight: '#EDFDF6',
+    cardIcon: CardIcons.analytics,
+    label: 'SUPABASE', title: 'Client Analytics',
+    tag: 'NEW',
+    desc: 'Deep-dive into client outreach performance — email counts, reply rates, and status breakdowns powered by Supabase.',
+    items: [
+      { text: 'Per-client email breakdown',    icon: Icon.BarChart },
+      { text: 'Reply & status tracking',       icon: Icon.CheckMail },
+      { text: 'Live Supabase data',            icon: Icon.Activity },
     ],
   },
   {
