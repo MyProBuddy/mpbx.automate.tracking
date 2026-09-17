@@ -7,8 +7,14 @@ let pool
 
 function getPool() {
   if (!pool) {
-    const connStr = (process.env.CLIENT_ANALYTICS_DB_URL || '').replace('sslmode=require', 'sslmode=no-verify')
-    pool = new Pool({ connectionString: connStr, ssl: { rejectUnauthorized: false } })
+    pool = new Pool({
+      host:     'aws-0-ap-southeast-1.pooler.supabase.com',
+      port:     5432,
+      database: 'postgres',
+      user:     'postgres.rlylvkeasllpgtnvsrcp',
+      password: 'AnishKrishnanAmrish@2026!',
+      ssl:      { rejectUnauthorized: false },
+    })
   }
   return pool
 }
