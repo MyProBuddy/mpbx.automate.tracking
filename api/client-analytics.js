@@ -8,11 +8,11 @@ let pool
 function getPool() {
   if (!pool) {
     pool = new Pool({
-      host:     'aws-0-ap-southeast-1.pooler.supabase.com',
-      port:     5432,
-      database: 'postgres',
-      user:     'postgres.rlylvkeasllpgtnvsrcp',
-      password: 'AnishKrishnanAmrish@2026!',
+      host:     process.env.CLIENT_DB_HOST,
+      port:     parseInt(process.env.CLIENT_DB_PORT || '5432'),
+      database: process.env.CLIENT_DB_NAME || 'postgres',
+      user:     process.env.CLIENT_DB_USER,
+      password: process.env.CLIENT_DB_PASS,
       ssl:      { rejectUnauthorized: false },
     })
   }
@@ -26,8 +26,8 @@ export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end()
   if (!verifySession(req)) return res.status(401).json({ error: 'Unauthorized' })
 
-  if (!process.env.CLIENT_ANALYTICS_DB_URL) {
-    return res.status(500).json({ error: 'CLIENT_ANALYTICS_DB_URL env var is not set' })
+  if (!process.env.CLIENT_DB_HOST || !process.env.CLIENT_DB_USER || !process.env.CLIENT_DB_PASS) {
+    return res.status(500).json({ error: 'CLIENT_DB_HOST / CLIENT_DB_USER / CLIENT_DB_PASS env vars are not set' })
   }
 
   let db
