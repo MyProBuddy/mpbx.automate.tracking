@@ -204,6 +204,73 @@ function SentMailPanel({ investor, onClose }) {
   )
 }
 
+const GRAD = 'linear-gradient(90deg, #C026D3, #F43F5E, #F97316)'
+const MONO = T.mono
+
+function OutreachStatusCard({ funnel }) {
+  const stages = [
+    { label: 'Total',           value: funnel.total },
+    { label: 'Initial Sent',    value: funnel.contacted },
+    { label: 'Followups',       value: funnel.in_followup },
+    { label: 'Replied',         value: funnel.replied },
+    { label: 'Mid Conversation',value: funnel.mid_convo },
+    { label: 'Escalated',       value: funnel.escalated },
+  ]
+  const max = Math.max(1, funnel.total)
+  const replyRate = funnel.contacted > 0 ? Math.round(funnel.replied / funnel.contacted * 100) : 0
+
+  return (
+    <div style={{ background: NEU_SURF, borderRadius: 16, boxShadow: NEU_SHD, padding: '24px 28px', marginBottom: 24, fontFamily: FONT }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
+        <div style={{ fontSize: 16, fontWeight: 600, color: INK, letterSpacing: '-0.2px' }}>Outreach Status</div>
+        <div style={{ fontSize: 12, color: MUTED }}>{replyRate}% reply rate</div>
+      </div>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+        {stages.map((s, i) => {
+          const pct     = (s.value / max) * 100
+          const prev    = i > 0 ? stages[i - 1].value : s.value
+          const dropPct = prev > 0 ? Math.round(s.value / prev * 100) : null
+          const isLast  = i === stages.length - 1
+          return (
+            <div key={s.label} style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+              <div style={{ width: 110, fontSize: 11, fontWeight: 500, color: MUTED, textAlign: 'right', flexShrink: 0 }}>{s.label}</div>
+              <div style={{ flex: 1, height: 32, background: 'rgba(0,0,0,0.06)', borderRadius: 8, overflow: 'hidden', boxShadow: 'inset 2px 2px 5px rgba(0,0,0,0.08), inset -2px -2px 5px rgba(255,255,255,0.7)' }}>
+                <div style={{
+                  position: 'relative', height: '100%', width: `${pct}%`,
+                  borderRadius: 8, transition: 'width 0.6s ease',
+                  display: 'flex', alignItems: 'center', paddingLeft: 10, boxSizing: 'border-box',
+                }}>
+                  <div style={{
+                    position: 'absolute', inset: 0, borderRadius: 8,
+                    background: isLast ? GREEN : GRAD,
+                    opacity: isLast ? 1 : (i + 1) / stages.length,
+                  }} />
+                  {pct > 12 && (
+                    <span style={{ position: 'relative', fontSize: 11, fontWeight: 700, color: i < 2 ? '#C026D3' : '#fff', fontFamily: MONO }}>
+                      {s.value.toLocaleString()}
+                    </span>
+                  )}
+                </div>
+              </div>
+              <div style={{ width: 36, fontSize: 11, fontFamily: MONO, fontWeight: 500, color: INK, flexShrink: 0 }}>
+                {pct <= 12 ? s.value.toLocaleString() : ''}
+              </div>
+              <div style={{ width: 36, fontSize: 11, color: i === 0 ? 'transparent' : MUTED, flexShrink: 0 }}>
+                {i > 0 && dropPct !== null ? `${dropPct}%` : ''}
+              </div>
+            </div>
+          )
+        })}
+      </div>
+      {funnel.rejected > 0 && (
+        <div style={{ marginTop: 14, paddingTop: 14, borderTop: `1px solid ${LINE}`, fontSize: 11, color: MUTED }}>
+          <span style={{ fontWeight: 700, color: '#dc2626', marginRight: 6 }}>{funnel.rejected}</span> marked not interested
+        </div>
+      )}
+    </div>
+  )
+}
+
 const FUNNEL_STAGES = [
   { key: 'total',       label: 'Total',           sub: 'In database' },
   { key: 'contacted',   label: 'Contacted',        sub: 'Initial mail sent' },
@@ -419,6 +486,8 @@ export default function ClientDetail() {
         </div>
 
         {funnel && <Funnel data={funnel} />}
+
+        {funnel && <OutreachStatusCard funnel={funnel} />}
 
         {/* Search */}
         {rows && (
