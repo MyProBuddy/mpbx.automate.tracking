@@ -205,32 +205,28 @@ function SentMailPanel({ investor, onClose }) {
 }
 
 const GRAD = 'linear-gradient(90deg, #C026D3, #F43F5E, #F97316)'
-const MONO = T.mono
+const MONO = "'SF Mono', 'Fira Code', monospace"
 
 function OutreachStatusCard({ funnel }) {
   const stages = [
-    { label: 'Total',           value: funnel.total },
-    { label: 'Initial Sent',    value: funnel.contacted },
-    { label: 'Followups',       value: funnel.in_followup },
-    { label: 'Replied',         value: funnel.replied },
-    { label: 'Mid Conversation',value: funnel.mid_convo },
-    { label: 'Escalated',       value: funnel.escalated },
+    { label: 'Outreach',   value: funnel.contacted },
+    { label: 'Followup 1', value: funnel.f1 },
+    { label: 'Followup 2', value: funnel.f2 },
+    { label: 'Followup 3', value: funnel.f3 },
+    { label: 'Escalated',  value: funnel.escalated },
   ]
-  const max = Math.max(1, funnel.total)
+  const max = Math.max(1, funnel.contacted)
   const replyRate = funnel.contacted > 0 ? Math.round(funnel.replied / funnel.contacted * 100) : 0
 
   return (
     <div style={{ background: NEU_SURF, borderRadius: 16, boxShadow: NEU_SHD, padding: '24px 28px', marginBottom: 24, fontFamily: FONT }}>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
+      <div style={{ marginBottom: 20 }}>
         <div style={{ fontSize: 16, fontWeight: 600, color: INK, letterSpacing: '-0.2px' }}>Outreach Status</div>
-        <div style={{ fontSize: 12, color: MUTED }}>{replyRate}% reply rate</div>
       </div>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
         {stages.map((s, i) => {
-          const pct     = (s.value / max) * 100
-          const prev    = i > 0 ? stages[i - 1].value : s.value
-          const dropPct = prev > 0 ? Math.round(s.value / prev * 100) : null
-          const isLast  = i === stages.length - 1
+          const pct  = Math.max(6, (s.value / max) * 100)
+          const isLast = i === stages.length - 1
           return (
             <div key={s.label} style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
               <div style={{ width: 110, fontSize: 11, fontWeight: 500, color: MUTED, textAlign: 'right', flexShrink: 0 }}>{s.label}</div>
@@ -245,18 +241,10 @@ function OutreachStatusCard({ funnel }) {
                     background: isLast ? GREEN : GRAD,
                     opacity: isLast ? 1 : (i + 1) / stages.length,
                   }} />
-                  {pct > 12 && (
-                    <span style={{ position: 'relative', fontSize: 11, fontWeight: 700, color: i < 2 ? '#C026D3' : '#fff', fontFamily: MONO }}>
-                      {s.value.toLocaleString()}
-                    </span>
-                  )}
+                  <span style={{ position: 'relative', fontSize: 11, fontWeight: 700, color: '#fff', fontFamily: MONO }}>
+                    {s.value.toLocaleString()}
+                  </span>
                 </div>
-              </div>
-              <div style={{ width: 36, fontSize: 11, fontFamily: MONO, fontWeight: 500, color: INK, flexShrink: 0 }}>
-                {pct <= 12 ? s.value.toLocaleString() : ''}
-              </div>
-              <div style={{ width: 36, fontSize: 11, color: i === 0 ? 'transparent' : MUTED, flexShrink: 0 }}>
-                {i > 0 && dropPct !== null ? `${dropPct}%` : ''}
               </div>
             </div>
           )

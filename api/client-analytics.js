@@ -71,6 +71,9 @@ export default async function handler(req, res) {
             COUNT(*) FILTER (WHERE our_reply_sent_at IS NOT NULL AND our_reply_sent_at != 'N/A' AND our_reply_sent_at != '') AS mid_convo,
             COUNT(*) FILTER (WHERE escalation = true) AS escalated,
             COUNT(*) FILTER (WHERE not_interested_outreach = true) AS rejected,
+            COUNT(*) FILTER (WHERE "followup count" >= 2) AS f1,
+            COUNT(*) FILTER (WHERE "followup count" >= 3) AS f2,
+            COUNT(*) FILTER (WHERE "followup count" >= 4) AS f3,
             COUNT(*) FILTER (
               WHERE "followup timestamps"[1] != 'N/A'
               AND "followup timestamps"[1] != ''
@@ -108,6 +111,9 @@ export default async function handler(req, res) {
         rejected:           parseInt(f.rejected)           || 0,
         outreach_this_week: parseInt(f.outreach_this_week) || 0,
         followups_this_week: parseInt(f.followups_this_week) || 0,
+        f1: parseInt(f.f1) || 0,
+        f2: parseInt(f.f2) || 0,
+        f3: parseInt(f.f3) || 0,
       }
       return res.status(200).json({ investors: result.rows, funnel })
     } catch (e) {
