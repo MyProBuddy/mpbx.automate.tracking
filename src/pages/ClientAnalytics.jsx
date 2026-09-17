@@ -109,9 +109,20 @@ export default function ClientAnalytics() {
 
   useEffect(() => {
     apiFetch('/api/client-analytics')
-      .then(r => r.json())
-      .then(d => setStats(d.clients))
-      .catch(() => setError('Failed to load analytics'))
+      .then(async r => {
+        const text = await r.text()
+        if (!r.ok) {
+          setError(`HTTP ${r.status}: ${text}`)
+          return
+        }
+        try {
+          const d = JSON.parse(text)
+          setStats(d.clients)
+        } catch {
+          setError(`JSON parse error: ${text}`)
+        }
+      })
+      .catch(e => setError(`Fetch error: ${e.message}`))
   }, [])
 
   return (
