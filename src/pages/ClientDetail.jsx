@@ -569,6 +569,51 @@ export default function ClientDetail() {
             </div>
           </div>
         )}
+
+        {/* Escalations */}
+        {rows && (
+          <div style={{ background: NEU_SURF, borderRadius: 16, boxShadow: NEU_SHD, padding: '24px 28px', marginTop: 32, fontFamily: FONT }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 20 }}>
+              <div style={{ fontSize: 16, fontWeight: 600, color: INK, letterSpacing: '-0.2px' }}>Escalations</div>
+              <div style={{ background: '#ede9fe', color: '#7c3aed', fontSize: 11, fontWeight: 700, padding: '2px 10px', borderRadius: 99 }}>
+                {rows.filter(r => r.escalation).length}
+              </div>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              {rows.filter(r => r.escalation).length === 0 && (
+                <div style={{
+                  border: '1.5px dashed rgba(124,58,237,0.25)', borderRadius: 12,
+                  padding: '28px 20px', textAlign: 'center', color: MUTED, fontSize: 13,
+                }}>
+                  No escalations to review
+                </div>
+              )}
+              {rows.filter(r => r.escalation).map((r, i) => (
+                <div key={i} style={{
+                  background: 'rgba(124,58,237,0.05)', border: '1px solid rgba(124,58,237,0.15)',
+                  borderRadius: 12, padding: '16px 20px',
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16, marginBottom: r.conversation_summary ? 10 : 0 }}>
+                    <div>
+                      <div style={{ fontSize: 14, fontWeight: 700, color: INK }}>
+                        {r['First Name']} {r['Last Name']}
+                      </div>
+                      <div style={{ fontSize: 12, color: MUTED, marginTop: 2 }}>
+                        {[r['Title'], r['Company']].filter(Boolean).join(' · ')}
+                      </div>
+                    </div>
+                    <div style={{ fontSize: 12, color: MUTED, flexShrink: 0 }}>{r['Email']}</div>
+                  </div>
+                  {r.conversation_summary && r.conversation_summary !== 'N/A' && r.conversation_summary !== '' && (
+                    <div style={{ fontSize: 12, color: '#4a4a6a', lineHeight: 1.6, background: 'rgba(124,58,237,0.06)', borderRadius: 8, padding: '10px 14px' }}>
+                      {r.conversation_summary}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
       {panel && <SentMailPanel investor={panel} onClose={() => setPanel(null)} />}
