@@ -80,6 +80,7 @@ const OPTIONS = [
     color: '#7C6FF0', colorLight: '#F0EFFE',
     cardIcon: CardIcons.analytics,
     label: 'INSIGHTS', title: 'Client Analytics',
+    tag: 'NEW',
     desc: 'Visualise investor data across your sheets — sectors, geographies, fund stages, and deal flow.',
     items: [
       { text: 'Connect your investor sheet',   icon: Icon.Link },
@@ -182,8 +183,19 @@ function HubCard({ o }) {
         display: 'flex', flexDirection: 'column',
         opacity: o.disabled ? 0.5 : 1,
         fontFamily: FONT,
+        position: 'relative',
       }}
     >
+      {o.tag && (
+        <div style={{
+          position: 'absolute', top: 14, right: 14,
+          background: 'linear-gradient(135deg, #3ECF8E, #1a9e6a)',
+          color: '#fff', fontSize: 10, fontWeight: 700,
+          letterSpacing: '0.08em', padding: '3px 8px',
+          borderRadius: 99, textTransform: 'uppercase',
+          boxShadow: '0 2px 6px rgba(62,207,142,0.4)',
+        }}>{o.tag}</div>
+      )}
       <div style={{
         width: 40, height: 40, borderRadius: 12, marginBottom: 16,
         background: `linear-gradient(145deg, ${o.colorLight}, ${o.color}22)`,
