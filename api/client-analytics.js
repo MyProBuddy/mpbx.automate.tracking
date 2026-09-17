@@ -115,48 +115,42 @@ export default async function handler(req, res) {
     }
   }
 
-  // Get stats for each client
-  const stats = await Promise.all(clients.map(async (schema) => {
+  // Get stats for each client — sequential to avoid hitting pooler connection limits
+  const stats = []
+  for (const schema of clients) {
     try {
-      const [invRes, trackRes, followupRes] = await Promise.all([
-        db.query(`SELECT COUNT(*) AS total FROM "${schema}".investors`),
-        db.query(`
-          SELECT
-            COUNT(*) FILTER (WHERE "followup count" > 0) AS contacted,
-            COUNT(*) FILTER (WHERE reply_timestamp IS NOT NULL AND reply_timestamp != 'N/A' AND reply_timestamp != '') AS replied,
-            COUNT(*) FILTER (WHERE not_interested_outreach = true) AS rejected,
-            COUNT(*) FILTER (WHERE escalation = true) AS escalated
-          FROM "${schema}".tracking
-        `),
-        db.query(`
-          SELECT
-            COUNT(*) FILTER (WHERE "followup count" >= 2) AS f1,
-            COUNT(*) FILTER (WHERE "followup count" >= 3) AS f2,
-            COUNT(*) FILTER (WHERE "followup count" >= 4) AS f3,
-            COUNT(*) FILTER (WHERE "followup count" >= 5) AS f4
-          FROM "${schema}".tracking
-        `),
-      ])
-      const t = trackRes.rows[0]
-      const f = followupRes.rows[0]
+      const result = await db.query(`
+        SELECT
+          (SELECT COUNT(*) FROM "${schema}".investors) AS total_investors,
+          COUNT(*) FILTER (WHERE "followup count" > 0) AS contacted,
+          COUNT(*) FILTER (WHERE reply_timestamp IS NOT NULL AND reply_timestamp != 'N/A' AND reply_timestamp != '') AS replied,
+          COUNT(*) FILTER (WHERE not_interested_outreach = true) AS rejected,
+          COUNT(*) FILTER (WHERE escalation = true) AS escalated,
+          COUNT(*) FILTER (WHERE "followup count" >= 2) AS f1,
+          COUNT(*) FILTER (WHERE "followup count" >= 3) AS f2,
+          COUNT(*) FILTER (WHERE "followup count" >= 4) AS f3,
+          COUNT(*) FILTER (WHERE "followup count" >= 5) AS f4
+        FROM "${schema}".tracking
+      `)
+      const r = result.rows[0]
       const followups = {}
       for (let i = 1; i <= 4; i++) {
-        const cnt = parseInt(f[`f${i}`]) || 0
+        const cnt = parseInt(r[`f${i}`]) || 0
         if (cnt > 0) followups[i] = cnt
       }
-      return {
+      stats.push({
         client: schema,
-        total_investors: parseInt(invRes.rows[0].total),
-        contacted: parseInt(t.contacted) || 0,
-        replied: parseInt(t.replied) || 0,
-        rejected: parseInt(t.rejected) || 0,
-        escalated: parseInt(t.escalated) || 0,
+        total_investors: parseInt(r.total_investors) || 0,
+        contacted:  parseInt(r.contacted)  || 0,
+        replied:    parseInt(r.replied)    || 0,
+        rejected:   parseInt(r.rejected)   || 0,
+        escalated:  parseInt(r.escalated)  || 0,
         followups,
-      }
-    } catch {
-      return { client: schema, total_investors: 0, contacted: 0, replied: 0, rejected: 0, escalated: 0, total_followups: 0, followups: {} }
+      })
+    } catch (e) {
+      stats.push({ client: schema, total_investors: 0, contacted: 0, replied: 0, rejected: 0, escalated: 0, followups: {}, _error: e.message })
     }
-  }))
+  }
 
   return res.status(200).json({ clients: stats })
 }
