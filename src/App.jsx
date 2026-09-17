@@ -21,6 +21,7 @@ import PromptEditor       from './pages/PromptEditor.jsx'
 import CheckSentMail      from './pages/CheckSentMail.jsx'
 import SocialAnalytics    from './pages/SocialAnalytics.jsx'
 import ClientAnalytics   from './pages/ClientAnalytics.jsx'
+import ClientDetail      from './pages/ClientDetail.jsx'
 
 // /n/* stub — uses NNav, independent from old pages
 function NSectionStub({ title }) {
@@ -76,7 +77,8 @@ function AppRoutes() {
       <Route path="/tools/check-sent-mail"   element={<Protected><CheckSentMail /></Protected>} />
       <Route path="/home"             element={<Protected><Home /></Protected>} />
       <Route path="/social-analytics"   element={<Protected><SocialAnalytics /></Protected>} />
-      <Route path="/client-analytics"  element={<Protected><ClientAnalytics /></Protected>} />
+      <Route path="/client-analytics"           element={<Protected><ClientAnalytics /></Protected>} />
+      <Route path="/client-analytics/:client"   element={<Protected><ClientDetail /></Protected>} />
       {/* New /n/* routes — independent from old pages */}
       <Route path="/n/overview"  element={<Protected><NOverview /></Protected>} />
       <Route path="/n/analytics" element={<Protected><NSectionStub title="Analytics" /></Protected>} />

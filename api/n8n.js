@@ -16,12 +16,17 @@ export default async function handler(req, res) {
   const secret = process.env.N8N_JWT_SECRET
   const type   = req.query.type
 
+  async function safeJson(r) {
+    const text = await r.text()
+    try { return text ? JSON.parse(text) : null } catch { return text }
+  }
+
   // ?type=accounts — fetch n8n accounts (GET)
   if (type === 'accounts') {
     const url = process.env.N8N_ACCOUNTS_URL
     if (!url) return res.status(500).json({ error: 'N8N_ACCOUNTS_URL not configured' })
     const r = await fetch(url, { headers: { Authorization: `Bearer ${makeJwt(secret)}` } })
-    return res.status(r.status).json(await r.json())
+    return res.status(r.status).json(await safeJson(r))
   }
 
   // ?type=sent-mail — proxy sent mail check (POST)
@@ -34,7 +39,7 @@ export default async function handler(req, res) {
       headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${makeJwt(secret)}` },
       body: JSON.stringify(req.body),
     })
-    return res.status(r.status).json(await r.json())
+    return res.status(r.status).json(await safeJson(r))
   }
 
   return res.status(400).json({ error: 'Missing ?type= parameter' })

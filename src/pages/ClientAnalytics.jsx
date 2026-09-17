@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { T } from '../constants.js'
 import Nav from '../components/Nav.jsx'
 import apiFetch from '../lib/apiFetch.js'
@@ -26,14 +27,19 @@ function StatBox({ label, value, color }) {
 }
 
 function ClientCard({ data }) {
+  const navigate  = useNavigate()
   const replyRate = data.contacted > 0 ? ((data.replied / data.contacted) * 100).toFixed(1) : '0.0'
-  const label = data.client.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())
+  const label     = data.client.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())
 
   return (
-    <div style={{
+    <div onClick={() => navigate(`/client-analytics/${data.client}`)} style={{
       background: NEU_SURF, borderRadius: 16, padding: 28,
       boxShadow: NEU_SHADOW, fontFamily: FONT,
-    }}>
+      cursor: 'pointer', transition: 'box-shadow 0.15s',
+    }}
+    onMouseEnter={e => e.currentTarget.style.boxShadow = '-8px -8px 18px rgba(255,255,255,0.9), 8px 8px 18px rgba(0,0,0,0.18)'}
+    onMouseLeave={e => e.currentTarget.style.boxShadow = NEU_SHADOW}
+    >
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
         <div>
           <div style={{ fontSize: FS.sc, fontWeight: 600, color: SUPA_GREEN, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 4 }}>CLIENT</div>
@@ -54,6 +60,19 @@ function ClientCard({ data }) {
         <StatBox label="Contacted"       value={data.contacted}       color={T.accent} />
         <StatBox label="Replied"         value={data.replied}         color={SUPA_GREEN} />
         <StatBox label="Rejected"        value={data.rejected}        color={T.red} />
+      </div>
+
+      {/* Per-round followup breakdown */}
+      <div style={{
+        background: 'rgba(0,0,0,0.04)', borderRadius: 10, padding: '10px 16px',
+        marginBottom: 16, display: 'flex', gap: 24, flexWrap: 'wrap', alignItems: 'center',
+      }}>
+        {[1,2,3,4].map(n => (
+          <div key={n} style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+            <div style={{ fontSize: 11, color: MUTED }}>Followup {n}</div>
+            <div style={{ fontSize: 15, fontWeight: 700, color: '#8b5cf6' }}>{fmt(data.followups?.[n] ?? 0)}</div>
+          </div>
+        ))}
       </div>
 
       {/* Progress bar */}
