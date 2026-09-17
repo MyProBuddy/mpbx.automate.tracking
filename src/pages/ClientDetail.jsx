@@ -87,14 +87,14 @@ function SentMailPanel({ investor, onClose }) {
         display: 'flex', alignItems: 'center', justifyContent: 'center',
       }} />
 
-      {/* Modal */}
+      {/* Modal — wide horizontal rectangle */}
       <div style={{
         position: 'fixed', top: '50%', left: '50%',
         transform: 'translate(-50%, -50%)',
-        width: 540, maxHeight: '85vh',
+        width: '80vw', maxWidth: 1000, maxHeight: '80vh',
         background: NEU_BG, zIndex: 101, overflowY: 'auto',
         borderRadius: 20, boxShadow: '0 24px 64px rgba(0,0,0,0.25)',
-        fontFamily: FONT, padding: '32px 28px',
+        fontFamily: FONT, padding: '36px 40px',
       }}>
         {/* Header */}
         <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 24 }}>
@@ -447,18 +447,19 @@ export default function ClientDetail() {
         {/* Table */}
         {filtered && (
           <div style={{ background: NEU_SURF, borderRadius: 16, boxShadow: NEU_SHD, overflow: 'hidden' }}>
-            <div style={{ overflowY: 'auto', maxHeight: 'calc(5 * 48px + 45px)' }}>
+            <div style={{ overflowY: 'auto', maxHeight: 'calc(5 * 48px + 45px)', scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13, fontFamily: FONT }}>
               <thead>
                 <tr style={{ borderBottom: '1px solid rgba(0,0,0,0.08)' }}>
-                  {['Name', 'Email', 'Company', 'Title', 'Fund Focus', 'Followups', 'Status', ''].map((h, i) => (
+                  {['Name', 'Email', 'Company', 'Title', 'Fund Focus', 'F/U', 'Status', ''].map((h, i) => (
                     <th key={i} style={{
-                      padding: '12px 16px', textAlign: 'left',
-                      fontSize: 11, fontWeight: 600, color: MUTED,
+                      padding: '10px 10px', textAlign: 'left',
+                      fontSize: 10, fontWeight: 600, color: MUTED,
                       textTransform: 'uppercase', letterSpacing: '0.06em',
                       position: 'sticky', top: 0, zIndex: 2,
                       background: '#efefef',
                       borderBottom: '1px solid rgba(0,0,0,0.08)',
+                      whiteSpace: 'nowrap',
                     }}>{h}</th>
                   ))}
                 </tr>
@@ -469,34 +470,33 @@ export default function ClientDetail() {
                     borderBottom: '1px solid rgba(0,0,0,0.05)',
                     background: i % 2 === 0 ? 'transparent' : 'rgba(0,0,0,0.02)',
                   }}>
-                    <td style={{ padding: '11px 16px', fontWeight: 600, color: INK, whiteSpace: 'nowrap' }}>
+                    <td style={{ padding: '9px 10px', fontWeight: 600, color: INK, whiteSpace: 'nowrap', fontSize: 12 }}>
                       {row['First Name']} {row['Last Name']}
                     </td>
-                    <td style={{ padding: '11px 16px' }}>
+                    <td style={{ padding: '9px 10px', maxWidth: 160, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                       {row['Email'] ? (
-                        <a href={`mailto:${row['Email']}`} style={{ color: '#2563eb', textDecoration: 'none' }}>
+                        <a href={`mailto:${row['Email']}`} style={{ color: '#2563eb', textDecoration: 'none', fontSize: 12 }}>
                           {row['Email']}
                         </a>
                       ) : '—'}
                     </td>
-                    <td style={{ padding: '11px 16px', color: INK }}>{row['Company'] || '—'}</td>
-                    <td style={{ padding: '11px 16px', color: MUTED, maxWidth: 160, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    <td style={{ padding: '9px 10px', color: INK, fontSize: 12, maxWidth: 120, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{row['Company'] || '—'}</td>
+                    <td style={{ padding: '9px 10px', color: MUTED, fontSize: 12, maxWidth: 120, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                       {row['Title'] || '—'}
                     </td>
-                    <td style={{ padding: '11px 16px', color: MUTED }}>{row['Fund focus'] || '—'}</td>
-                    <td style={{ padding: '11px 16px', color: INK, textAlign: 'center' }}>
+                    <td style={{ padding: '9px 10px', color: MUTED, fontSize: 12, maxWidth: 110, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{row['Fund focus'] || '—'}</td>
+                    <td style={{ padding: '9px 10px', color: INK, fontSize: 12, textAlign: 'center' }}>
                       {row['followup count'] || 0}
                     </td>
-                    <td style={{ padding: '11px 16px' }}>{statusBadge(row)}</td>
-                    <td style={{ padding: '8px 16px' }}>
+                    <td style={{ padding: '9px 10px' }}>{statusBadge(row)}</td>
+                    <td style={{ padding: '9px 10px' }}>
                       <button
                         onClick={() => setPanel(row)}
                         style={{
-                          width: '100%', padding: '10px 0', borderRadius: 10, border: 'none',
+                          padding: '5px 12px', borderRadius: 8, border: 'none',
                           background: NEU_SURF, boxShadow: NEU_BTN,
-                          fontSize: 12, fontWeight: 600, color: INK,
+                          fontSize: 11, fontWeight: 600, color: MUTED,
                           cursor: 'pointer', fontFamily: FONT, whiteSpace: 'nowrap',
-                          letterSpacing: '0.02em',
                         }}
                       >
                         Check Mail
