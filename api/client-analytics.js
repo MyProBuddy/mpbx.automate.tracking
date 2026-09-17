@@ -7,7 +7,8 @@ let pool
 
 function getPool() {
   if (!pool) {
-    pool = new Pool({ connectionString: process.env.CLIENT_ANALYTICS_DB_URL, ssl: { rejectUnauthorized: false } })
+    const connStr = (process.env.CLIENT_ANALYTICS_DB_URL || '').replace('sslmode=require', 'sslmode=no-verify')
+    pool = new Pool({ connectionString: connStr, ssl: { rejectUnauthorized: false } })
   }
   return pool
 }
