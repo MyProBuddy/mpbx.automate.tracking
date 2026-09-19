@@ -287,7 +287,7 @@ export default function AddData() {
 
   useEffect(() => {
     apiFetch('/api/client-analytics?type=clients')
-      .then(r => r.json())
+      .then(async r => { const t = await r.text(); return t ? JSON.parse(t) : {} })
       .then(d => setSupaClients(d.clients || []))
       .catch(e => setSupaError(e.message))
   }, [])
@@ -946,18 +946,19 @@ export default function AddData() {
                       setCreating(true)
                       setCreateMsg(null)
                       try {
+                        const safeJson = async res => { const t = await res.text(); try { return t ? JSON.parse(t) : {} } catch { return { error: t } } }
                         const r = await apiFetch('/api/create-client-schema', {
                           method: 'POST',
                           headers: { 'Content-Type': 'application/json' },
                           body: JSON.stringify({ name: newSchemaName.trim() }),
                         })
-                        const d = await r.json()
-                        if (!r.ok) throw new Error(d.error)
+                        const d = await safeJson(r)
+                        if (!r.ok) throw new Error(d.error || `HTTP ${r.status}`)
                         setCreateMsg({ ok: true, text: `Schema "${d.schema}" created with all 6 tables.` })
                         setNewSchemaName('')
                         // refresh list
                         const lr = await apiFetch('/api/client-analytics?type=clients')
-                        const ld = await lr.json()
+                        const ld = await safeJson(lr)
                         setSupaClients(ld.clients || [])
                       } catch(e) {
                         setCreateMsg({ ok: false, text: e.message })
