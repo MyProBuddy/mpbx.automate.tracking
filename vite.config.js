@@ -18,7 +18,7 @@ function apiPlugin() {
     name: 'local-api',
     async configureServer(server) {
       loadEnv()
-      const apis = ['auth', 'n8n', 'client-analytics', 'supabase', 'ai', 'db-stats']
+      const apis = ['auth', 'n8n', 'client-analytics', 'supabase', 'ai', 'db-stats', 'create-client-schema']
       const handlers = {}
       for (const name of apis) {
         try {
