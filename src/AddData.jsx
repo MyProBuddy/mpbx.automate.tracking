@@ -12,6 +12,7 @@ import Nav from './components/Nav.jsx'
 import { T } from './constants.js'
 
 import { getConfig } from './lib/config.js'
+import apiFetch from './lib/apiFetch.js'
 
 const FONT  = "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
 const FS    = { h: 32, sh: 18, c: 14, sc: 12 }
@@ -230,7 +231,12 @@ export default function AddData() {
   const navigate = useNavigate()
   const [googleReady, setGoogleReady]     = useState(false)
   const { googleConnected: connected, googleSyncing, setConnected } = useAuth()
-  const [tab, setTab]                     = useState('new')   // 'new' | 'clients'
+  const [tab, setTab]                     = useState('supabase')
+  const [supaClients, setSupaClients]     = useState(null)
+  const [supaError, setSupaError]         = useState(null)
+  const [newSchemaName, setNewSchemaName] = useState('')
+  const [creating, setCreating]           = useState(false)
+  const [createMsg, setCreateMsg]         = useState(null)
 
   // new client form
   const [clientName, setClientName]       = useState('')
@@ -277,6 +283,13 @@ export default function AddData() {
       }
     }, 200)
     return () => clearInterval(interval)
+  }, [])
+
+  useEffect(() => {
+    apiFetch('/api/client-analytics?type=clients')
+      .then(r => r.json())
+      .then(d => setSupaClients(d.clients || []))
+      .catch(e => setSupaError(e.message))
   }, [])
 
   const fetchClients = async () => {
@@ -525,6 +538,7 @@ export default function AddData() {
             { id: 'new', label: 'New Client' },
             { id: 'clients', label: `All Clients${clients.length ? ` (${clients.length})` : ''}` },
             { id: 'viz', label: 'Data Visualisation' },
+            { id: 'supabase', label: 'Supabase', isNew: true },
           ].map(t => (
             <button key={t.id} onClick={() => {
               setTab(t.id)
@@ -542,8 +556,16 @@ export default function AddData() {
               cursor: 'pointer',
               transition: 'box-shadow 0.15s, color 0.15s',
               fontFamily: FONT,
+              display: 'flex', alignItems: 'center', gap: 8,
             }}>
               {t.label}
+              {t.isNew && (
+                <span style={{
+                  background: 'linear-gradient(135deg, #3ECF8E, #1a9e6a)',
+                  color: '#fff', fontSize: 9, fontWeight: 700,
+                  letterSpacing: '0.08em', padding: '2px 6px', borderRadius: 99,
+                }}>NEW</span>
+              )}
             </button>
           ))}
         </div>
@@ -895,6 +917,106 @@ export default function AddData() {
             </div>
           )
         })()}
+
+        {/* SUPABASE TAB */}
+        {tab === 'supabase' && (
+          <div style={{ fontFamily: FONT }}>
+            <div style={{ fontSize: FS.sh, fontWeight: 700, color: INK, letterSpacing: '-0.02em', marginBottom: 6 }}>Supabase Clients</div>
+            <div style={{ fontSize: FS.sc, color: MUTED, marginBottom: 24 }}>All active client schemas in the Supabase tracking database.</div>
+
+            {/* Add new client */}
+            <Card>
+              <div style={{ fontSize: FS.c, fontWeight: 600, color: INK, marginBottom: 16 }}>Add New Client</div>
+              <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
+                <div style={{ flex: 1 }}>
+                  <FieldLabel>Client Name</FieldLabel>
+                  <TextInput
+                    value={newSchemaName}
+                    onChange={v => { setNewSchemaName(v); setCreateMsg(null) }}
+                    placeholder="e.g. Windzard or My Client"
+                  />
+                  <div style={{ fontSize: 11, color: MUTED, marginTop: 6 }}>
+                    Schema: <span style={{ fontFamily: 'monospace', color: INK }}>{newSchemaName.toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, '') || '—'}</span>
+                  </div>
+                </div>
+                <div style={{ paddingTop: 22 }}>
+                  <Btn
+                    onClick={async () => {
+                      if (!newSchemaName.trim()) return
+                      setCreating(true)
+                      setCreateMsg(null)
+                      try {
+                        const r = await apiFetch('/api/create-client-schema', {
+                          method: 'POST',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({ name: newSchemaName.trim() }),
+                        })
+                        const d = await r.json()
+                        if (!r.ok) throw new Error(d.error)
+                        setCreateMsg({ ok: true, text: `Schema "${d.schema}" created with all 6 tables.` })
+                        setNewSchemaName('')
+                        // refresh list
+                        const lr = await apiFetch('/api/client-analytics?type=clients')
+                        const ld = await lr.json()
+                        setSupaClients(ld.clients || [])
+                      } catch(e) {
+                        setCreateMsg({ ok: false, text: e.message })
+                      } finally {
+                        setCreating(false)
+                      }
+                    }}
+                    disabled={creating || !newSchemaName.trim()}
+                  >
+                    {creating ? 'Creating…' : 'Create'}
+                  </Btn>
+                </div>
+              </div>
+              {createMsg && (
+                <div style={{ marginTop: 12, fontSize: FS.sc, color: createMsg.ok ? GREEN : RED }}>
+                  {createMsg.text}
+                </div>
+              )}
+            </Card>
+
+            <div style={{ marginTop: 28 }} />
+
+            {supaError && (
+              <div style={{ background: '#fee2e2', color: RED, borderRadius: 10, padding: '12px 20px', marginBottom: 20, fontSize: FS.c }}>{supaError}</div>
+            )}
+
+            {!supaClients && !supaError && (
+              <div style={{ color: MUTED, fontSize: FS.c }}>Loading…</div>
+            )}
+
+            {supaClients && (
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16 }}>
+                {supaClients.map(name => {
+                  const label = name.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())
+                  return (
+                    <div key={name} style={{
+                      background: NEU_SURF, borderRadius: 14, boxShadow: NEU_SHADOW,
+                      padding: '18px 22px', display: 'flex', alignItems: 'center', gap: 14,
+                    }}>
+                      <div style={{
+                        width: 36, height: 36, borderRadius: 10, flexShrink: 0,
+                        background: 'linear-gradient(135deg, #3ECF8E22, #3ECF8E44)',
+                        border: '1px solid #3ECF8E55',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        fontSize: 15, fontWeight: 700, color: '#3ECF8E',
+                      }}>
+                        {label[0]}
+                      </div>
+                      <div>
+                        <div style={{ fontSize: FS.c, fontWeight: 600, color: INK }}>{label}</div>
+                        <div style={{ fontSize: FS.sc, color: MUTED, marginTop: 2 }}>{name}</div>
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            )}
+          </div>
+        )}
 
       </div>
     </div>

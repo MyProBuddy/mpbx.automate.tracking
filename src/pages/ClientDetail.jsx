@@ -593,7 +593,7 @@ export default function ClientDetail() {
                   background: 'rgba(124,58,237,0.05)', border: '1px solid rgba(124,58,237,0.15)',
                   borderRadius: 12, padding: '16px 20px',
                 }}>
-                  <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16, marginBottom: r.conversation_summary ? 10 : 0 }}>
+                  <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16, marginBottom: 10 }}>
                     <div>
                       <div style={{ fontSize: 14, fontWeight: 700, color: INK }}>
                         {r['First Name']} {r['Last Name']}
@@ -604,9 +604,10 @@ export default function ClientDetail() {
                     </div>
                     <div style={{ fontSize: 12, color: MUTED, flexShrink: 0 }}>{r['Email']}</div>
                   </div>
-                  {r.conversation_summary && r.conversation_summary !== 'N/A' && r.conversation_summary !== '' && (
+                  {r.escalation_reason && r.escalation_reason !== 'N/A' && r.escalation_reason !== '' && (
                     <div style={{ fontSize: 12, color: '#4a4a6a', lineHeight: 1.6, background: 'rgba(124,58,237,0.06)', borderRadius: 8, padding: '10px 14px' }}>
-                      {r.conversation_summary}
+                      <span style={{ fontSize: 10, fontWeight: 700, color: '#7c3aed', textTransform: 'uppercase', letterSpacing: '0.06em', display: 'block', marginBottom: 4 }}>Reason</span>
+                      {r.escalation_reason}
                     </div>
                   )}
                 </div>

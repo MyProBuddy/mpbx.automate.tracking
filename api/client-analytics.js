@@ -94,9 +94,15 @@ export default async function handler(req, res) {
           i."First Name", i."Last Name", i."Email", i."Company", i."Title",
           i."Fund focus", i."Fund stage", i."Check Size", i."Person Linkedin Url",
           t."followup count", t.reply_timestamp, t.not_interested_outreach,
-          t.escalation, t."followup timestamps", t.conversation_summary
+          t.escalation, t."followup timestamps", t.conversation_summary,
+          cl.summary AS escalation_reason
         FROM "${schema}".investors i
         LEFT JOIN "${schema}".tracking t ON t.inv_id = i.investor_id
+        LEFT JOIN LATERAL (
+          SELECT summary FROM "${schema}".conversation_log
+          WHERE inv_id = i.investor_id
+          ORDER BY timestamp DESC LIMIT 1
+        ) cl ON true
         ORDER BY t."followup count" DESC NULLS LAST, i."First Name"
         `),
       ])

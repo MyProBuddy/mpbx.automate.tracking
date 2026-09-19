@@ -45,13 +45,25 @@ function ClientCard({ data }) {
           <div style={{ fontSize: FS.sc, fontWeight: 600, color: SUPA_GREEN, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 4 }}>CLIENT</div>
           <div style={{ fontSize: FS.sh, fontWeight: 700, color: INK, letterSpacing: '-0.2px' }}>{label}</div>
         </div>
-        <div style={{
-          background: `linear-gradient(135deg, ${SUPA_GREEN}22, ${SUPA_GREEN}44)`,
-          border: `1px solid ${SUPA_GREEN}55`,
-          borderRadius: 10, padding: '6px 14px',
-          fontSize: FS.sc, fontWeight: 700, color: SUPA_GREEN,
-        }}>
-          {replyRate}% reply rate
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          {data.escalated > 0 && (
+            <div style={{
+              background: 'linear-gradient(135deg, #fee2e222, #fee2e244)',
+              border: '1px solid #dc262655',
+              borderRadius: 10, padding: '6px 14px',
+              fontSize: FS.sc, fontWeight: 700, color: '#dc2626',
+            }}>
+              {data.escalated} escalation{data.escalated > 1 ? 's' : ''}
+            </div>
+          )}
+          <div style={{
+            background: `linear-gradient(135deg, ${SUPA_GREEN}22, ${SUPA_GREEN}44)`,
+            border: `1px solid ${SUPA_GREEN}55`,
+            borderRadius: 10, padding: '6px 14px',
+            fontSize: FS.sc, fontWeight: 700, color: SUPA_GREEN,
+          }}>
+            {replyRate}% reply rate
+          </div>
         </div>
       </div>
 
