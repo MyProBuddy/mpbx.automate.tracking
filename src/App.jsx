@@ -22,6 +22,7 @@ import CheckSentMail      from './pages/CheckSentMail.jsx'
 import SocialAnalytics    from './pages/SocialAnalytics.jsx'
 import ClientAnalytics   from './pages/ClientAnalytics.jsx'
 import ClientDetail      from './pages/ClientDetail.jsx'
+import SchemaDetail      from './pages/SchemaDetail.jsx'
 
 // /n/* stub — uses NNav, independent from old pages
 function NSectionStub({ title }) {
@@ -79,6 +80,7 @@ function AppRoutes() {
       <Route path="/social-analytics"   element={<Protected><SocialAnalytics /></Protected>} />
       <Route path="/client-analytics"           element={<Protected><ClientAnalytics /></Protected>} />
       <Route path="/client-analytics/:client"   element={<Protected><ClientDetail /></Protected>} />
+      <Route path="/supabase/:schema"           element={<Protected><SchemaDetail /></Protected>} />
       {/* New /n/* routes — independent from old pages */}
       <Route path="/n/overview"  element={<Protected><NOverview /></Protected>} />
       <Route path="/n/analytics" element={<Protected><NSectionStub title="Analytics" /></Protected>} />

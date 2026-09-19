@@ -994,10 +994,14 @@ export default function AddData() {
                 {supaClients.map(name => {
                   const label = name.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())
                   return (
-                    <div key={name} style={{
+                    <div key={name} onClick={() => navigate(`/supabase/${name}`)} style={{
                       background: NEU_SURF, borderRadius: 14, boxShadow: NEU_SHADOW,
                       padding: '18px 22px', display: 'flex', alignItems: 'center', gap: 14,
-                    }}>
+                      cursor: 'pointer', transition: 'box-shadow 0.15s',
+                    }}
+                    onMouseEnter={e => e.currentTarget.style.boxShadow = '-8px -8px 18px rgba(255,255,255,0.9), 8px 8px 18px rgba(0,0,0,0.18)'}
+                    onMouseLeave={e => e.currentTarget.style.boxShadow = NEU_SHADOW}
+                    >
                       <div style={{
                         width: 36, height: 36, borderRadius: 10, flexShrink: 0,
                         background: 'linear-gradient(135deg, #3ECF8E22, #3ECF8E44)',
