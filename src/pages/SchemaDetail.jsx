@@ -112,7 +112,7 @@ function AddCard({ schema }) {
     if (!rawText.trim()) return setMsg({ ok: false, text: 'Paste some data first.' })
     setParsing(true); setMsg(null); setPreviewRows(null); setValidation({}); setEnriched({})
     try {
-      const r = await apiFetch('/api/parse-investors', {
+      const r = await apiFetch('/api/investors?action=parse', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ text: rawText }),
       })
@@ -133,7 +133,7 @@ function AddCard({ schema }) {
     const results = {}
     for (let i = 0; i < emails.length; i++) {
       try {
-        const r = await apiFetch('/api/validate-emails', {
+        const r = await apiFetch('/api/investors?action=validate', {
           method: 'POST', headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ emails: [emails[i]] }),
         })
@@ -157,7 +157,7 @@ function AddCard({ schema }) {
       const row = updated[i]
       if (validation[row['Email']]?.status !== 'valid') continue
       try {
-        const r = await apiFetch('/api/enrich-investor', {
+        const r = await apiFetch('/api/investors?action=enrich', {
           method: 'POST', headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             name: `${row['First Name'] || ''} ${row['Last Name'] || ''}`.trim(),
@@ -207,7 +207,7 @@ function AddCard({ schema }) {
     let prefix = schema.split('_').map(w => w[0]?.toUpperCase()).filter(Boolean).join('')
     let seq = 1
     try {
-      const sr = await apiFetch(`/api/investor-id-seq?schema=${encodeURIComponent(schema)}`)
+      const sr = await apiFetch(`/api/investors?action=next-id&schema=${encodeURIComponent(schema)}`)
       const sd = await sr.json()
       if (sr.ok) { prefix = sd.prefix; seq = sd.next }
     } catch { /* use defaults */ }
