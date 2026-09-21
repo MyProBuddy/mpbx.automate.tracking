@@ -1,4 +1,12 @@
 import { useState, useEffect, useRef } from 'react'
+
+function injectThinScroll() {
+  if (document.getElementById('thin-scroll-style')) return
+  const s = document.createElement('style')
+  s.id = 'thin-scroll-style'
+  s.textContent = '.thin-scroll::-webkit-scrollbar{width:3px;height:3px}.thin-scroll::-webkit-scrollbar-track{background:transparent}.thin-scroll::-webkit-scrollbar-thumb{background:rgba(0,0,0,0.18);border-radius:99px}'
+  document.head.appendChild(s)
+}
 import { useParams } from 'react-router-dom'
 import Nav from '../components/Nav.jsx'
 import apiFetch from '../lib/apiFetch.js'
@@ -51,45 +59,194 @@ function Field({ label, value, onChange, placeholder, type = 'text' }) {
   )
 }
 
+const PREVIEW_COLS = [
+  'First Name', 'Last Name', 'Email', 'Title', 'Company', 'Company Country', 'Company State',
+  'Person Linkedin Url', 'Website', 'Company Address', 'Total Funding', 'Latest Funding Amount',
+  'Last Raised At', 'Overview', 'Description', 'Keywords', 'Fund focus', 'Fund stage',
+  'Check Size', 'Fund description', 'Number of exists', 'Number of Investments', 'Portfolios',
+  'Portfolio Company\'s', 'Sector focused', 'Investment thesis', 'Primary Phone Number',
+  'Corporate Phone', 'Crunchbase profile', 'timezone_offset', 'timezone_num',
+]
+
+function ProgressBar({ label, done, total, color }) {
+  const pct = total > 0 ? Math.round((done / total) * 100) : 0
+  return (
+    <div style={{ fontFamily: FONT }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 5 }}>
+        <span style={{ fontSize: 12, color: MUTED, fontWeight: 500 }}>{label}</span>
+        <span style={{ fontSize: 12, color: MUTED }}>{done} / {total}</span>
+      </div>
+      <div style={{ height: 5, borderRadius: 99, background: 'rgba(0,0,0,0.08)', overflow: 'hidden' }}>
+        <div style={{ height: '100%', borderRadius: 99, background: color, width: `${pct}%`, transition: 'width 0.3s ease' }} />
+      </div>
+    </div>
+  )
+}
+
+const STATUS_STYLE = {
+  valid:      { bg: '#dcfce7', color: '#16a34a', label: 'Valid' },
+  invalid:    { bg: '#fee2e2', color: '#dc2626', label: 'Invalid' },
+  accept_all: { bg: '#fef9c3', color: '#ca8a04', label: 'Accept All' },
+  webmail:    { bg: '#e0f2fe', color: '#0284c7', label: 'Webmail' },
+  disposable: { bg: '#fce7f3', color: '#db2777', label: 'Disposable' },
+  unknown:    { bg: '#f3f4f6', color: '#6b7280', label: 'Unknown' },
+}
+
 function AddCard({ schema }) {
-  const [mode, setMode] = useState(null) // null | 'investor' | 'update'
+  const [mode, setMode] = useState(null)
   const [saving, setSaving] = useState(false)
+  const [parsing, setParsing] = useState(false)
+  const [validating, setValidating] = useState(false)
   const [msg, setMsg] = useState(null)
 
-  // Investor fields
-  const [inv, setInv] = useState({
-    id: '', firstName: '', lastName: '', email: '', company: '', title: '',
-    fundFocus: '', fundStage: '', checkSize: '', linkedin: '',
-  })
+  const [rawText, setRawText] = useState('')
+  const [previewRows, setPreviewRows] = useState(null)
+  const [validation, setValidation] = useState({}) // email -> { status, score, ... }
+  const [enriched, setEnriched] = useState({})     // email -> set of filled col keys
+  const [enriching, setEnriching] = useState(false)
+  const [progress, setProgress] = useState({ hunter: 0, hunterTotal: 0, perplexity: 0, perplexityTotal: 0 })
 
-  // Update fields
   const [updateText, setUpdateText] = useState('')
 
-  const fi = (k) => (v) => setInv(p => ({ ...p, [k]: v }))
-
-  async function saveInvestor() {
-    if (!inv.id || !inv.email) return setMsg({ ok: false, text: 'Investor ID and Email are required.' })
-    setSaving(true); setMsg(null)
+  async function parseInvestors() {
+    if (!rawText.trim()) return setMsg({ ok: false, text: 'Paste some data first.' })
+    setParsing(true); setMsg(null); setPreviewRows(null); setValidation({}); setEnriched({})
     try {
-      const r = await apiFetch('/api/schema-add-row', {
+      const r = await apiFetch('/api/parse-investors', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ schema, table: 'investors', row: {
-          investor_id: inv.id, 'First Name': inv.firstName, 'Last Name': inv.lastName,
-          Email: inv.email, Company: inv.company, Title: inv.title,
-          'Fund focus': inv.fundFocus, 'Fund stage': inv.fundStage,
-          'Check Size': inv.checkSize, 'Person Linkedin Url': inv.linkedin,
-        }}),
+        body: JSON.stringify({ text: rawText }),
       })
       const d = await r.json()
       if (!r.ok) throw new Error(d.error)
-      // also insert tracking row
-      await apiFetch('/api/schema-add-row', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ schema, table: 'tracking', row: { inv_id: inv.id } }),
-      })
-      setMsg({ ok: true, text: 'Investor added.' })
-      setInv({ id: '', firstName: '', lastName: '', email: '', company: '', title: '', fundFocus: '', fundStage: '', checkSize: '', linkedin: '' })
+      if (!d.rows?.length) return setMsg({ ok: false, text: 'No valid rows found in your data.' })
+      setPreviewRows(d.rows)
     } catch(e) { setMsg({ ok: false, text: e.message }) }
+    setParsing(false)
+  }
+
+  async function runValidation() {
+    if (!previewRows?.length) return
+    const emails = previewRows.map(r => r['Email']).filter(Boolean)
+    if (!emails.length) return setMsg({ ok: false, text: 'No emails to validate.' })
+    setValidating(true); setMsg(null)
+    setProgress(p => ({ ...p, hunter: 0, hunterTotal: emails.length }))
+    const results = {}
+    for (let i = 0; i < emails.length; i++) {
+      try {
+        const r = await apiFetch('/api/validate-emails', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ emails: [emails[i]] }),
+        })
+        const d = await r.json()
+        if (r.ok && d.results) Object.assign(results, d.results)
+      } catch { /* skip */ }
+      setProgress(p => ({ ...p, hunter: i + 1 }))
+    }
+    setValidation(results)
+    setValidating(false)
+  }
+
+  async function runEnrichment() {
+    if (!previewRows?.length) return
+    setEnriching(true); setMsg(null)
+    const validRows = previewRows.filter(r => validation[r['Email']]?.status === 'valid')
+    setProgress(p => ({ ...p, perplexity: 0, perplexityTotal: validRows.length }))
+    const updated = [...previewRows]
+    const newEnriched = { ...enriched }
+    for (let i = 0; i < updated.length; i++) {
+      const row = updated[i]
+      if (validation[row['Email']]?.status !== 'valid') continue
+      try {
+        const r = await apiFetch('/api/enrich-investor', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name: `${row['First Name'] || ''} ${row['Last Name'] || ''}`.trim(),
+            firm: row['Company'] || '',
+            title: row['Title'] || '',
+            email: row['Email'] || '',
+          }),
+        })
+        const d = await r.json()
+        if (!r.ok || !d.enriched) continue
+        const e = d.enriched
+        const filledKeys = new Set()
+        const MAP = {
+          linkedin:          'Person Linkedin Url',
+          website:           'Website',
+          sector_focus:      'Sector focused',
+          fund_stage:        'Fund stage',
+          check_size:        'Check Size',
+          fund_description:  'Fund description',
+          investment_thesis: 'Investment thesis',
+          overview:          'Overview',
+          notable_portfolios:'Portfolio Company\'s',
+          keywords:          'Keywords',
+        }
+        for (const [eKey, colKey] of Object.entries(MAP)) {
+          if (e[eKey] && !updated[i][colKey]) {
+            updated[i] = { ...updated[i], [colKey]: e[eKey] }
+            filledKeys.add(colKey)
+          }
+        }
+        newEnriched[row['Email']] = filledKeys
+      } catch { /* skip on error */ }
+      setProgress(p => ({ ...p, perplexity: p.perplexity + 1 }))
+      // 1.2s gap between calls — stays under Perplexity's 50 req/min limit
+      if (i < updated.length - 1) await new Promise(r => setTimeout(r, 1200))
+    }
+    setPreviewRows(updated)
+    setEnriched(newEnriched)
+    setEnriching(false)
+  }
+
+  async function confirmInsert() {
+    if (!previewRows?.length) return
+    setSaving(true); setMsg(null)
+
+    // fetch prefix + next sequence number from DB
+    let prefix = schema.split('_').map(w => w[0]?.toUpperCase()).filter(Boolean).join('')
+    let seq = 1
+    try {
+      const sr = await apiFetch(`/api/investor-id-seq?schema=${encodeURIComponent(schema)}`)
+      const sd = await sr.json()
+      if (sr.ok) { prefix = sd.prefix; seq = sd.next }
+    } catch { /* use defaults */ }
+
+    // fetch existing emails to check for duplicates
+    let existingEmails = new Set()
+    try {
+      const er = await apiFetch(`/api/schema-tables?schema=${encodeURIComponent(schema)}`)
+      const ed = await er.json()
+      const invRows = ed?.investors?.rows || []
+      for (const r of invRows) if (r['Email']) existingEmails.add(r['Email'].toLowerCase())
+    } catch { /* proceed without duplicate check */ }
+
+    let ok = 0, fail = 0, dupes = 0
+    for (const row of previewRows) {
+      if (!row['Email'] || validation[row['Email']]?.status !== 'valid') { fail++; continue }
+      if (existingEmails.has(row['Email'].toLowerCase())) { dupes++; continue }
+      const investor_id = `${prefix}_${String(seq).padStart(4, '0')}`
+      seq++
+      try {
+        const r = await apiFetch('/api/schema-add-row', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ schema, table: 'investors', row: { investor_id, ...row } }),
+        })
+        const d = await r.json()
+        if (!r.ok) throw new Error(d.error)
+        await apiFetch('/api/schema-add-row', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ schema, table: 'tracking', row: { inv_id: investor_id } }),
+        })
+        ok++
+        existingEmails.add(row['Email'].toLowerCase())
+      } catch { fail++ }
+    }
+    const parts = [`${ok} email${ok !== 1 ? 's' : ''} inserted`]
+    if (dupes) parts.push(`${dupes} duplicate${dupes !== 1 ? 's' : ''} skipped`)
+    if (fail) parts.push(`${fail} failed`)
+    setMsg({ ok: fail === 0, text: parts.join(' · ') })
+    if (ok > 0) { setPreviewRows(null); setRawText(''); setValidation({}); setEnriched({}) }
     setSaving(false)
   }
 
@@ -116,7 +273,7 @@ function AddCard({ schema }) {
       {/* Option selector */}
       <div style={{ display: 'flex', gap: 10, marginBottom: mode ? 24 : 0 }}>
         {[{ id: 'investor', label: 'Investor Contact' }, { id: 'update', label: 'Company Update' }].map(o => (
-          <button key={o.id} onClick={() => setMode(m => m === o.id ? null : o.id)} style={{
+          <button key={o.id} onClick={() => { setMode(m => m === o.id ? null : o.id); setPreviewRows(null); setMsg(null) }} style={{
             padding: '9px 18px', borderRadius: 10, border: 'none', cursor: 'pointer',
             fontFamily: FONT, fontSize: 13, fontWeight: 600,
             background: mode === o.id ? INK : 'rgba(0,0,0,0.07)',
@@ -129,25 +286,152 @@ function AddCard({ schema }) {
 
       {/* Investor form */}
       {mode === 'investor' && (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
-            <Field label="Investor ID *" value={inv.id} onChange={fi('id')} placeholder="unique_id" />
-            <Field label="Email *" value={inv.email} onChange={fi('email')} placeholder="investor@fund.com" />
-            <Field label="First Name" value={inv.firstName} onChange={fi('firstName')} placeholder="John" />
-            <Field label="Last Name" value={inv.lastName} onChange={fi('lastName')} placeholder="Smith" />
-            <Field label="Company" value={inv.company} onChange={fi('company')} placeholder="Acme Ventures" />
-            <Field label="Title" value={inv.title} onChange={fi('title')} placeholder="General Partner" />
-            <Field label="Fund Focus" value={inv.fundFocus} onChange={fi('fundFocus')} placeholder="SaaS, AI" />
-            <Field label="Fund Stage" value={inv.fundStage} onChange={fi('fundStage')} placeholder="Seed, Series A" />
-            <Field label="Check Size" value={inv.checkSize} onChange={fi('checkSize')} placeholder="$500k–$2M" />
-            <Field label="LinkedIn URL" value={inv.linkedin} onChange={fi('linkedin')} placeholder="https://linkedin.com/in/..." />
-          </div>
-          {msg && <div style={{ fontSize: 12, color: msg.ok ? GREEN : '#dc2626' }}>{msg.text}</div>}
-          <button onClick={saveInvestor} disabled={saving} style={{
-            padding: '10px 24px', borderRadius: 10, border: 'none', cursor: 'pointer',
-            background: GREEN, color: '#fff', fontSize: 13, fontWeight: 600,
-            fontFamily: FONT, alignSelf: 'flex-start', opacity: saving ? 0.6 : 1,
-          }}>{saving ? 'Saving…' : 'Add Investor'}</button>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+
+          {/* Paste area */}
+          {!previewRows && (
+            <>
+              <div>
+                <div style={{ fontSize: 15, fontWeight: 700, color: INK, marginBottom: 4 }}>Paste your investor data</div>
+                <div style={{ fontSize: 12, color: MUTED, marginBottom: 10 }}>
+                  Any format works — tab-separated, CSV, copied from a spreadsheet, or raw text.{' '}
+                  <span style={{ color: '#3b82f6' }}>AI will parse it automatically.</span>
+                </div>
+                <textarea
+                  value={rawText}
+                  onChange={e => { setRawText(e.target.value); setMsg(null) }}
+                  placeholder={'Paste rows here — e.g.:\nSojitz Corporation    Japan    Krieattisak    krieattisak.s@sojitz.com\nAsia Alternatives    California    Raghav Mahajan    rmahajan@asiaalt.com\n\nOr paste a full spreadsheet export with many columns — Gemini will figure it out.'}
+                  rows={8}
+                  style={{
+                    width: '100%', boxSizing: 'border-box', padding: '10px 14px',
+                    borderRadius: 8, border: `1px solid ${LINE}`, resize: 'vertical',
+                    background: '#fff', fontSize: 12, fontFamily: "'SF Mono','Fira Code',monospace", color: INK,
+                    outline: 'none', lineHeight: 1.7,
+                  }}
+                />
+              </div>
+
+              {/* File upload */}
+              <div>
+                <div style={{ fontSize: 13, color: MUTED, marginBottom: 8 }}>
+                  Or load from a file <span style={{ color: '#3b82f6' }}>(CSV or TXT)</span>
+                </div>
+                <label style={{
+                  display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+                  gap: 8, padding: '28px 20px', borderRadius: 8,
+                  border: `1.5px dashed ${LINE}`, background: 'rgba(0,0,0,0.02)', cursor: 'pointer',
+                }}>
+                  <span style={{ fontSize: 24 }}>📂</span>
+                  <span style={{ fontSize: 13, color: MUTED }}>Select a file</span>
+                  <input type="file" accept=".csv,.txt,.tsv" style={{ display: 'none' }}
+                    onChange={e => {
+                      const file = e.target.files[0]
+                      if (!file) return
+                      const reader = new FileReader()
+                      reader.onload = ev => setRawText(t => (t ? t + '\n' : '') + ev.target.result)
+                      reader.readAsText(file)
+                    }}
+                  />
+                </label>
+              </div>
+
+              {msg && <div style={{ fontSize: 12, color: msg.ok ? GREEN : '#dc2626' }}>{msg.text}</div>}
+              <button onClick={parseInvestors} disabled={parsing || !rawText.trim()} style={{
+                padding: '10px 24px', borderRadius: 10, border: 'none', cursor: 'pointer',
+                background: '#3b82f6', color: '#fff', fontSize: 13, fontWeight: 600,
+                fontFamily: FONT, alignSelf: 'flex-start', opacity: (parsing || !rawText.trim()) ? 0.6 : 1,
+              }}>{parsing ? '✨ Parsing…' : '✨ Parse with AI'}</button>
+            </>
+          )}
+
+          {/* Preview */}
+          {previewRows && (
+            <>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <div>
+                  <div style={{ fontSize: 14, fontWeight: 700, color: INK }}>Preview — {previewRows.length} row{previewRows.length !== 1 ? 's' : ''} found</div>
+                  <div style={{ fontSize: 11, color: MUTED, marginTop: 2 }}>Review before adding. Rows without an email will be skipped.</div>
+                </div>
+                <button onClick={() => { setPreviewRows(null); setMsg(null) }} style={{
+                  padding: '6px 14px', borderRadius: 8, border: 'none', cursor: 'pointer',
+                  background: 'rgba(0,0,0,0.07)', color: MUTED, fontSize: 12, fontFamily: FONT,
+                }}>← Edit</button>
+              </div>
+
+              <div className="thin-scroll" ref={() => injectThinScroll()} style={{ overflowX: 'auto', overflowY: 'auto', maxHeight: 6 * 37 + 41, borderRadius: 10, border: `1px solid ${LINE}`, scrollbarWidth: 'thin', scrollbarColor: 'rgba(0,0,0,0.18) transparent' }}>
+                <table style={{ width: 'max-content', minWidth: '100%', borderCollapse: 'collapse', fontSize: 12, fontFamily: FONT }}>
+                  <thead style={{ position: 'sticky', top: 0, zIndex: 2 }}>
+                    <tr style={{ background: '#ececec' }}>
+                      <th style={{ padding: '8px 12px', textAlign: 'left', fontWeight: 600, color: MUTED, whiteSpace: 'nowrap', borderBottom: `1px solid ${LINE}` }}>Status</th>
+                      {PREVIEW_COLS.map(c => (
+                        <th key={c} style={{ padding: '8px 12px', textAlign: 'left', fontWeight: 600, color: MUTED, whiteSpace: 'nowrap', borderBottom: `1px solid ${LINE}` }}>{c}</th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {previewRows.map((row, i) => {
+                      const vResult = validation[row['Email']]
+                      const st = STATUS_STYLE[vResult?.status] || null
+                      const isValid = vResult?.status === 'valid'
+                      const isInvalid = vResult?.status === 'invalid'
+                      return (
+                        <tr key={i} style={{ borderBottom: `1px solid ${LINE}`, background: isValid ? 'rgba(22,163,74,0.06)' : isInvalid ? 'rgba(220,38,38,0.06)' : !row['Email'] ? 'rgba(220,38,38,0.04)' : i % 2 === 0 ? '#fff' : 'rgba(0,0,0,0.02)' }}>
+                          <td style={{ padding: '8px 12px', whiteSpace: 'nowrap' }}>
+                            {st ? (
+                              <span style={{ fontSize: 11, fontWeight: 600, padding: '2px 8px', borderRadius: 99, background: st.bg, color: st.color }}>{st.label}{vResult?.score != null ? ` ${vResult.score}` : ''}</span>
+                            ) : (
+                              <span style={{ color: '#ccc', fontSize: 11 }}>—</span>
+                            )}
+                          </td>
+                          {PREVIEW_COLS.map(c => {
+                            const isEnrichedCell = enriched[row['Email']]?.has(c)
+                            return (
+                              <td key={c} style={{ padding: '8px 12px', color: isEnrichedCell ? '#16a34a' : row[c] ? INK : '#ccc', whiteSpace: 'nowrap', fontWeight: isEnrichedCell ? 500 : 400 }}>
+                                {row[c] || '—'}
+                              </td>
+                            )
+                          })}
+                        </tr>
+                      )
+                    })}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Progress bars */}
+              {validating && progress.hunterTotal > 0 && (
+                <ProgressBar label="Hunter.io Validation" done={progress.hunter} total={progress.hunterTotal} color="#f97316" />
+              )}
+              {enriching && progress.perplexityTotal > 0 && (
+                <ProgressBar label="Perplexity Enrichment" done={progress.perplexity} total={progress.perplexityTotal} color="#7c3aed" />
+              )}
+
+              {msg && <div style={{ fontSize: 12, color: msg.ok ? GREEN : '#dc2626' }}>{msg.text}</div>}
+              <div style={{ display: 'flex', gap: 10 }}>
+                {Object.keys(validation).length === 0 && (
+                  <button onClick={runValidation} disabled={validating} style={{
+                    padding: '10px 24px', borderRadius: 10, border: 'none', cursor: 'pointer',
+                    background: '#f97316', color: '#fff', fontSize: 13, fontWeight: 600,
+                    fontFamily: FONT, opacity: validating ? 0.6 : 1,
+                  }}>{validating ? 'Validating…' : '🔍 Run Hunter.io Validation'}</button>
+                )}
+                {Object.keys(validation).length > 0 && Object.keys(enriched).length === 0 && (
+                  <button onClick={runEnrichment} disabled={enriching} style={{
+                    padding: '10px 24px', borderRadius: 10, border: 'none', cursor: 'pointer',
+                    background: '#7c3aed', color: '#fff', fontSize: 13, fontWeight: 600,
+                    fontFamily: FONT, opacity: enriching ? 0.6 : 1,
+                  }}>{enriching ? 'Enriching…' : '✦ Enrich with Perplexity Sonar'}</button>
+                )}
+                {Object.keys(enriched).length > 0 && (
+                  <button onClick={confirmInsert} disabled={saving} style={{
+                    padding: '10px 24px', borderRadius: 10, border: 'none', cursor: 'pointer',
+                    background: GREEN, color: '#fff', fontSize: 13, fontWeight: 600,
+                    fontFamily: FONT, opacity: saving ? 0.6 : 1,
+                  }}>{saving ? 'Adding…' : `Add ${previewRows.filter(r => validation[r['Email']]?.status === 'valid').length} Investors`}</button>
+                )}
+              </div>
+            </>
+          )}
         </div>
       )}
 

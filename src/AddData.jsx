@@ -252,6 +252,7 @@ export default function AddData() {
   // clients list (from Drive)
   const [clients, setClients]             = useState([])
   const [sheets, setSheets]               = useState([])  // sheets from SHEETS_FOLDER
+  const [sheetsOpen, setSheetsOpen]       = useState(false)
   const [clientsLoading, setClientsLoading] = useState(false)
   const [clientsError, setClientsError]   = useState('')
 
@@ -277,13 +278,15 @@ export default function AddData() {
     setConnected(isConnected())
     const interval = setInterval(() => {
       if (window.google) {
-        initTokenClient((token) => setConnected(true))
+        initTokenClient((token) => { setConnected(true); fetchClients() })
         setGoogleReady(true)
         clearInterval(interval)
       }
     }, 200)
     return () => clearInterval(interval)
   }, [])
+
+  useEffect(() => { fetchClients() }, [])
 
   useEffect(() => {
     apiFetch('/api/client-analytics?type=clients')
@@ -535,9 +538,7 @@ export default function AddData() {
         {/* Tabs */}
         <div style={{ display: 'flex', gap: 8, marginBottom: 28 }}>
           {[
-            { id: 'new', label: 'New Client' },
-            { id: 'clients', label: `All Clients${clients.length ? ` (${clients.length})` : ''}` },
-            { id: 'viz', label: 'Data Visualisation' },
+            { id: 'clients', label: `Google Drive Folders${clients.length ? ` (${clients.length})` : ''}` },
             { id: 'supabase', label: 'Supabase', isNew: true },
           ].map(t => (
             <button key={t.id} onClick={() => {
@@ -570,172 +571,6 @@ export default function AddData() {
           ))}
         </div>
 
-        {/* NEW CLIENT TAB */}
-        {tab === 'new' && (
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24, alignItems: 'start' }}>
-
-            {/* Left: form */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-              <Card>
-                <div style={{ fontSize: FS.sh, fontWeight: 700, letterSpacing: '-0.02em', marginBottom: 6, color: INK }}>Client details</div>
-                <div style={{ fontSize: FS.sc, color: MUTED, marginBottom: 22 }}>Enter the client name and the Drive folder name to create.</div>
-                <div style={{ marginBottom: 16 }}>
-                  <FieldLabel>Client Name</FieldLabel>
-                  <TextInput value={clientName} onChange={setClientName} placeholder="e.g. Enlighten Capital" disabled={step !== 'form'} />
-                </div>
-                <div>
-                  <FieldLabel>Drive Folder Name</FieldLabel>
-                  <TextInput value={folderName} onChange={setFolderName} placeholder="e.g. Enlighten Capital – Pitch Docs" disabled={step !== 'form'} />
-                  <div style={{ fontSize: FS.sc, color: MUTED, marginTop: 6 }}>Created inside your root Drive folder</div>
-                </div>
-              </Card>
-
-              {/* Investor Sheet */}
-              <Card>
-                <div style={{ fontSize: FS.sh, fontWeight: 700, letterSpacing: '-0.02em', marginBottom: 6, color: INK }}>Investor Sheet</div>
-                <div style={{ fontSize: FS.sc, color: MUTED, marginBottom: 20 }}>
-                  Upload a CSV — map columns to the template sheet, then create the client sheet in Drive.
-                </div>
-
-                {invStep === 'done' ? (
-                  <div style={{ textAlign: 'center', padding: '16px 0' }}>
-                    <div style={{ width: 48, height: 48, background: T.greenLight, borderRadius: 12, margin: '0 auto 16px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22 }}>✓</div>
-                    <div style={{ fontSize: FS.sh, fontWeight: 600, color: INK, marginBottom: 4 }}>Sheet created!</div>
-                    <div style={{ fontSize: FS.c, color: MUTED, marginBottom: 16 }}>{invCsv?.rows.length} investors added.</div>
-                    <a href={invSheetUrl} target="_blank" rel="noreferrer" style={{ fontSize: FS.c, color: INK, textDecoration: 'none', fontWeight: 500 }}>Open sheet →</a>
-                    <div style={{ marginTop: 16 }}><Btn onClick={resetInvSheet} variant="ghost" small>Create another</Btn></div>
-                  </div>
-                ) : invStep === 'creating' ? (
-                  <div style={{ textAlign: 'center', padding: '32px 0', fontSize: FS.c, color: MUTED }}>Creating sheet…</div>
-                ) : invStep === 'loading' ? (
-                  <div style={{ textAlign: 'center', padding: '32px 0', fontSize: FS.c, color: MUTED }}>Reading template structure…</div>
-                ) : invStep === 'mapping' ? (
-                  <div>
-                    <div style={{ fontSize: FS.sc, color: MUTED, marginBottom: 16, padding: '10px 14px', background: 'rgba(0,0,0,0.04)', boxShadow: NEU_INSET, borderRadius: 10, border: 'none' }}>
-                      CSV loaded — <strong style={{ color: INK }}>{invCsv.rows.length} investors</strong>, {invCsv.headers.length} columns. Map columns below.
-                    </div>
-
-                    <div style={{ marginBottom: 20, padding: '14px 16px', background: 'rgba(0,0,0,0.04)', boxShadow: NEU_INSET, borderRadius: 10, border: 'none' }}>
-                      <FieldLabel>Sheet Name {!invSheetName.trim() && <span style={{ color: RED, fontWeight: 700, textTransform: 'none', letterSpacing: 0 }}>← required to create</span>}</FieldLabel>
-                      <TextInput value={invSheetName} onChange={setInvSheetName} placeholder="e.g. Enlighten Capital – Investors" />
-                    </div>
-
-                    {invHeaders.length > 0 && (
-                      <div style={{ marginBottom: 20 }}>
-                        <div style={{ fontSize: FS.sc, fontWeight: 700, color: MUTED, marginBottom: 10, textTransform: 'uppercase', letterSpacing: '0.06em' }}>
-                          {invTabNames.investors} tab
-                        </div>
-                        <MappingTable templateHeaders={invHeaders} csvHeaders={invCsv.headers} mapping={invMapping} onChange={setInvMapping} />
-                      </div>
-                    )}
-
-                    {invTabNames.tracking && (
-                      <div style={{ fontSize: FS.sc, color: MUTED, marginBottom: 20, padding: '10px 14px', background: 'rgba(0,0,0,0.04)', boxShadow: NEU_INSET, borderRadius: 10, border: 'none' }}>
-                        <strong style={{ color: INK }}>{invTabNames.tracking}</strong> tab will be auto-populated — {invCsv.rows.length} rows with sequential IDs and template initial values.
-                      </div>
-                    )}
-
-                    {invError && <div style={{ fontSize: FS.sc, color: RED, background: 'rgba(220,38,38,0.06)', boxShadow: NEU_INSET, padding: '10px 14px', borderRadius: 10, border: 'none', marginBottom: 12 }}>{invError}</div>}
-
-                    <div style={{ display: 'flex', gap: 10 }}>
-                      <Btn onClick={handleCreateSheet} disabled={!connected || !invSheetName.trim()}>
-                        {!connected ? 'Connect Google first' : 'Create Sheet'}
-                      </Btn>
-                      <Btn onClick={resetInvSheet} variant="ghost">Cancel</Btn>
-                    </div>
-                  </div>
-                ) : (
-                  <div>
-                    {!connected && (
-                      <div style={{ fontSize: FS.sc, color: RED, background: 'rgba(220,38,38,0.06)', boxShadow: NEU_INSET, padding: '10px 14px', borderRadius: 10, border: 'none', marginBottom: 12 }}>Connect Google first to enable sheet creation.</div>
-                    )}
-                    <div onClick={() => connected && csvRef.current?.click()} style={{
-                      border: 'none', borderRadius: 12, padding: '32px 20px',
-                      textAlign: 'center', background: 'rgba(0,0,0,0.04)',
-                      boxShadow: NEU_INSET,
-                      cursor: connected ? 'pointer' : 'not-allowed',
-                    }}>
-                      <div style={{ fontSize: 24, marginBottom: 8 }}>📊</div>
-                      <div style={{ fontSize: FS.c, fontWeight: 600, color: INK, marginBottom: 4 }}>Upload investor CSV</div>
-                      <div style={{ fontSize: FS.sc, color: MUTED }}>Click to browse</div>
-                      <input ref={csvRef} type="file" accept=".csv" style={{ display: 'none' }} onChange={e => e.target.files[0] && handleCsvUpload(e.target.files[0])} />
-                    </div>
-                    {invError && <div style={{ fontSize: FS.sc, color: RED, background: 'rgba(220,38,38,0.06)', boxShadow: NEU_INSET, padding: '10px 14px', borderRadius: 10, border: 'none', marginTop: 12 }}>{invError}</div>}
-                  </div>
-                )}
-              </Card>
-            </div>
-
-            {/* Right: file upload + action */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-              <Card>
-                <div style={{ fontSize: FS.sh, fontWeight: 700, letterSpacing: '-0.02em', marginBottom: 6, color: INK }}>Pitch Documents</div>
-                <div style={{ fontSize: FS.sc, color: MUTED, marginBottom: 20 }}>Upload files to be stored in the client's Drive folder.</div>
-
-                <div
-                  onDragOver={e => { e.preventDefault(); setDragging(true) }}
-                  onDragLeave={() => setDragging(false)}
-                  onDrop={handleDrop}
-                  onClick={() => step === 'form' && fileRef.current?.click()}
-                  style={{
-                    border: 'none', borderRadius: 12, padding: '28px 20px', textAlign: 'center',
-                    background: dragging ? 'rgba(0,0,0,0.06)' : 'rgba(0,0,0,0.04)',
-                    boxShadow: NEU_INSET,
-                    cursor: step === 'form' ? 'pointer' : 'default',
-                    transition: 'background 0.15s',
-                    marginBottom: 16,
-                  }}
-                >
-                  <div style={{ fontSize: 24, marginBottom: 8 }}>📂</div>
-                  <div style={{ fontSize: FS.c, fontWeight: 600, color: INK, marginBottom: 4 }}>Drop files here</div>
-                  <div style={{ fontSize: FS.sc, color: MUTED }}>or click to browse</div>
-                  <input ref={fileRef} type="file" multiple style={{ display: 'none' }} onChange={e => addFiles(e.target.files)} />
-                </div>
-
-                {files.length > 0 && (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginBottom: 16 }}>
-                    {files.map(f => (
-                      <div key={f.name} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '9px 12px', background: NEU_SURF, borderRadius: 10, border: 'none', boxShadow: NEU_BTN }}>
-                        <span style={{ fontSize: FS.c }}>📄</span>
-                        <div style={{ flex: 1, minWidth: 0 }}>
-                          <div style={{ fontSize: FS.sc, fontWeight: 500, color: INK, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{f.name}</div>
-                          {progress[f.name] != null && progress[f.name] < 100 && (
-                            <div style={{ marginTop: 4, height: 2, background: LINE, borderRadius: 2 }}>
-                              <div style={{ height: '100%', width: `${progress[f.name]}%`, background: INK, borderRadius: 2, transition: 'width 0.2s' }} />
-                            </div>
-                          )}
-                          {progress[f.name] === 100 && <div style={{ fontSize: FS.sc, color: GREEN, marginTop: 2 }}>Uploaded</div>}
-                        </div>
-                        <span style={{ fontSize: FS.sc, color: MUTED, flexShrink: 0 }}>{(f.size / 1024).toFixed(0)} KB</span>
-                        {step === 'form' && <button onClick={() => removeFile(f.name)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: MUTED, fontSize: FS.c, padding: 0, lineHeight: 1 }}>×</button>}
-                      </div>
-                    ))}
-                  </div>
-                )}
-
-                {error && <div style={{ fontSize: FS.sc, color: RED, background: 'rgba(220,38,38,0.06)', boxShadow: NEU_INSET, padding: '10px 14px', borderRadius: 10, border: 'none', marginBottom: 12 }}>{error}</div>}
-                {stepLabel[step] && <div style={{ fontSize: FS.sc, color: MUTED, marginBottom: 12, fontWeight: 500 }}>{stepLabel[step]}</div>}
-
-                {step === 'done' ? (
-                  <div style={{ textAlign: 'center', padding: '12px 0' }}>
-                    <div style={{ width: 44, height: 44, background: T.greenLight, borderRadius: 10, margin: '0 auto 14px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20 }}>✓</div>
-                    <div style={{ fontSize: FS.sh, fontWeight: 600, color: INK, marginBottom: 4 }}>Client created!</div>
-                    <div style={{ fontSize: FS.c, color: MUTED, marginBottom: 16 }}>Folder and files are ready in Drive.</div>
-                    <a href={`https://drive.google.com/drive/folders/${folderId}`} target="_blank" rel="noreferrer" style={{ fontSize: FS.c, color: INK, textDecoration: 'none', fontWeight: 500 }}>Open folder →</a>
-                    <div style={{ marginTop: 16, display: 'flex', gap: 10, justifyContent: 'center' }}>
-                      <Btn onClick={() => { reset(); setTab('clients') }} variant="ghost" small>View all clients</Btn>
-                      <Btn onClick={reset} small>Add another</Btn>
-                    </div>
-                  </div>
-                ) : (
-                  <Btn onClick={handleCreateAndUpload} disabled={!connected || !clientName.trim() || !folderName.trim() || step !== 'form'}>
-                    {!connected ? 'Connect Google first' : 'Create Folder & Upload'}
-                  </Btn>
-                )}
-              </Card>
-            </div>
-          </div>
-        )}
 
         {/* ALL CLIENTS TAB */}
         {tab === 'clients' && (
@@ -746,9 +581,76 @@ export default function AddData() {
 
             {clientsError && <div style={{ color: RED, fontSize: FS.sc, background: 'rgba(220,38,38,0.06)', boxShadow: NEU_INSET, padding: '10px 14px', borderRadius: 10, border: 'none' }}>{clientsError}</div>}
 
+            {/* Create folder + upload */}
+            <Card>
+              <div style={{ fontSize: FS.sh, fontWeight: 700, letterSpacing: '-0.02em', marginBottom: 6, color: INK }}>Create Folder & Upload Docs</div>
+              <div style={{ fontSize: FS.sc, color: MUTED, marginBottom: 20 }}>Create a new client folder in Drive and upload pitch documents.</div>
+
+              <div style={{ marginBottom: 16 }}>
+                <FieldLabel>Drive Folder Name</FieldLabel>
+                <TextInput value={folderName} onChange={setFolderName} placeholder="e.g. Enlighten Capital – Pitch Docs" disabled={step !== 'form'} />
+              </div>
+
+              <div
+                onDragOver={e => { e.preventDefault(); setDragging(true) }}
+                onDragLeave={() => setDragging(false)}
+                onDrop={handleDrop}
+                onClick={() => step === 'form' && fileRef.current?.click()}
+                style={{
+                  border: 'none', borderRadius: 12, padding: '24px 20px', textAlign: 'center',
+                  background: dragging ? 'rgba(0,0,0,0.06)' : 'rgba(0,0,0,0.04)',
+                  boxShadow: NEU_INSET, cursor: step === 'form' ? 'pointer' : 'default',
+                  transition: 'background 0.15s', marginBottom: 16,
+                }}
+              >
+                <div style={{ fontSize: 24, marginBottom: 8 }}>📂</div>
+                <div style={{ fontSize: FS.c, fontWeight: 600, color: INK, marginBottom: 4 }}>Drop files here</div>
+                <div style={{ fontSize: FS.sc, color: MUTED }}>or click to browse</div>
+                <input ref={fileRef} type="file" multiple style={{ display: 'none' }} onChange={e => addFiles(e.target.files)} />
+              </div>
+
+              {files.length > 0 && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginBottom: 16 }}>
+                  {files.map(f => (
+                    <div key={f.name} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '9px 12px', background: NEU_SURF, borderRadius: 10, boxShadow: NEU_BTN }}>
+                      <span style={{ fontSize: FS.c }}>📄</span>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ fontSize: FS.sc, fontWeight: 500, color: INK, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{f.name}</div>
+                        {progress[f.name] != null && progress[f.name] < 100 && (
+                          <div style={{ marginTop: 4, height: 2, background: LINE, borderRadius: 2 }}>
+                            <div style={{ height: '100%', width: `${progress[f.name]}%`, background: INK, borderRadius: 2, transition: 'width 0.2s' }} />
+                          </div>
+                        )}
+                        {progress[f.name] === 100 && <div style={{ fontSize: FS.sc, color: GREEN, marginTop: 2 }}>Uploaded</div>}
+                      </div>
+                      <span style={{ fontSize: FS.sc, color: MUTED, flexShrink: 0 }}>{(f.size / 1024).toFixed(0)} KB</span>
+                      {step === 'form' && <button onClick={() => removeFile(f.name)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: MUTED, fontSize: FS.c, padding: 0, lineHeight: 1 }}>×</button>}
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {error && <div style={{ fontSize: FS.sc, color: RED, background: 'rgba(220,38,38,0.06)', boxShadow: NEU_INSET, padding: '10px 14px', borderRadius: 10, marginBottom: 12 }}>{error}</div>}
+              {stepLabel[step] && <div style={{ fontSize: FS.sc, color: MUTED, marginBottom: 12, fontWeight: 500 }}>{stepLabel[step]}</div>}
+
+              {step === 'done' ? (
+                <div style={{ textAlign: 'center', padding: '12px 0' }}>
+                  <div style={{ width: 44, height: 44, background: T.greenLight, borderRadius: 10, margin: '0 auto 14px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20 }}>✓</div>
+                  <div style={{ fontSize: FS.sh, fontWeight: 600, color: INK, marginBottom: 4 }}>Folder created!</div>
+                  <div style={{ fontSize: FS.c, color: MUTED, marginBottom: 16 }}>Folder and files are ready in Drive.</div>
+                  <a href={`https://drive.google.com/drive/folders/${folderId}`} target="_blank" rel="noreferrer" style={{ fontSize: FS.c, color: INK, textDecoration: 'none', fontWeight: 500 }}>Open folder →</a>
+                  <div style={{ marginTop: 16 }}><Btn onClick={reset} small>Add another</Btn></div>
+                </div>
+              ) : (
+                <Btn onClick={handleCreateAndUpload} disabled={!connected || !folderName.trim() || step !== 'form'}>
+                  {!connected ? 'Connect Google first' : 'Create Folder & Upload'}
+                </Btn>
+              )}
+            </Card>
+
             {/* Docs Folders */}
             <Card>
-              <div style={{ fontSize: FS.sh, fontWeight: 700, letterSpacing: '-0.02em', marginBottom: 4, color: INK }}>📁 Docs</div>
+              <div style={{ fontSize: FS.sh, fontWeight: 700, letterSpacing: '-0.02em', marginBottom: 4, color: INK }}>📁 Client Folders with Docs</div>
               <div style={{ fontSize: FS.sc, color: MUTED, marginBottom: 20 }}>Client pitch document folders in Drive.</div>
               {clientsLoading ? (
                 <div style={{ padding: '24px 0', textAlign: 'center', fontSize: FS.c, color: MUTED }}>Loading…</div>
@@ -780,8 +682,17 @@ export default function AddData() {
 
             {/* Investor Sheets */}
             <Card>
-              <div style={{ fontSize: FS.sh, fontWeight: 700, letterSpacing: '-0.02em', marginBottom: 4, color: INK }}>📊 Sheets</div>
-              <div style={{ fontSize: FS.sc, color: MUTED, marginBottom: 20 }}>Investor sheets created for each client.</div>
+              <div
+                onClick={() => setSheetsOpen(o => !o)}
+                style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer', userSelect: 'none' }}
+              >
+                <div>
+                  <div style={{ fontSize: FS.sh, fontWeight: 700, letterSpacing: '-0.02em', color: INK }}>📊 Previous Workflow Sheets</div>
+                  <div style={{ fontSize: FS.sc, color: MUTED, marginTop: 2 }}>Investor sheets created for each client.</div>
+                </div>
+                <span style={{ fontSize: 12, color: MUTED }}>{sheetsOpen ? '▲' : '▼'}</span>
+              </div>
+              {sheetsOpen && <div style={{ marginTop: 20 }}>
               {clientsLoading ? (
                 <div style={{ padding: '24px 0', textAlign: 'center', fontSize: FS.c, color: MUTED }}>Loading…</div>
               ) : sheets.length === 0 ? (
@@ -808,115 +719,11 @@ export default function AddData() {
                   </tbody>
                 </table>
               )}
+              </div>}
             </Card>
           </div>
         )}
         {/* DATA VISUALISATION TAB */}
-        {tab === 'viz' && (() => {
-          const fundStage   = vizData ? countByCol(vizData.rows, vizData.headers, /fund.?stage/i) : []
-          const sectors     = vizData ? countByCol(vizData.rows, vizData.headers, /sector/i) : []
-          const countries   = vizData ? countByCol(vizData.rows, vizData.headers, /country/i) : []
-          const focus       = vizData ? countByCol(vizData.rows, vizData.headers, /fund.?focus/i) : []
-          const uniqueCountries = countries.length
-          const uniqueSectors  = sectors.length
-
-          return (
-            <div>
-              {/* Sheet picker */}
-              <div style={{ display: 'flex', gap: 12, alignItems: 'center', marginBottom: 32 }}>
-                <select
-                  value={vizSheetId}
-                  onChange={e => setVizSheetId(e.target.value)}
-                  style={{ flex: 1, maxWidth: 400, padding: '11px 14px', border: 'none', borderRadius: 10, fontSize: FS.c, fontFamily: FONT, color: vizSheetId ? INK : MUTED, background: NEU_SURF, boxShadow: NEU_BTN, outline: 'none' }}
-                >
-                  <option value="">Select a client sheet…</option>
-                  {sheets.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
-                </select>
-                <Btn onClick={() => loadVizData(vizSheetId)} disabled={!vizSheetId || vizLoading}>
-                  {vizLoading ? 'Loading…' : 'Load'}
-                </Btn>
-              </div>
-
-              {vizError && <div style={{ fontSize: FS.sc, color: RED, background: 'rgba(220,38,38,0.06)', boxShadow: NEU_INSET, padding: '10px 14px', borderRadius: 10, border: 'none', marginBottom: 24 }}>{vizError}</div>}
-
-              {!vizData && !vizLoading && (
-                <div style={{ textAlign: 'center', padding: '64px 0' }}>
-                  <div style={{ fontSize: 40, marginBottom: 16 }}>📊</div>
-                  <div style={{ fontSize: FS.sh, fontWeight: 700, color: INK, marginBottom: 8 }}>Select a sheet to visualise</div>
-                  <div style={{ fontSize: FS.c, color: MUTED }}>Pick a client investor sheet from the dropdown above.</div>
-                </div>
-              )}
-
-              {vizData && (
-                <>
-                  {/* Stat cards */}
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, marginBottom: 28 }}>
-                    <StatCard label="Total Investors" value={vizData.rows.length} />
-                    <StatCard label="Fund Stages" value={fundStage.length} sub="distinct stages" />
-                    <StatCard label="Countries" value={uniqueCountries} sub="represented" />
-                    <StatCard label="Sectors" value={uniqueSectors} sub="tracked" />
-                  </div>
-
-                  {/* Charts row 1 */}
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, marginBottom: 20 }}>
-
-                    {/* Fund stage donut */}
-                    {fundStage.length > 0 && (
-                      <Card>
-                        <div style={{ fontSize: FS.c, fontWeight: 500, color: INK, letterSpacing: '-0.01em', marginBottom: 20 }}>Fund Stage</div>
-                        <div style={{ display: 'flex', gap: 24, alignItems: 'center' }}>
-                          <DonutChart data={fundStage} size={150} label="funds" />
-                          <Legend data={fundStage} />
-                        </div>
-                      </Card>
-                    )}
-
-                    {/* Sector bar */}
-                    {sectors.length > 0 && (
-                      <Card>
-                        <div style={{ fontSize: FS.c, fontWeight: 500, color: INK, letterSpacing: '-0.01em', marginBottom: 20 }}>Sector Focus</div>
-                        <HBarChart data={sectors} accentColor={INK} />
-                      </Card>
-                    )}
-                  </div>
-
-                  {/* Charts row 2 */}
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
-
-                    {/* Country bar */}
-                    {countries.length > 0 && (
-                      <Card>
-                        <div style={{ fontSize: FS.c, fontWeight: 500, color: INK, letterSpacing: '-0.01em', marginBottom: 20 }}>Geography</div>
-                        <HBarChart data={countries} accentColor="#2DB67D" />
-                      </Card>
-                    )}
-
-                    {/* Fund focus donut */}
-                    {focus.length > 0 && (
-                      <Card>
-                        <div style={{ fontSize: FS.c, fontWeight: 500, color: INK, letterSpacing: '-0.01em', marginBottom: 20 }}>Fund Focus</div>
-                        <div style={{ display: 'flex', gap: 24, alignItems: 'center' }}>
-                          <DonutChart data={focus} size={150} label="funds" />
-                          <Legend data={focus} />
-                        </div>
-                      </Card>
-                    )}
-                  </div>
-
-                  {/* Fallback if no recognisable columns */}
-                  {fundStage.length === 0 && sectors.length === 0 && countries.length === 0 && (
-                    <Card>
-                      <div style={{ textAlign: 'center', padding: '32px 0', color: MUTED, fontSize: FS.c }}>
-                        No recognisable categorical columns found (fund stage, sector, country).<br />
-                        <span style={{ fontSize: FS.sc, marginTop: 8, display: 'block' }}>Available columns: {vizData.headers.join(', ')}</span>
-                      </div>
-                    </Card>
-                  )}
-                </>
-              )}
-            </div>
-          )
-        })()}
 
         {/* SUPABASE TAB */}
         {tab === 'supabase' && (
