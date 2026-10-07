@@ -179,6 +179,61 @@ async function actionNextId(req, res) {
   } catch (e) { return res.status(500).json({ error: e.message }) }
 }
 
+// ── timezone ──────────────────────────────────────────────────────────────────
+const TIMEZONE_PROMPT = `You are a timezone inference assistant. Given a JSON array of investors with location info, infer the most likely timezone for each.
+
+Return ONLY a JSON array, no markdown, no explanation:
+[{"index": 0, "timezone_offset": "IST (UTC+5:30)", "timezone_num": 5.5}, ...]
+
+Rules:
+- timezone_offset format: "ABBR (UTC+X:XX)" e.g. "IST (UTC+5:30)", "PST (UTC-8:00)", "EST (UTC-5:00)"
+- timezone_num = decimal offset e.g. 5.5, -8, -5, 8
+- Use country and state to determine timezone; if missing, use location_hint
+- Omit an entry from the array if timezone cannot be determined`
+
+async function actionTimezone(req, res) {
+  const { rows } = req.body || {}
+  if (!Array.isArray(rows) || rows.length === 0) return res.status(400).json({ error: 'rows array required' })
+  const apiKey = process.env.GOOGLE_GEMINI_API_KEY
+  if (!apiKey) return res.status(500).json({ error: 'GOOGLE_GEMINI_API_KEY not configured' })
+
+  function cleanVal(v) {
+    if (!v) return ''
+    const s = String(v).trim()
+    return ['—', '-', 'n/a', 'null', 'none'].includes(s.toLowerCase()) ? '' : s
+  }
+
+  const items = rows.map((row, i) => {
+    const country = cleanVal(row['Company Country'])
+    const state   = cleanVal(row['Company State'])
+    const hint    = cleanVal(row['Description'] || row['Overview'] || row['Keywords'] || row['Company'] || row['Company Address'])
+    return { index: i, country, state, location_hint: hint.slice(0, 200) }
+  })
+
+  try {
+    const r = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent?key=${apiKey}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          system_instruction: { parts: [{ text: TIMEZONE_PROMPT }] },
+          contents: [{ parts: [{ text: JSON.stringify(items) }] }],
+          generationConfig: { temperature: 0.1, maxOutputTokens: 4096 },
+        }),
+      }
+    )
+    if (!r.ok) { const err = await r.json().catch(() => ({})); return res.status(502).json({ error: err?.error?.message || 'Gemini API error' }) }
+    const data = await r.json()
+    const raw = data?.candidates?.[0]?.content?.parts?.[0]?.text || '[]'
+    const clean = raw.replace(/```(?:json)?\n?/g, '').replace(/```/g, '').trim()
+    let results
+    try { results = JSON.parse(clean) } catch { return res.status(500).json({ error: 'Failed to parse Gemini response', raw }) }
+    if (!Array.isArray(results)) return res.status(500).json({ error: 'Unexpected response shape', raw })
+    return res.json({ results })
+  } catch (e) { return res.status(500).json({ error: e.message }) }
+}
+
 // ── router ────────────────────────────────────────────────────────────────────
 export default async function handler(req, res) {
   setCors(res, 'GET, POST, OPTIONS')
@@ -190,5 +245,6 @@ export default async function handler(req, res) {
   if (action === 'validate') return actionValidate(req, res)
   if (action === 'enrich')   return actionEnrich(req, res)
   if (action === 'next-id')  return actionNextId(req, res)
-  return res.status(400).json({ error: 'action required: parse | validate | enrich | next-id' })
+  if (action === 'timezone') return actionTimezone(req, res)
+  return res.status(400).json({ error: 'action required: parse | validate | enrich | next-id | timezone' })
 }

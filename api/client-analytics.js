@@ -61,7 +61,7 @@ export default async function handler(req, res) {
     const schema = req.query.client
     if (!clients.includes(schema)) return res.status(404).json({ error: 'Client not found' })
     try {
-      const [funnelRes, result] = await Promise.all([
+      const [funnelRes, result, convoRes] = await Promise.all([
         db.query(`
           SELECT
             COUNT(*) AS total,
@@ -105,6 +105,14 @@ export default async function handler(req, res) {
         ) cl ON true
         ORDER BY t."followup count" DESC NULLS LAST, i."First Name"
         `),
+        db.query(`
+          SELECT cl.inv_id, cl.direction, cl.timestamp, cl.summary,
+            i."First Name", i."Last Name", i."Company"
+          FROM "${schema}".conversation_log cl
+          LEFT JOIN "${schema}".investors i ON i.investor_id = cl.inv_id
+          ORDER BY cl.timestamp DESC
+          LIMIT 20
+        `),
       ])
       const f = funnelRes.rows[0]
       const funnel = {
@@ -121,7 +129,7 @@ export default async function handler(req, res) {
         f2: parseInt(f.f2) || 0,
         f3: parseInt(f.f3) || 0,
       }
-      return res.status(200).json({ investors: result.rows, funnel })
+      return res.status(200).json({ investors: result.rows, funnel, conversations: convoRes.rows })
     } catch (e) {
       return res.status(500).json({ error: `Detail query failed: ${e.message}` })
     }

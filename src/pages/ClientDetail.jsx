@@ -417,11 +417,13 @@ function Funnel({ data }) {
 export default function ClientDetail() {
   const { client }            = useParams()
   const navigate              = useNavigate()
-  const [rows, setRows]       = useState(null)
-  const [funnel, setFunnel]   = useState(null)
-  const [error, setError]     = useState(null)
-  const [search, setSearch]   = useState('')
-  const [panel, setPanel]     = useState(null)
+  const [rows, setRows]             = useState(null)
+  const [funnel, setFunnel]         = useState(null)
+  const [conversations, setConvos]  = useState([])
+  const [error, setError]           = useState(null)
+  const [search, setSearch]         = useState('')
+  const [statusFilter, setStatus]   = useState('all')
+  const [panel, setPanel]           = useState(null)
 
   const label = client.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())
 
@@ -434,20 +436,42 @@ export default function ClientDetail() {
           const d = JSON.parse(text)
           setRows(d.investors)
           setFunnel(d.funnel)
+          setConvos(d.conversations || [])
         }
         catch { setError(`Parse error: ${text}`) }
       })
       .catch(e => setError(`Fetch error: ${e.message}`))
   }, [client])
 
+  const STATUS_FILTERS = [
+    { id: 'all',               label: 'All' },
+    { id: 'escalated',         label: 'Meeting Requested' },
+    { id: 'interested',        label: 'Interested' },
+    { id: 'mid_convo',         label: 'Has Questions' },
+    { id: 'rejected',          label: 'Passed' },
+    { id: 'contacted',         label: 'Contacted' },
+    { id: 'not_contacted',     label: 'Not Contacted Yet' },
+  ]
+
   const filtered = rows?.filter(r => {
     const q = search.toLowerCase()
-    return (
+    const matchSearch = (
       (r['First Name'] || '').toLowerCase().includes(q) ||
       (r['Last Name']  || '').toLowerCase().includes(q) ||
       (r['Email']      || '').toLowerCase().includes(q) ||
       (r['Company']    || '').toLowerCase().includes(q)
     )
+    const replied = r.reply_timestamp && r.reply_timestamp !== 'N/A' && r.reply_timestamp !== ''
+    const matchStatus =
+      statusFilter === 'all'          ? true :
+      statusFilter === 'escalated'    ? r.escalation :
+      statusFilter === 'interested'   ? (replied && !r.escalation) :
+      statusFilter === 'mid_convo'    ? (r.our_reply_sent_at && r.our_reply_sent_at !== 'N/A') :
+      statusFilter === 'rejected'     ? r.not_interested_outreach :
+      statusFilter === 'contacted'    ? ((r['followup count'] || 0) >= 1 && !replied && !r.escalation && !r.not_interested_outreach) :
+      statusFilter === 'not_contacted'? ((r['followup count'] || 0) === 0) :
+      true
+    return matchSearch && matchStatus
   })
 
   return (
@@ -477,20 +501,39 @@ export default function ClientDetail() {
 
         {funnel && <OutreachStatusCard funnel={funnel} />}
 
-        {/* Search */}
+        {/* Search + Filter bar */}
         {rows && (
-          <input
-            placeholder="Search by name, email, company…"
-            value={search}
-            onChange={e => setSearch(e.target.value)}
-            style={{
-              width: '100%', boxSizing: 'border-box',
-              padding: '10px 16px', borderRadius: 10, border: 'none',
-              background: NEU_SURF, boxShadow: NEU_SHD,
-              fontSize: 14, fontFamily: FONT, color: INK,
-              marginBottom: 20, outline: 'none',
-            }}
-          />
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 20, flexWrap: 'wrap' }}>
+            {/* Search input */}
+            <div style={{ position: 'relative', flexShrink: 0 }}>
+              <span style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', fontSize: 14, color: '#aaa', pointerEvents: 'none' }}>🔍</span>
+              <input
+                placeholder="Search by name, firm or email..."
+                value={search}
+                onChange={e => setSearch(e.target.value)}
+                style={{
+                  padding: '9px 16px 9px 36px', borderRadius: 20,
+                  border: '1px solid rgba(0,0,0,0.12)', background: '#fff',
+                  fontSize: 13, fontFamily: FONT, color: INK,
+                  outline: 'none', width: 260,
+                }}
+              />
+            </div>
+            {/* Filter pills */}
+            {STATUS_FILTERS.map(f => {
+              const active = statusFilter === f.id
+              return (
+                <button key={f.id} onClick={() => setStatus(f.id)} style={{
+                  padding: '7px 16px', borderRadius: 20, cursor: 'pointer', fontFamily: FONT,
+                  fontSize: 13, fontWeight: active ? 600 : 400, whiteSpace: 'nowrap',
+                  border: active ? '2px solid #7c3aed' : '1px solid rgba(0,0,0,0.12)',
+                  background: active ? '#ede9fe' : '#fff',
+                  color: active ? '#7c3aed' : INK,
+                  transition: 'all 0.15s',
+                }}>{f.label}</button>
+              )
+            })}
+          </div>
         )}
 
         {error && (
@@ -616,6 +659,52 @@ export default function ClientDetail() {
           </div>
         )}
       </div>
+
+      {/* Recent Conversations */}
+      {conversations.length > 0 && (
+        <div style={{ maxWidth: 1200, margin: '0 auto 40px', padding: '0 48px' }}>
+          <div style={{ background: NEU_SURF, borderRadius: 16, boxShadow: NEU_SHD, overflow: 'hidden', fontFamily: FONT }}>
+            {/* Card header */}
+            <div style={{ padding: '18px 24px', borderBottom: `1px solid ${LINE}`, display: 'flex', alignItems: 'center', gap: 10 }}>
+              <span style={{ fontSize: 13, fontWeight: 700, color: INK }}>Recent Conversations</span>
+              <span style={{ fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 99, background: 'rgba(0,0,0,0.07)', color: MUTED }}>{conversations.length}</span>
+            </div>
+            {/* Table */}
+            <div style={{ overflowX: 'auto' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
+                <thead>
+                  <tr>
+                    {['Investor', 'Company', 'Direction', 'Summary', 'Time'].map(h => (
+                      <th key={h} style={{ padding: '9px 14px', textAlign: 'left', fontWeight: 600, color: MUTED, fontSize: 11, background: '#efefef', borderBottom: `1px solid ${LINE}`, whiteSpace: 'nowrap' }}>{h}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {conversations.map((c, i) => {
+                    const name = [c['First Name'], c['Last Name']].filter(Boolean).join(' ') || c.inv_id
+                    const isInbound = c.direction?.includes('investor') || c.direction === 'reply'
+                    const dirColor = isInbound ? '#2563eb' : '#16a34a'
+                    const dirBg    = isInbound ? '#dbeafe'  : '#dcfce7'
+                    const dirLabel = c.direction?.replace(/_/g, ' ') || 'unknown'
+                    const ts = c.timestamp ? new Date(c.timestamp).toLocaleString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : ''
+                    return (
+                      <tr key={i} style={{ borderBottom: `1px solid ${LINE}`, background: i % 2 === 0 ? 'transparent' : 'rgba(0,0,0,0.02)' }}>
+                        <td style={{ padding: '9px 14px', fontWeight: 600, color: INK, whiteSpace: 'nowrap' }}>{name}</td>
+                        <td style={{ padding: '9px 14px', color: MUTED, whiteSpace: 'nowrap' }}>{c['Company'] || '—'}</td>
+                        <td style={{ padding: '9px 14px', whiteSpace: 'nowrap' }}>
+                          <span style={{ fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 99, background: dirBg, color: dirColor, textTransform: 'capitalize' }}>{dirLabel}</span>
+                        </td>
+                        <td style={{ padding: '9px 14px', color: INK, lineHeight: 1.5, maxWidth: 500 }}>{c.summary || <span style={{ color: '#ccc' }}>—</span>}</td>
+                        <td style={{ padding: '9px 14px', color: MUTED, whiteSpace: 'nowrap', fontSize: 11 }}>{ts}</td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      )}
 
       {panel && <SentMailPanel investor={panel} onClose={() => setPanel(null)} />}
     </div>

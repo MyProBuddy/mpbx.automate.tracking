@@ -104,13 +104,15 @@ function AddCard({ schema }) {
   const [validation, setValidation] = useState({}) // email -> { status, score, ... }
   const [enriched, setEnriched] = useState({})     // email -> set of filled col keys
   const [enriching, setEnriching] = useState(false)
-  const [progress, setProgress] = useState({ hunter: 0, hunterTotal: 0, perplexity: 0, perplexityTotal: 0 })
+  const [timezoned, setTimezoned] = useState(false)
+  const [timezoning, setTimezoning] = useState(false)
+  const [progress, setProgress] = useState({ hunter: 0, hunterTotal: 0, perplexity: 0, perplexityTotal: 0, timezone: 0, timezoneTotal: 0 })
 
   const [updateText, setUpdateText] = useState('')
 
   async function parseInvestors() {
     if (!rawText.trim()) return setMsg({ ok: false, text: 'Paste some data first.' })
-    setParsing(true); setMsg(null); setPreviewRows(null); setValidation({}); setEnriched({})
+    setParsing(true); setMsg(null); setPreviewRows(null); setValidation({}); setEnriched({}); setTimezoned(false)
     try {
       const r = await apiFetch('/api/investors?action=parse', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
@@ -199,6 +201,48 @@ function AddCard({ schema }) {
     setEnriching(false)
   }
 
+  async function runTimezone() {
+    if (!previewRows?.length) return
+    setTimezoning(true); setMsg(null)
+    const validRows = previewRows.filter(r => validation[r['Email']]?.status === 'valid')
+    setProgress(p => ({ ...p, timezone: 0, timezoneTotal: validRows.length }))
+
+    // Build batch: only valid rows, track their previewRows indices
+    const indices = []
+    const tzRows = []
+    previewRows.forEach((row, i) => {
+      if (validation[row['Email']]?.status === 'valid') {
+        indices.push(i)
+        tzRows.push({ index: tzRows.length, ...row })
+      }
+    })
+
+    try {
+      const r = await apiFetch('/api/investors?action=timezone', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ rows: tzRows }),
+      })
+      const d = await r.json()
+      if (!r.ok) throw new Error(d.error)
+      const updated = [...previewRows]
+      const newEnriched = { ...enriched }
+      for (const item of (d.results || [])) {
+        const previewIdx = indices[item.index]
+        if (previewIdx === undefined) continue
+        const row = updated[previewIdx]
+        updated[previewIdx] = { ...row, timezone_offset: item.timezone_offset, timezone_num: String(item.timezone_num) }
+        if (!newEnriched[row['Email']]) newEnriched[row['Email']] = new Set()
+        newEnriched[row['Email']].add('timezone_offset')
+        newEnriched[row['Email']].add('timezone_num')
+      }
+      setPreviewRows(updated)
+      setEnriched(newEnriched)
+      setProgress(p => ({ ...p, timezone: validRows.length }))
+      setTimezoned(true)
+    } catch(e) { setMsg({ ok: false, text: `Timezone detection failed: ${e.message}` }) }
+    setTimezoning(false)
+  }
+
   async function confirmInsert() {
     if (!previewRows?.length) return
     setSaving(true); setMsg(null)
@@ -221,10 +265,11 @@ function AddCard({ schema }) {
       for (const r of invRows) if (r['Email']) existingEmails.add(r['Email'].toLowerCase())
     } catch { /* proceed without duplicate check */ }
 
-    let ok = 0, fail = 0, dupes = 0
+    let ok = 0, fail = 0, dupes = 0, notz = 0
     for (const row of previewRows) {
       if (!row['Email'] || validation[row['Email']]?.status !== 'valid') { fail++; continue }
       if (existingEmails.has(row['Email'].toLowerCase())) { dupes++; continue }
+      if (!row['timezone_offset']) { notz++; continue }
       const investor_id = `${prefix}_${String(seq).padStart(4, '0')}`
       seq++
       try {
@@ -244,9 +289,10 @@ function AddCard({ schema }) {
     }
     const parts = [`${ok} email${ok !== 1 ? 's' : ''} inserted`]
     if (dupes) parts.push(`${dupes} duplicate${dupes !== 1 ? 's' : ''} skipped`)
+    if (notz) parts.push(`${notz} skipped (no timezone)`)
     if (fail) parts.push(`${fail} failed`)
     setMsg({ ok: fail === 0, text: parts.join(' · ') })
-    if (ok > 0) { setPreviewRows(null); setRawText(''); setValidation({}); setEnriched({}) }
+    if (ok > 0) { setPreviewRows(null); setRawText(''); setValidation({}); setEnriched({}); setTimezoned(false) }
     setSaving(false)
   }
 
@@ -405,6 +451,9 @@ function AddCard({ schema }) {
               {enriching && progress.perplexityTotal > 0 && (
                 <ProgressBar label="Perplexity Enrichment" done={progress.perplexity} total={progress.perplexityTotal} color="#7c3aed" />
               )}
+              {timezoning && progress.timezoneTotal > 0 && (
+                <ProgressBar label="Timezone Detection" done={progress.timezone} total={progress.timezoneTotal} color="#0284c7" />
+              )}
 
               {msg && <div style={{ fontSize: 12, color: msg.ok ? GREEN : '#dc2626' }}>{msg.text}</div>}
               <div style={{ display: 'flex', gap: 10 }}>
@@ -422,12 +471,19 @@ function AddCard({ schema }) {
                     fontFamily: FONT, opacity: enriching ? 0.6 : 1,
                   }}>{enriching ? 'Enriching…' : '✦ Enrich with Perplexity Sonar'}</button>
                 )}
-                {Object.keys(enriched).length > 0 && (
+                {Object.keys(enriched).length > 0 && !timezoned && (
+                  <button onClick={runTimezone} disabled={timezoning} style={{
+                    padding: '10px 24px', borderRadius: 10, border: 'none', cursor: 'pointer',
+                    background: '#0284c7', color: '#fff', fontSize: 13, fontWeight: 600,
+                    fontFamily: FONT, opacity: timezoning ? 0.6 : 1,
+                  }}>{timezoning ? 'Detecting…' : '🌐 Detect Timezones'}</button>
+                )}
+                {timezoned && (
                   <button onClick={confirmInsert} disabled={saving} style={{
                     padding: '10px 24px', borderRadius: 10, border: 'none', cursor: 'pointer',
                     background: GREEN, color: '#fff', fontSize: 13, fontWeight: 600,
                     fontFamily: FONT, opacity: saving ? 0.6 : 1,
-                  }}>{saving ? 'Adding…' : `Add ${previewRows.filter(r => validation[r['Email']]?.status === 'valid').length} Investors`}</button>
+                  }}>{saving ? 'Adding…' : `Add ${previewRows.filter(r => validation[r['Email']]?.status === 'valid' && r['timezone_offset']).length} Investors`}</button>
                 )}
               </div>
             </>
