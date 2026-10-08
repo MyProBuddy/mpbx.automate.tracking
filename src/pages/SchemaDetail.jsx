@@ -360,7 +360,7 @@ function AddCard({ schema }) {
               {/* File upload */}
               <div>
                 <div style={{ fontSize: 13, color: MUTED, marginBottom: 8 }}>
-                  Or load from a file <span style={{ color: '#3b82f6' }}>(CSV or TXT)</span>
+                  Or load from a file <span style={{ color: '#3b82f6' }}>(Excel, CSV or TXT)</span>
                 </div>
                 <label style={{
                   display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
@@ -369,13 +369,23 @@ function AddCard({ schema }) {
                 }}>
                   <span style={{ fontSize: 24 }}>📂</span>
                   <span style={{ fontSize: 13, color: MUTED }}>Select a file</span>
-                  <input type="file" accept=".csv,.txt,.tsv" style={{ display: 'none' }}
-                    onChange={e => {
+                  <input type="file" accept=".xlsx,.xls,.csv,.txt,.tsv" style={{ display: 'none' }}
+                    onChange={async e => {
                       const file = e.target.files[0]
                       if (!file) return
-                      const reader = new FileReader()
-                      reader.onload = ev => setRawText(t => (t ? t + '\n' : '') + ev.target.result)
-                      reader.readAsText(file)
+                      const isExcel = file.name.endsWith('.xlsx') || file.name.endsWith('.xls')
+                      if (isExcel) {
+                        const buf = await file.arrayBuffer()
+                        const XLSX = await import('xlsx')
+                        const wb = XLSX.read(buf)
+                        const ws = wb.Sheets[wb.SheetNames[0]]
+                        const tsv = XLSX.utils.sheet_to_csv(ws, { FS: '\t' })
+                        setRawText(t => (t ? t + '\n' : '') + tsv)
+                      } else {
+                        const reader = new FileReader()
+                        reader.onload = ev => setRawText(t => (t ? t + '\n' : '') + ev.target.result)
+                        reader.readAsText(file)
+                      }
                     }}
                   />
                 </label>
