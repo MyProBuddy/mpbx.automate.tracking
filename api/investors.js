@@ -206,6 +206,71 @@ async function actionNextId(req, res) {
   } catch (e) { return res.status(500).json({ error: e.message }) }
 }
 
+// ── bulk-insert ───────────────────────────────────────────────────────────────
+async function actionBulkInsert(req, res) {
+  const { schema, rows } = req.body || {}
+  if (!schema) return res.status(400).json({ error: 'schema required' })
+  if (!Array.isArray(rows) || rows.length === 0) return res.status(400).json({ error: 'rows array required' })
+
+  const db = getPool()
+
+  // Fetch existing emails in one query
+  let existingEmails = new Set()
+  try {
+    const r = await db.query(`SELECT "Email" FROM "${schema}".investors WHERE "Email" IS NOT NULL AND "Email" != ''`)
+    for (const row of r.rows) existingEmails.add(row['Email'].toLowerCase())
+  } catch (e) { return res.status(500).json({ error: `Failed to fetch existing emails: ${e.message}` }) }
+
+  // Get next sequence number in one query
+  const prefix = schema.split('_').map(w => w[0]?.toUpperCase()).filter(Boolean).join('')
+  let seq = 1
+  try {
+    const r = await db.query(`SELECT investor_id FROM "${schema}".investors WHERE investor_id LIKE $1`, [`${prefix}\\_%`])
+    let max = 0
+    for (const row of r.rows) {
+      const num = parseInt(row.investor_id.split('_').pop(), 10)
+      if (!isNaN(num) && num > max) max = num
+    }
+    seq = max + 1
+  } catch { /* use seq=1 */ }
+
+  let inserted = 0, dupes = 0, notz = 0, failed = 0
+  const client = await db.connect()
+  try {
+    await client.query('BEGIN')
+    for (const row of rows) {
+      const email = row['Email']?.trim()
+      if (!email) { failed++; continue }
+      if (existingEmails.has(email.toLowerCase())) { dupes++; continue }
+      if (!row['timezone_offset']) { notz++; continue }
+
+      const investor_id = `${prefix}_${String(seq).padStart(4, '0')}`
+      seq++
+
+      // Build investor insert
+      const invRow = { investor_id, ...row }
+      const invCols = Object.keys(invRow).filter(k => invRow[k] !== '' && invRow[k] !== null && invRow[k] !== undefined)
+      const invColsSql = invCols.map(c => `"${c}"`).join(', ')
+      const invValsSql = invCols.map((_, i) => `$${i + 1}`).join(', ')
+      await client.query(`INSERT INTO "${schema}".investors (${invColsSql}) VALUES (${invValsSql})`, invCols.map(c => invRow[c]))
+
+      // Insert tracking row
+      await client.query(`INSERT INTO "${schema}".tracking (inv_id) VALUES ($1)`, [investor_id])
+
+      existingEmails.add(email.toLowerCase())
+      inserted++
+    }
+    await client.query('COMMIT')
+  } catch (e) {
+    await client.query('ROLLBACK')
+    return res.status(500).json({ error: `Insert failed: ${e.message}` })
+  } finally {
+    client.release()
+  }
+
+  return res.json({ inserted, dupes, notz, failed })
+}
+
 // ── timezone ──────────────────────────────────────────────────────────────────
 const TIMEZONE_PROMPT = `You are a timezone inference assistant. Given a JSON array of investors with location info, infer the most likely timezone for each.
 
@@ -272,6 +337,7 @@ export default async function handler(req, res) {
   if (action === 'validate') return actionValidate(req, res)
   if (action === 'enrich')   return actionEnrich(req, res)
   if (action === 'next-id')  return actionNextId(req, res)
-  if (action === 'timezone') return actionTimezone(req, res)
-  return res.status(400).json({ error: 'action required: parse | validate | enrich | next-id | timezone' })
+  if (action === 'timezone')     return actionTimezone(req, res)
+  if (action === 'bulk-insert')  return actionBulkInsert(req, res)
+  return res.status(400).json({ error: 'action required: parse | validate | enrich | next-id | timezone | bulk-insert' })
 }

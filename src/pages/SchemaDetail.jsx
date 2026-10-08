@@ -247,52 +247,22 @@ function AddCard({ schema }) {
     if (!previewRows?.length) return
     setSaving(true); setMsg(null)
 
-    // fetch prefix + next sequence number from DB
-    let prefix = schema.split('_').map(w => w[0]?.toUpperCase()).filter(Boolean).join('')
-    let seq = 1
+    // Only send valid rows to the API — it handles dedup, sequencing, and both inserts in one transaction
+    const validRows = previewRows.filter(r => validation[r['Email']]?.status === 'valid')
     try {
-      const sr = await apiFetch(`/api/investors?action=next-id&schema=${encodeURIComponent(schema)}`)
-      const sd = await sr.json()
-      if (sr.ok) { prefix = sd.prefix; seq = sd.next }
-    } catch { /* use defaults */ }
-
-    // fetch existing emails to check for duplicates
-    let existingEmails = new Set()
-    try {
-      const er = await apiFetch(`/api/schema-tables?schema=${encodeURIComponent(schema)}`)
-      const ed = await er.json()
-      const invRows = ed?.investors?.rows || []
-      for (const r of invRows) if (r['Email']) existingEmails.add(r['Email'].toLowerCase())
-    } catch { /* proceed without duplicate check */ }
-
-    let ok = 0, fail = 0, dupes = 0, notz = 0
-    for (const row of previewRows) {
-      if (!row['Email'] || validation[row['Email']]?.status !== 'valid') { fail++; continue }
-      if (existingEmails.has(row['Email'].toLowerCase())) { dupes++; continue }
-      if (!row['timezone_offset']) { notz++; continue }
-      const investor_id = `${prefix}_${String(seq).padStart(4, '0')}`
-      seq++
-      try {
-        const r = await apiFetch('/api/schema-add-row', {
-          method: 'POST', headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ schema, table: 'investors', row: { investor_id, ...row } }),
-        })
-        const d = await r.json()
-        if (!r.ok) throw new Error(d.error)
-        await apiFetch('/api/schema-add-row', {
-          method: 'POST', headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ schema, table: 'tracking', row: { inv_id: investor_id } }),
-        })
-        ok++
-        existingEmails.add(row['Email'].toLowerCase())
-      } catch { fail++ }
-    }
-    const parts = [`${ok} email${ok !== 1 ? 's' : ''} inserted`]
-    if (dupes) parts.push(`${dupes} duplicate${dupes !== 1 ? 's' : ''} skipped`)
-    if (notz) parts.push(`${notz} skipped (no timezone)`)
-    if (fail) parts.push(`${fail} failed`)
-    setMsg({ ok: fail === 0, text: parts.join(' · ') })
-    if (ok > 0) { setPreviewRows(null); setRawText(''); setValidation({}); setEnriched({}); setTimezoned(false) }
+      const r = await apiFetch('/api/investors?action=bulk-insert', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ schema, rows: validRows }),
+      })
+      const d = await r.json()
+      if (!r.ok) throw new Error(d.error)
+      const parts = [`${d.inserted} investor${d.inserted !== 1 ? 's' : ''} inserted`]
+      if (d.dupes)   parts.push(`${d.dupes} duplicate${d.dupes !== 1 ? 's' : ''} skipped`)
+      if (d.notz)    parts.push(`${d.notz} skipped (no timezone)`)
+      if (d.failed)  parts.push(`${d.failed} failed`)
+      setMsg({ ok: true, text: parts.join(' · ') })
+      if (d.inserted > 0) { setPreviewRows(null); setRawText(''); setValidation({}); setEnriched({}); setTimezoned(false) }
+    } catch(e) { setMsg({ ok: false, text: e.message }) }
     setSaving(false)
   }
 
