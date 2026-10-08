@@ -42,41 +42,68 @@ Rules:
 Example output:
 [{"First Name":"Raghav","Last Name":"Mahajan","Email":"rmahajan@asiaalt.com","Company":"Asia Alternatives","Title":"","Company Country":"California","Company State":"","Person Linkedin Url":"","Website":"","Keywords":"","Fund focus":"","Fund stage":"","Check Size":"","Overview":"","Description":""}]`
 
+const PARSE_CHUNK_SIZE = 25
+
+async function geminiParseChunk(text, apiKey) {
+  const r = await fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent?key=${apiKey}`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        system_instruction: { parts: [{ text: PARSE_PROMPT }] },
+        contents: [{ parts: [{ text }] }],
+        generationConfig: { temperature: 0.1, maxOutputTokens: 8192 },
+      }),
+    }
+  )
+  if (!r.ok) { const err = await r.json().catch(() => ({})); throw new Error(err?.error?.message || `Gemini error ${r.status}`) }
+  const data = await r.json()
+  const raw = data?.candidates?.[0]?.content?.parts?.[0]?.text || '[]'
+  const clean = raw.replace(/```(?:json)?\n?/g, '').replace(/```/g, '').trim()
+  try {
+    const rows = JSON.parse(clean)
+    return Array.isArray(rows) ? rows : []
+  } catch { return [] }
+}
+
 async function actionParse(req, res) {
-  const { text, model } = req.body || {}
+  const { text } = req.body || {}
   if (!text?.trim()) return res.status(400).json({ error: 'text is required' })
   const apiKey = process.env.GOOGLE_GEMINI_API_KEY
   if (!apiKey) return res.status(500).json({ error: 'GOOGLE_GEMINI_API_KEY not configured' })
-  const geminiModel = model || 'gemini-3.1-flash-lite'
+
+  // Split text into lines, chunk by PARSE_CHUNK_SIZE rows, keep header on each chunk
+  const lines = text.trim().split('\n')
+  const header = lines[0]
+  const dataLines = lines.slice(1).filter(l => l.trim())
+
+  const sleep = (ms) => new Promise(r => setTimeout(r, ms))
+  const allRows = []
   try {
-    const r = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/${geminiModel}:generateContent?key=${apiKey}`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          system_instruction: { parts: [{ text: PARSE_PROMPT }] },
-          contents: [{ parts: [{ text }] }],
-          generationConfig: { temperature: 0.1, maxOutputTokens: 8192 },
-        }),
-      }
-    )
-    if (!r.ok) { const err = await r.json().catch(() => ({})); return res.status(502).json({ error: err?.error?.message || 'Gemini API error' }) }
-    const data = await r.json()
-    const raw = data?.candidates?.[0]?.content?.parts?.[0]?.text || '[]'
-    const clean = raw.replace(/```(?:json)?\n?/g, '').replace(/```/g, '').trim()
-    let rows
-    try { rows = JSON.parse(clean) } catch { return res.status(500).json({ error: 'Failed to parse Gemini response', raw }) }
-    if (!Array.isArray(rows)) return res.status(500).json({ error: 'Unexpected response shape', raw })
-    for (const row of rows) {
-      if (!row['Last Name'] && row['First Name']?.includes(' ')) {
-        const parts = row['First Name'].trim().split(' ')
-        row['First Name'] = parts[0]
-        row['Last Name'] = parts.slice(1).join(' ')
+    if (dataLines.length <= PARSE_CHUNK_SIZE) {
+      // Small enough — single call
+      const rows = await geminiParseChunk(text, apiKey)
+      allRows.push(...rows)
+    } else {
+      // Chunk it
+      for (let i = 0; i < dataLines.length; i += PARSE_CHUNK_SIZE) {
+        const chunk = [header, ...dataLines.slice(i, i + PARSE_CHUNK_SIZE)].join('\n')
+        const rows = await geminiParseChunk(chunk, apiKey)
+        allRows.push(...rows)
+        if (i + PARSE_CHUNK_SIZE < dataLines.length) await sleep(300)
       }
     }
-    return res.json({ rows })
   } catch (e) { return res.status(500).json({ error: e.message }) }
+
+  for (const row of allRows) {
+    if (!row['Last Name'] && row['First Name']?.includes(' ')) {
+      const parts = row['First Name'].trim().split(' ')
+      row['First Name'] = parts[0]
+      row['Last Name'] = parts.slice(1).join(' ')
+    }
+  }
+  return res.json({ rows: allRows })
 }
 
 // ── validate ──────────────────────────────────────────────────────────────────
