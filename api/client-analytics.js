@@ -158,8 +158,19 @@ export default async function handler(req, res) {
         const cnt = parseInt(r[`f${i}`]) || 0
         if (cnt > 0) followups[i] = cnt
       }
+      let status = 'Live'
+      try {
+        const conf = await db.query(`SELECT status FROM "${schema}".config LIMIT 1`)
+        if (conf.rows.length > 0 && conf.rows[0].status) {
+          status = conf.rows[0].status
+        }
+      } catch (err) {
+        // column may not exist yet
+      }
+
       stats.push({
         client: schema,
+        status,
         total_investors: parseInt(r.total_investors) || 0,
         contacted:  parseInt(r.contacted)  || 0,
         replied:    parseInt(r.replied)    || 0,
