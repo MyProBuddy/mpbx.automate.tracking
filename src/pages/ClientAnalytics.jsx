@@ -31,20 +31,6 @@ function ClientCard({ data }) {
   const replyRate = data.contacted > 0 ? ((data.replied / data.contacted) * 100).toFixed(1) : '0.0'
   const label     = data.client.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())
 
-  const handleToggleStatus = async (e) => {
-    e.stopPropagation()
-    const newStatus = data.status === 'Live' ? 'Paused' : 'Live'
-    const res = await apiFetch('/api/client-status', {
-      method: 'POST',
-      body: JSON.stringify({ client: data.client, status: newStatus })
-    })
-    if (res.ok) {
-      if (window.updateClientStatus) window.updateClientStatus(data.client, newStatus)
-    } else {
-      alert('Failed to update status')
-    }
-  }
-
   return (
     <div onClick={() => navigate(`/client-analytics/${data.client}`)} style={{
       background: NEU_SURF, borderRadius: 16, padding: 28,
@@ -78,18 +64,6 @@ function ClientCard({ data }) {
           }}>
             {replyRate}% reply rate
           </div>
-          <button 
-            onClick={handleToggleStatus}
-            style={{
-              background: data.status === 'Live' ? `linear-gradient(135deg, ${SUPA_GREEN}, #1a9e6a)` : '#e5e7eb',
-              color: data.status === 'Live' ? '#fff' : '#6b7280',
-              border: 'none',
-              borderRadius: 10, padding: '6px 14px',
-              fontSize: FS.sc, fontWeight: 700, cursor: 'pointer',
-              textTransform: 'uppercase'
-            }}>
-            {data.status || 'Live'}
-          </button>
         </div>
       </div>
 
@@ -164,15 +138,6 @@ export default function ClientAnalytics() {
   const navigate            = useNavigate()
   const [stats, setStats]   = useState(null)
   const [error, setError]   = useState(null)
-  const [filterMode, setFilterMode] = useState('live') // 'live' or 'all'
-
-  // Expose an updater for children to update their local state after toggle
-  useEffect(() => {
-    window.updateClientStatus = (client, newStatus) => {
-      setStats(prev => prev.map(c => c.client === client ? { ...c, status: newStatus } : c))
-    }
-    return () => { delete window.updateClientStatus }
-  }, [])
 
   useEffect(() => {
     apiFetch('/api/client-analytics')
@@ -197,47 +162,18 @@ export default function ClientAnalytics() {
       <Nav title="Client Analytics" backTo="/hub" />
       <div style={{ maxWidth: 1100, margin: '0 auto', padding: '40px 48px 80px' }}>
 
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
-            <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
-                <div style={{ fontSize: FS.sc, fontWeight: 600, color: SUPA_GREEN }}>SUPABASE</div>
-                <div style={{
-                  background: `linear-gradient(135deg, ${SUPA_GREEN}, #1a9e6a)`,
-                  color: '#fff', fontSize: 10, fontWeight: 700,
-                  letterSpacing: '0.08em', padding: '2px 8px', borderRadius: 99,
-                }}>NEW</div>
-              </div>
-              <div style={{ fontSize: FS.h, fontWeight: 700, color: INK, letterSpacing: '-0.3px', marginBottom: 6 }}>Client Analytics</div>
-              <div style={{ fontSize: FS.c, color: MUTED }}>Live outreach stats per client from the Supabase tracking database.</div>
-            </div>
-            
-            {stats && (
-              <div style={{ display: 'flex', gap: 8, background: '#e5e7eb', padding: 4, borderRadius: 12 }}>
-                <button 
-                  onClick={() => setFilterMode('live')}
-                  style={{
-                    padding: '8px 16px', borderRadius: 8, border: 'none',
-                    fontSize: FS.sc, fontWeight: 600, cursor: 'pointer',
-                    background: filterMode === 'live' ? '#fff' : 'transparent',
-                    color: filterMode === 'live' ? INK : MUTED,
-                    boxShadow: filterMode === 'live' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
-                  }}>
-                  Live Clients
-                </button>
-                <button 
-                  onClick={() => setFilterMode('all')}
-                  style={{
-                    padding: '8px 16px', borderRadius: 8, border: 'none',
-                    fontSize: FS.sc, fontWeight: 600, cursor: 'pointer',
-                    background: filterMode === 'all' ? '#fff' : 'transparent',
-                    color: filterMode === 'all' ? INK : MUTED,
-                    boxShadow: filterMode === 'all' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
-                  }}>
-                  All Clients
-                </button>
-              </div>
-            )}
+        <div style={{ marginBottom: 36 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
+            <div style={{ fontSize: FS.sc, fontWeight: 600, color: SUPA_GREEN }}>SUPABASE</div>
+            <div style={{
+              background: `linear-gradient(135deg, ${SUPA_GREEN}, #1a9e6a)`,
+              color: '#fff', fontSize: 10, fontWeight: 700,
+              letterSpacing: '0.08em', padding: '2px 8px', borderRadius: 99,
+            }}>NEW</div>
           </div>
+          <div style={{ fontSize: FS.h, fontWeight: 700, color: INK, letterSpacing: '-0.3px', marginBottom: 6 }}>Client Analytics</div>
+          <div style={{ fontSize: FS.c, color: MUTED }}>Live outreach stats per client from the Supabase tracking database.</div>
+        </div>
 
         {error && (
           <div style={{ background: T.redLight, color: T.red, borderRadius: 10, padding: '12px 20px', marginBottom: 24, fontSize: FS.c }}>
@@ -251,11 +187,9 @@ export default function ClientAnalytics() {
 
         {stats && (
           <>
-            <SummaryBar stats={stats.filter(c => filterMode === 'all' || c.status === 'Live')} />
+            <SummaryBar stats={stats} />
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 24 }}>
-              {stats
-                .filter(c => filterMode === 'all' || c.status === 'Live')
-                .map(c => <ClientCard key={c.client} data={c} />)}
+              {stats.map(c => <ClientCard key={c.client} data={c} />)}
             </div>
           </>
         )}
